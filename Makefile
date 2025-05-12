@@ -1,7 +1,7 @@
 run:
-	go run main.go
+	go run .
 
 build:
-	go build main.go
+	go build
 
 .DEFAULT_GOAL: run
