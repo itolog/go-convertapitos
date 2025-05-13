@@ -1,1 +1,21 @@
-main
+# Env 
+.env
+.env.development
+.env.production
+.env.*.local
+
+# compiled output
+bin
+
+# IDE - VSCode
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+.idea
+
+# temp directory
+.temp
+.tmp
+tmp
