@@ -12,7 +12,7 @@ func main() {
 	conf := config.NewConfig()
 
 	app := fiber.New(fiber.Config{
-		Prefork: false,
+		Prefork: true,
 	})
 
 	app.Get("/", func(c *fiber.Ctx) error {
