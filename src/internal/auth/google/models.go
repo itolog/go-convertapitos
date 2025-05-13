@@ -1,4 +1,6 @@
-package auth
+package google
+
+import "github.com/gofiber/fiber/v2/middleware/session"
 
 type GoogleResponse struct {
 	ID         string `json:"id"`
@@ -9,3 +11,6 @@ type GoogleResponse struct {
 	FamilyName string `json:"family_name"`
 	Picture    string `json:"picture"`
 }
+
+// SessionStore app wide session store
+var SessionStore *session.Store
