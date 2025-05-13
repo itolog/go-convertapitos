@@ -45,3 +45,7 @@ func NewConfig() *Config {
 		Prefix: prefix,
 	}
 }
+
+func GetConfigEnv(key string) string {
+	return os.Getenv(key)
+}
