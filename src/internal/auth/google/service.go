@@ -6,8 +6,10 @@ import (
 	"fmt"
 	"github.com/gofiber/fiber/v2"
 	"github.com/itolog/go-convertapitos/src/configs"
+	"github.com/itolog/go-convertapitos/src/pkg/api"
 	"golang.org/x/oauth2"
 	"io"
+	"time"
 )
 
 const userUrl = "https://www.googleapis.com/oauth2/v1/userinfo"
@@ -21,14 +23,17 @@ func (handler *HandlerGoogleAuth) login(c *fiber.Ctx) error {
 
 func (handler *HandlerGoogleAuth) callback(c *fiber.Ctx) error {
 	code := c.FormValue("code")
-	session, err := SessionStore.Get(c)
-	if err != nil {
-		panic(err)
-	}
 
 	token, err := configs.ConfigGoogle().Exchange(c.Context(), code)
 	if err != nil {
-		return err
+		return c.Status(fiber.StatusUnauthorized).JSON(api.Response[any]{
+			Error: &api.ErrorResponse{
+				Message: "Unauthorized",
+				Details: err.Error(),
+				Code:    fiber.StatusUnauthorized,
+			},
+			Status: api.StatusError,
+		})
 	}
 
 	user, err := handler.getUser(token)
@@ -38,16 +43,34 @@ func (handler *HandlerGoogleAuth) callback(c *fiber.Ctx) error {
 
 	jsonBytes, err := json.Marshal(&user)
 	if err != nil {
-		panic(err)
+		return c.Status(fiber.StatusUnauthorized).JSON(api.Response[any]{
+			Error: &api.ErrorResponse{
+				Message: "Data encoding error",
+				Details: err.Error(),
+				Code:    fiber.StatusInternalServerError,
+			},
+			Status: api.StatusError,
+		})
 	}
 
-	session.Set("user", string(jsonBytes))
-	err = session.Save()
+	err = handler.setCookie(c, CookiePayload{
+		Token:     "user",
+		Value:     jsonBytes,
+		KeyLookup: "cookie:user_session",
+		Expires:   time.Duration(token.ExpiresIn),
+	})
 	if err != nil {
-		return err
+		return c.Status(fiber.StatusUnauthorized).JSON(api.Response[any]{
+			Error: &api.ErrorResponse{
+				Message: "Data encoding error",
+				Details: err.Error(),
+				Code:    fiber.StatusInternalServerError,
+			},
+			Status: api.StatusError,
+		})
 	}
 
-	return c.Redirect("/auth/google/profile")
+	return c.Redirect("/")
 }
 
 func (handler *HandlerGoogleAuth) getUser(token *oauth2.Token) (ResponseGoogle, error) {

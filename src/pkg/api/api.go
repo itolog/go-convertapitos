@@ -10,10 +10,10 @@ const (
 )
 
 type ErrorResponse struct {
-	Code    uint16                   `json:"code"`
+	Code    uint16                   `json:"code,omitempty"`
 	Message string                   `json:"message"`
-	Details string                   `json:"details"`
-	Fields  []validation.ErrorFields `json:"fields"`
+	Details string                   `json:"details,omitempty"`
+	Fields  []validation.ErrorFields `json:"fields,omitempty"`
 }
 
 type Response[T any] struct {

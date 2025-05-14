@@ -7,9 +7,7 @@ import (
 	"github.com/goccy/go-json"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/monitor"
-	"github.com/gofiber/fiber/v2/middleware/session"
 	"github.com/itolog/go-convertapitos/src/internal/auth"
-	googleAuth "github.com/itolog/go-convertapitos/src/internal/auth/google"
 )
 
 func main() {
@@ -19,18 +17,6 @@ func main() {
 		Prefork:     true,
 		JSONEncoder: json.Marshal,
 		JSONDecoder: json.Unmarshal,
-	})
-
-	var sameSite string = "lax"
-	if configs.IsDev() {
-		sameSite = "none"
-	}
-
-	googleAuth.SessionStore = session.New(session.Config{
-		CookieHTTPOnly: true,
-		CookieSecure:   !configs.IsDev(),
-		CookieDomain:   conf.Auth.CookieDomain,
-		CookieSameSite: sameSite,
 	})
 
 	app.Get("/", func(c *fiber.Ctx) error {
