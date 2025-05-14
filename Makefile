@@ -4,6 +4,10 @@ BINARY=convertapitos
 run:
 	APP_ENV="development" go run ./src/cmd
 
+run-gcf:
+	go run -gcflags '-m -l' ./src/cmd
+
+
 watch:
 	APP_ENV="development" air	
 

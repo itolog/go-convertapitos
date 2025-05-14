@@ -4,9 +4,10 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
-func Routes(app *fiber.App) {
-	api := app.Group("/")
-	api.Get("/auth/google", GoogleAuth)
-	api.Get("/auth/google/callback", GoogleAuthCallback)
-	api.Get("/auth/google/profile", GoogleProfile)
+func Router(router fiber.Router) {
+	handlers := newAuthGoogleHandler()
+
+	router.Get("/google", handlers.auth)
+	router.Get("/google/callback", handlers.callback)
+	router.Get("/google/profile", handlers.profile)
 }

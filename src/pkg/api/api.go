@@ -8,12 +8,12 @@ const (
 )
 
 type ErrorResponse struct {
-	Code    int    `json:"code,omitempty"`
+	Code    uint16 `json:"code,omitempty"`
 	Message string `json:"message,omitempty"`
 	Details string `json:"details,omitempty"`
 }
 
-type ApiResponse struct {
+type DataResponse struct {
 	Data   any           `json:"data"`
 	Error  ErrorResponse `json:"error"`
 	Status StatusType    `json:"status,omitempty"`
