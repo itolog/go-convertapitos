@@ -13,8 +13,8 @@ type ErrorResponse struct {
 	Details string `json:"details,omitempty"`
 }
 
-type DataResponse struct {
-	Data   any           `json:"data"`
-	Error  ErrorResponse `json:"error"`
+type Response[T any] struct {
+	Data   T             `json:"data"`
+	Error  ErrorResponse `json:"error,omitempty"`
 	Status StatusType    `json:"status,omitempty"`
 }

@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"github.com/itolog/go-convertapitos/src/configs"
 
 	"github.com/goccy/go-json"
 	"github.com/gofiber/fiber/v2"
@@ -9,11 +10,10 @@ import (
 	"github.com/gofiber/fiber/v2/middleware/session"
 	"github.com/itolog/go-convertapitos/src/internal/auth"
 	googleAuth "github.com/itolog/go-convertapitos/src/internal/auth/google"
-	"github.com/itolog/go-convertapitos/src/pkg/config"
 )
 
 func main() {
-	conf := config.NewConfig()
+	conf := configs.NewConfig()
 
 	app := fiber.New(fiber.Config{
 		Prefork:     true,
@@ -22,14 +22,14 @@ func main() {
 	})
 
 	var sameSite string = "lax"
-	if config.IsDev() {
+	if configs.IsDev() {
 		sameSite = "none"
 	}
 
 	googleAuth.SessionStore = session.New(session.Config{
 		CookieHTTPOnly: true,
-		CookieSecure:   !config.IsDev(),
-		CookieDomain:   conf.CookieDomain,
+		CookieSecure:   !configs.IsDev(),
+		CookieDomain:   conf.Auth.CookieDomain,
 		CookieSameSite: sameSite,
 	})
 
@@ -39,7 +39,7 @@ func main() {
 
 	app.Get("/metrics", monitor.New(monitor.Config{Title: "MyService Metrics Page"}))
 
-	auth.Router(app)
+	auth.NewHandler(app, auth.HandlerDeps{Config: conf})
 
 	err := app.Listen(":" + conf.Port)
 
