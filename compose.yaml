@@ -1,0 +1,49 @@
+name: go-convertapitos
+
+services:
+#  server:
+#    container_name: server_dev
+#    build:
+#      context: .
+#      dockerfile: Dockerfile
+#    environment:
+#      NODE_ENV: development
+#    ports:
+#      - "${PORT}:${PORT}"
+#    env_file:
+#      - .env.development
+#    volumes:
+#      - .:/usr/src/app
+#    depends_on:
+#      postgres:
+#        condition: service_healthy
+#    networks:
+#      - app-network
+#    command: ["/bin/convertapitos"]
+  postgres:
+    image: postgres:latest
+    container_name: postgres_go_dev
+    environment:
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_DB: ${POSTGRES_DB}
+      PG_DATA: /data/postgres
+    env_file:
+      - .env.development
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./postgres-data:/data/postgres
+    networks:
+      - app-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+
+networks:
+  app-network:
+    driver: bridge

@@ -15,9 +15,11 @@ import (
 const userUrl = "https://www.googleapis.com/oauth2/v1/userinfo"
 
 func (handler *HandlerGoogleAuth) login(c *fiber.Ctx) error {
+	//from := c.Query("from")
 	path := configs.ConfigGoogle()
 	url := path.AuthCodeURL("state")
-
+	//fmt.Println("from", from)
+	//fmt.Println(url)
 	return c.Redirect(url)
 }
 
