@@ -12,7 +12,7 @@ func (handler *HandlerJwtAuth) login(c *fiber.Ctx) error {
 	if err != nil {
 		return err
 	}
-	validateError, valid := req.ValidateBody[LoginRequest](payload)
+	validateError, valid := req.ValidateBody(payload)
 	if !valid {
 		return c.Status(fiber.StatusBadRequest).JSON(api.Response[any]{
 			Error:  validateError,
@@ -29,9 +29,21 @@ func (handler *HandlerJwtAuth) login(c *fiber.Ctx) error {
 }
 
 func (handler *HandlerJwtAuth) register(c *fiber.Ctx) error {
-	return c.Status(fiber.StatusCreated).JSON(api.Response[LoginResponse]{
-		Data: LoginResponse{
-			AccessToken: "token",
+	payload, err := req.DecodeBody[RegisterRequest](c)
+	if err != nil {
+		return err
+	}
+	validateError, valid := req.ValidateBody(payload)
+	if !valid {
+		return c.Status(fiber.StatusBadRequest).JSON(api.Response[any]{
+			Error:  validateError,
+			Status: api.StatusError,
+		})
+	}
+
+	return c.Status(fiber.StatusCreated).JSON(api.Response[RegisterResponse]{
+		Data: RegisterResponse{
+			AccessToken: "reg",
 		},
 		Status: api.StatusSuccess,
 	})
