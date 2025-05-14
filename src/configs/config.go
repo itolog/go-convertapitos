@@ -18,8 +18,7 @@ type Config struct {
 }
 
 const (
-	DEV  = "development"
-	PROD = "production"
+	DEV = "development"
 )
 
 func init() {
@@ -40,11 +39,6 @@ func NewConfig() *Config {
 func IsDev() bool {
 	appEnv := GetConfigEnv("APP_ENV")
 	return appEnv == DEV
-}
-
-func IsProd() bool {
-	appEnv := GetConfigEnv("APP_ENV")
-	return appEnv == PROD
 }
 
 func loadEnv() {
