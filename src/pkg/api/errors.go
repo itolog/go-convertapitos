@@ -3,5 +3,5 @@ package api
 // Auth Errors
 const (
 	ErrUserAlreadyExist = "user already exists"
-	ErrWrongCredentials = "Wrong email or password"
+	ErrWrongCredentials = "wrong email or password"
 )
