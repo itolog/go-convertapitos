@@ -3,31 +3,30 @@ package user
 import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/itolog/go-convertapitos/src/configs"
-	"github.com/itolog/go-convertapitos/src/pkg/db"
 )
 
 type HandlerDeps struct {
 	*configs.Config
-	Database *db.Db
+	UserServices *Service
 }
 
 type Handler struct {
 	*configs.Config
-	repository *Repository
+	UserServices *Service
 }
 
 func NewHandler(app *fiber.App, deps HandlerDeps) {
-	repository := NewRepository(deps.Database)
 	router := app.Group("/user")
 
 	handler := Handler{
-		Config:     deps.Config,
-		repository: repository,
+		Config:       deps.Config,
+		UserServices: deps.UserServices,
 	}
 
-	router.Get("/", handler.findAll)
-	router.Get("/:id", handler.findById)
-	router.Post("/", handler.create)
-	router.Patch("/:id", handler.update)
-	router.Delete("/:id", handler.delete)
+	router.Get("/", handler.UserServices.findAll)
+	router.Get("/:id", handler.UserServices.findById)
+	router.Get("/by_email/:email", handler.UserServices.findByEmail)
+	router.Post("/", handler.UserServices.create)
+	router.Patch("/:id", handler.UserServices.update)
+	router.Delete("/:id", handler.UserServices.delete)
 }

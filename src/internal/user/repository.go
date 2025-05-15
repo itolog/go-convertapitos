@@ -15,7 +15,7 @@ func NewRepository(database *db.Db) *Repository {
 	}
 }
 
-func (repo *Repository) findAll() ([]User, error) {
+func (repo *Repository) FindAll() ([]User, error) {
 	var users []User
 	res := repo.Database.DB.Find(&users)
 
@@ -26,7 +26,7 @@ func (repo *Repository) findAll() ([]User, error) {
 	return users, nil
 }
 
-func (repo *Repository) findById(id string) (*User, error) {
+func (repo *Repository) FindById(id string) (*User, error) {
 	user := new(User)
 	res := repo.Database.DB.First(user, "id = ?", id)
 
@@ -37,7 +37,18 @@ func (repo *Repository) findById(id string) (*User, error) {
 	return user, nil
 }
 
-func (repo *Repository) create(user *User) (*User, error) {
+func (repo *Repository) FindByEmail(email string) (*User, error) {
+	user := new(User)
+	res := repo.Database.DB.First(user, "email = ?", email)
+
+	if res.Error != nil {
+		return nil, res.Error
+	}
+
+	return user, nil
+}
+
+func (repo *Repository) Create(user *User) (*User, error) {
 	res := repo.Database.DB.Create(user)
 
 	if res.Error != nil {
@@ -47,7 +58,7 @@ func (repo *Repository) create(user *User) (*User, error) {
 	return user, nil
 }
 
-func (repo *Repository) update(user *User) (*User, error) {
+func (repo *Repository) Update(user *User) (*User, error) {
 	res := repo.Database.DB.Clauses(clause.Returning{}).Updates(user).Omit("password")
 
 	if res.Error != nil {
@@ -57,7 +68,7 @@ func (repo *Repository) update(user *User) (*User, error) {
 	return user, nil
 }
 
-func (repo *Repository) delete(id string) error {
+func (repo *Repository) Delete(id string) error {
 	res := repo.Database.DB.Where("id = ?", id).Delete(&User{})
 	if res.Error != nil {
 		return res.Error

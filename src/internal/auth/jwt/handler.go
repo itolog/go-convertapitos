@@ -2,22 +2,22 @@ package jwt
 
 import (
 	"github.com/gofiber/fiber/v2"
-	"github.com/itolog/go-convertapitos/src/configs"
 )
 
 type HandlerDeps struct {
-	*configs.Config
+	JwtService *Service
 }
 
 type Handler struct {
-	*configs.Config
+	JwtService *Service
 }
 
 func NewHandler(router fiber.Router, deps HandlerDeps) {
 	handler := Handler{
-		Config: deps.Config,
+
+		JwtService: deps.JwtService,
 	}
 
-	router.Post("/login", handler.login)
-	router.Post("/register", handler.register)
+	router.Post("/login", handler.JwtService.login)
+	router.Post("/register", handler.JwtService.register)
 }

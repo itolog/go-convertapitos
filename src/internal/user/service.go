@@ -9,8 +9,18 @@ import (
 	"github.com/itolog/go-convertapitos/src/pkg/req"
 )
 
-func (handler *Handler) findAll(c *fiber.Ctx) error {
-	users, err := handler.repository.findAll()
+type Service struct {
+	UserRepository *Repository
+}
+
+func NewService(repository *Repository) *Service {
+	return &Service{
+		UserRepository: repository,
+	}
+}
+
+func (service *Service) findAll(c *fiber.Ctx) error {
+	users, err := service.UserRepository.FindAll()
 	if err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(api.Response{
 			Error: &api.ErrorResponse{
@@ -26,10 +36,10 @@ func (handler *Handler) findAll(c *fiber.Ctx) error {
 	})
 }
 
-func (handler *Handler) findById(c *fiber.Ctx) error {
+func (service *Service) findById(c *fiber.Ctx) error {
 	id := c.Params("id")
 
-	user, err := handler.repository.findById(id)
+	user, err := service.UserRepository.FindById(id)
 	if err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(api.Response{
 			Error: &api.ErrorResponse{
@@ -45,7 +55,26 @@ func (handler *Handler) findById(c *fiber.Ctx) error {
 	})
 }
 
-func (handler *Handler) create(c *fiber.Ctx) error {
+func (service *Service) findByEmail(c *fiber.Ctx) error {
+	email := c.Params("email")
+
+	user, err := service.UserRepository.FindByEmail(email)
+	if err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(api.Response{
+			Error: &api.ErrorResponse{
+				Message: err.Error(),
+			},
+			Status: api.StatusError,
+		})
+	}
+
+	return c.Status(fiber.StatusOK).JSON(api.Response{
+		Data:   user,
+		Status: api.StatusSuccess,
+	})
+}
+
+func (service *Service) create(c *fiber.Ctx) error {
 	payload, err := req.DecodeBody[CreateRequest](c)
 	if err != nil {
 		return err
@@ -66,7 +95,7 @@ func (handler *Handler) create(c *fiber.Ctx) error {
 		Password:      payload.Password,
 	}
 
-	created, err := handler.repository.create(&user)
+	created, err := service.UserRepository.Create(&user)
 	if err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(api.Response{
 			Error: &api.ErrorResponse{
@@ -82,7 +111,7 @@ func (handler *Handler) create(c *fiber.Ctx) error {
 	})
 }
 
-func (handler *Handler) update(c *fiber.Ctx) error {
+func (service *Service) update(c *fiber.Ctx) error {
 	id := c.Params("id")
 
 	payload, err := req.DecodeBody[UpdateRequest](c)
@@ -103,7 +132,7 @@ func (handler *Handler) update(c *fiber.Ctx) error {
 		return err
 	}
 
-	updated, err := handler.repository.update(&User{
+	updated, err := service.UserRepository.Update(&User{
 		Model:         db.Model{ID: uid},
 		Name:          payload.Name,
 		Email:         payload.Email,
@@ -127,10 +156,10 @@ func (handler *Handler) update(c *fiber.Ctx) error {
 	})
 }
 
-func (handler *Handler) delete(c *fiber.Ctx) error {
+func (service *Service) delete(c *fiber.Ctx) error {
 	id := c.Params("id")
 
-	_, err := handler.repository.findById(id)
+	_, err := service.UserRepository.FindById(id)
 	if err != nil {
 		return c.Status(fiber.StatusNotFound).JSON(api.Response{
 			Error: &api.ErrorResponse{
@@ -140,7 +169,7 @@ func (handler *Handler) delete(c *fiber.Ctx) error {
 		})
 	}
 
-	err = handler.repository.delete(id)
+	err = service.UserRepository.Delete(id)
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(api.Response{
 			Error: &api.ErrorResponse{
