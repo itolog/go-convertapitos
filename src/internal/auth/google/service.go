@@ -15,16 +15,16 @@ import (
 const userUrl = "https://www.googleapis.com/oauth2/v1/userinfo"
 
 func (handler *Handler) login(c *fiber.Ctx) error {
-	//from := c.Query("from")
+	from := c.Query("from", "/")
 	path := configs.ConfigGoogle()
-	url := path.AuthCodeURL("state")
-	//fmt.Println("from", from)
-	//fmt.Println(url)
+	url := path.AuthCodeURL(from)
+
 	return c.Redirect(url)
 }
 
 func (handler *Handler) callback(c *fiber.Ctx) error {
 	code := c.FormValue("code")
+	from := c.Query("state")
 
 	token, err := configs.ConfigGoogle().Exchange(c.Context(), code)
 	if err != nil {
@@ -72,7 +72,7 @@ func (handler *Handler) callback(c *fiber.Ctx) error {
 		})
 	}
 
-	return c.Redirect("/")
+	return c.Redirect(from)
 }
 
 func (handler *Handler) getUser(token *oauth2.Token) (ResponseGoogle, error) {
