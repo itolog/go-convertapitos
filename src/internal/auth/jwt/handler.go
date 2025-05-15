@@ -9,12 +9,12 @@ type HandlerDeps struct {
 	*configs.Config
 }
 
-type HandlerJwtAuth struct {
+type Handler struct {
 	*configs.Config
 }
 
-func NewJWTAuthHandler(router fiber.Router, deps HandlerDeps) {
-	handler := HandlerJwtAuth{
+func NewHandler(router fiber.Router, deps HandlerDeps) {
+	handler := Handler{
 		Config: deps.Config,
 	}
 

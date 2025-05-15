@@ -14,10 +14,10 @@ type HandlerDeps struct {
 func NewHandler(app *fiber.App, deps HandlerDeps) {
 	router := app.Group("/auth")
 
-	jwt.NewJWTAuthHandler(router, jwt.HandlerDeps{
+	jwt.NewHandler(router, jwt.HandlerDeps{
 		Config: deps.Config,
 	})
-	google.NewGoogleAuthHandler(router, google.HandlerDeps{
+	google.NewHandler(router, google.HandlerDeps{
 		Config: deps.Config,
 	})
 

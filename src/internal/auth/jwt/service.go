@@ -7,7 +7,7 @@ import (
 	"github.com/itolog/go-convertapitos/src/pkg/api"
 )
 
-func (handler *HandlerJwtAuth) login(c *fiber.Ctx) error {
+func (handler *Handler) login(c *fiber.Ctx) error {
 	payload, err := req.DecodeBody[LoginRequest](c)
 	if err != nil {
 		return err
@@ -28,7 +28,7 @@ func (handler *HandlerJwtAuth) login(c *fiber.Ctx) error {
 	})
 }
 
-func (handler *HandlerJwtAuth) register(c *fiber.Ctx) error {
+func (handler *Handler) register(c *fiber.Ctx) error {
 	payload, err := req.DecodeBody[RegisterRequest](c)
 	if err != nil {
 		return err

@@ -14,7 +14,7 @@ import (
 
 const userUrl = "https://www.googleapis.com/oauth2/v1/userinfo"
 
-func (handler *HandlerGoogleAuth) login(c *fiber.Ctx) error {
+func (handler *Handler) login(c *fiber.Ctx) error {
 	//from := c.Query("from")
 	path := configs.ConfigGoogle()
 	url := path.AuthCodeURL("state")
@@ -23,7 +23,7 @@ func (handler *HandlerGoogleAuth) login(c *fiber.Ctx) error {
 	return c.Redirect(url)
 }
 
-func (handler *HandlerGoogleAuth) callback(c *fiber.Ctx) error {
+func (handler *Handler) callback(c *fiber.Ctx) error {
 	code := c.FormValue("code")
 
 	token, err := configs.ConfigGoogle().Exchange(c.Context(), code)
@@ -75,7 +75,7 @@ func (handler *HandlerGoogleAuth) callback(c *fiber.Ctx) error {
 	return c.Redirect("/")
 }
 
-func (handler *HandlerGoogleAuth) getUser(token *oauth2.Token) (ResponseGoogle, error) {
+func (handler *Handler) getUser(token *oauth2.Token) (ResponseGoogle, error) {
 	client := configs.ConfigGoogle().Client(context.Background(), token)
 
 	response, err := client.Get(userUrl)

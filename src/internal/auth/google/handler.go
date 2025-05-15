@@ -4,6 +4,7 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/session"
 	"github.com/itolog/go-convertapitos/src/configs"
+	"github.com/itolog/go-convertapitos/src/pkg/environments"
 	"time"
 )
 
@@ -11,27 +12,27 @@ type HandlerDeps struct {
 	*configs.Config
 }
 
-type HandlerGoogleAuth struct {
+type Handler struct {
 	*configs.Config
 	SessionStore *session.Store
 }
 
-func NewGoogleAuthHandler(router fiber.Router, deps HandlerDeps) {
-	sameSite := "lax"
-	if configs.IsDev() {
-		sameSite = "none"
-	}
+func NewHandler(router fiber.Router, deps HandlerDeps) {
+	//sameSite := "lax"
+	//if environments.IsDev() {
+	//	sameSite = "none"
+	//}
+	//
+	//sessionStore := session.New(session.Config{
+	//	CookieHTTPOnly: true,
+	//	CookieSecure:   !environments.IsDev(),
+	//	CookieDomain:   deps.Auth.CookieDomain,
+	//	CookieSameSite: sameSite,
+	//})
 
-	sessionStore := session.New(session.Config{
-		CookieHTTPOnly: true,
-		CookieSecure:   !configs.IsDev(),
-		CookieDomain:   deps.Auth.CookieDomain,
-		CookieSameSite: sameSite,
-	})
-
-	handler := HandlerGoogleAuth{
-		Config:       deps.Config,
-		SessionStore: sessionStore,
+	handler := Handler{
+		Config: deps.Config,
+		//SessionStore: sessionStore,
 	}
 
 	router.Get("/google", handler.login)
@@ -45,15 +46,15 @@ type CookiePayload struct {
 	KeyLookup string        `json:"key_lookup"`
 }
 
-func (handler *HandlerGoogleAuth) setCookie(c *fiber.Ctx, payload CookiePayload) error {
+func (handler *Handler) setCookie(c *fiber.Ctx, payload CookiePayload) error {
 	sameSite := "lax"
-	if configs.IsDev() {
+	if environments.IsDev() {
 		sameSite = "none"
 	}
 
 	sessionStore := session.New(session.Config{
 		CookieHTTPOnly: true,
-		CookieSecure:   !configs.IsDev(),
+		CookieSecure:   !environments.IsDev(),
 		CookieDomain:   handler.Auth.CookieDomain,
 		Expiration:     payload.Expires,
 		CookieSameSite: sameSite,

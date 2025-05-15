@@ -1,9 +1,7 @@
 package configs
 
 import (
-	"github.com/gofiber/fiber/v2/log"
-	"github.com/joho/godotenv"
-	"os"
+	"github.com/itolog/go-convertapitos/src/pkg/environments"
 )
 
 type AuthConfig struct {
@@ -11,56 +9,31 @@ type AuthConfig struct {
 	CookieDomain string `env:"COOKIE_DOMAIN" env-default:"localhost"`
 }
 
+type DbConfig struct {
+	Dsn string
+}
+
 type Config struct {
 	Port   string `env:"PORT" env-default:"3000"`
 	Prefix string `env:"PREFIX" env-default:"api"`
 	Auth   AuthConfig
+	Db     DbConfig
 }
 
-const (
-	DEV = "development"
-)
-
 func init() {
-	loadEnv()
+	environments.LoadEnv()
 }
 
 func NewConfig() *Config {
 	return &Config{
-		Port:   GetConfigEnv("PORT"),
-		Prefix: GetConfigEnv("PREFIX"),
+		Port:   environments.GetEnv("PORT"),
+		Prefix: environments.GetEnv("PREFIX"),
 		Auth: AuthConfig{
-			JwtSecret:    GetConfigEnv("JWT_SECRET"),
-			CookieDomain: GetConfigEnv("COOKIE_DOMAIN"),
+			JwtSecret:    environments.GetEnv("JWT_SECRET"),
+			CookieDomain: environments.GetEnv("COOKIE_DOMAIN"),
+		},
+		Db: DbConfig{
+			Dsn: environments.GetEnv("DB_DSN"),
 		},
 	}
-}
-
-func IsDev() bool {
-	appEnv := GetConfigEnv("APP_ENV")
-	return appEnv == DEV
-}
-
-func loadEnv() {
-	appEnv := GetConfigEnv("APP_ENV")
-
-	if appEnv == "" {
-		panic("Error loading APP_ENV")
-	}
-
-	if IsDev() {
-		err := godotenv.Load(".env.development")
-		if err != nil {
-			log.Error(err)
-		}
-	} else {
-		err := godotenv.Load(".env")
-		if err != nil {
-			log.Error(err)
-		}
-	}
-}
-
-func GetConfigEnv(key string) string {
-	return os.Getenv(key)
 }

@@ -1,0 +1,24 @@
+package main
+
+import (
+	"github.com/itolog/go-convertapitos/src/internal/user"
+	"github.com/itolog/go-convertapitos/src/pkg/environments"
+	"gorm.io/driver/postgres"
+	"gorm.io/gorm"
+)
+
+func init() {
+	environments.LoadEnv()
+}
+
+func main() {
+	db, err := gorm.Open(postgres.Open(environments.GetEnv("DB_DSN")), &gorm.Config{})
+	if err != nil {
+		panic(err)
+	}
+
+	err = db.AutoMigrate(&user.User{})
+	if err != nil {
+		panic(err)
+	}
+}
