@@ -26,4 +26,8 @@ func NewHandler(app *fiber.App, deps HandlerDeps) {
 	}
 
 	router.Get("/", handler.findAll)
+	router.Get("/:id", handler.findById)
+	router.Post("/", handler.create)
+	router.Patch("/:id", handler.update)
+	router.Delete("/:id", handler.delete)
 }

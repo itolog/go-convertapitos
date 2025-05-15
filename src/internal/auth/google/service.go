@@ -28,7 +28,7 @@ func (handler *Handler) callback(c *fiber.Ctx) error {
 
 	token, err := configs.ConfigGoogle().Exchange(c.Context(), code)
 	if err != nil {
-		return c.Status(fiber.StatusUnauthorized).JSON(api.Response[any]{
+		return c.Status(fiber.StatusUnauthorized).JSON(api.Response{
 			Error: &api.ErrorResponse{
 				Message: "Unauthorized",
 				Details: err.Error(),
@@ -45,7 +45,7 @@ func (handler *Handler) callback(c *fiber.Ctx) error {
 
 	jsonBytes, err := json.Marshal(&user)
 	if err != nil {
-		return c.Status(fiber.StatusUnauthorized).JSON(api.Response[any]{
+		return c.Status(fiber.StatusUnauthorized).JSON(api.Response{
 			Error: &api.ErrorResponse{
 				Message: "Data encoding error",
 				Details: err.Error(),
@@ -62,7 +62,7 @@ func (handler *Handler) callback(c *fiber.Ctx) error {
 		Expires:   time.Duration(token.ExpiresIn),
 	})
 	if err != nil {
-		return c.Status(fiber.StatusUnauthorized).JSON(api.Response[any]{
+		return c.Status(fiber.StatusUnauthorized).JSON(api.Response{
 			Error: &api.ErrorResponse{
 				Message: "Data encoding error",
 				Details: err.Error(),

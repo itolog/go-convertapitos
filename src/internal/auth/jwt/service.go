@@ -14,13 +14,13 @@ func (handler *Handler) login(c *fiber.Ctx) error {
 	}
 	validateError, valid := req.ValidateBody(payload)
 	if !valid {
-		return c.Status(fiber.StatusBadRequest).JSON(api.Response[any]{
+		return c.Status(fiber.StatusBadRequest).JSON(api.Response{
 			Error:  validateError,
 			Status: api.StatusError,
 		})
 	}
 
-	return c.Status(fiber.StatusOK).JSON(api.Response[LoginResponse]{
+	return c.Status(fiber.StatusOK).JSON(api.Response{
 		Data: LoginResponse{
 			AccessToken: "token",
 		},
@@ -35,13 +35,13 @@ func (handler *Handler) register(c *fiber.Ctx) error {
 	}
 	validateError, valid := req.ValidateBody(payload)
 	if !valid {
-		return c.Status(fiber.StatusBadRequest).JSON(api.Response[any]{
+		return c.Status(fiber.StatusBadRequest).JSON(api.Response{
 			Error:  validateError,
 			Status: api.StatusError,
 		})
 	}
 
-	return c.Status(fiber.StatusCreated).JSON(api.Response[RegisterResponse]{
+	return c.Status(fiber.StatusCreated).JSON(api.Response{
 		Data: RegisterResponse{
 			AccessToken: "reg",
 		},

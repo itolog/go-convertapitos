@@ -16,8 +16,8 @@ type ErrorResponse struct {
 	Fields  []validation.ErrorFields `json:"fields,omitempty"`
 }
 
-type Response[T any] struct {
-	Data   T              `json:"data,omitempty"`
+type Response struct {
+	Data   any            `json:"data,omitempty"`
 	Error  *ErrorResponse `json:"error,omitempty"`
 	Status StatusType     `json:"status"`
 }
