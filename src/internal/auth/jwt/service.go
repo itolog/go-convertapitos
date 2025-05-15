@@ -1,11 +1,14 @@
 package jwt
 
 import (
+	"fmt"
 	"github.com/gofiber/fiber/v2"
 	"github.com/itolog/go-convertapitos/src/configs"
 	"github.com/itolog/go-convertapitos/src/internal/user"
+	"github.com/itolog/go-convertapitos/src/pkg/jwt"
 	"github.com/itolog/go-convertapitos/src/pkg/req"
 	"golang.org/x/crypto/bcrypt"
+	"time"
 
 	"github.com/itolog/go-convertapitos/src/pkg/api"
 )
@@ -107,9 +110,29 @@ func (service *Service) register(c *fiber.Ctx) error {
 			Status: api.StatusError,
 		})
 	}
+
+	jwtService := jwt.NewJWT(service.Auth.JwtSecret)
+	accessToken, err := jwtService.Create(payload.Email, 2*time.Minute)
+	if err != nil {
+		return err
+	}
+
+	refreshToken, err := jwtService.Create(payload.Email, 7*24*time.Hour)
+	if err != nil {
+		return err
+	}
+
+	fmt.Println(refreshToken)
+
 	created.Password = ""
 	return c.Status(fiber.StatusCreated).JSON(api.Response{
-		Data:   created,
+		Data: AuthResponse{
+			AccessToken: accessToken,
+			User: &user.User{
+				Name:  created.Name,
+				Email: created.Email,
+			},
+		},
 		Status: api.StatusSuccess,
 	})
 }
