@@ -5,6 +5,7 @@ import (
 	"github.com/itolog/go-convertapitos/src/configs"
 	"github.com/itolog/go-convertapitos/src/internal/user"
 	"github.com/itolog/go-convertapitos/src/pkg/req"
+	"golang.org/x/crypto/bcrypt"
 
 	"github.com/itolog/go-convertapitos/src/pkg/api"
 )
@@ -38,10 +39,29 @@ func (service *Service) login(c *fiber.Ctx) error {
 		})
 	}
 
+	existedUser, _ := service.UserRepository.FindByEmail(payload.Email)
+	if existedUser == nil {
+		return c.Status(fiber.StatusBadRequest).JSON(api.Response{
+			Error: &api.ErrorResponse{
+				Message: api.ErrWrongCredentials,
+			},
+			Status: api.StatusError,
+		})
+	}
+
+	err = bcrypt.CompareHashAndPassword([]byte(existedUser.Password), []byte(payload.Password))
+	if err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(api.Response{
+			Error: &api.ErrorResponse{
+				Message: api.ErrWrongCredentials,
+			},
+			Status: api.StatusError,
+		})
+	}
+	existedUser.Password = ""
+
 	return c.Status(fiber.StatusOK).JSON(api.Response{
-		Data: LoginResponse{
-			AccessToken: "token",
-		},
+		Data:   existedUser,
 		Status: api.StatusSuccess,
 	})
 }
@@ -59,10 +79,37 @@ func (service *Service) register(c *fiber.Ctx) error {
 		})
 	}
 
+	existedUser, _ := service.UserRepository.FindByEmail(payload.Email)
+	if existedUser != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(api.Response{
+			Error: &api.ErrorResponse{
+				Message: api.ErrUserAlreadyExist,
+			},
+			Status: api.StatusError,
+		})
+	}
+
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(payload.Password), bcrypt.DefaultCost)
+	if err != nil {
+		return err
+	}
+
+	created, err := service.UserRepository.Create(&user.User{
+		Name:     payload.Name,
+		Email:    payload.Email,
+		Password: string(hashedPassword),
+	})
+	if err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(api.Response{
+			Error: &api.ErrorResponse{
+				Message: err.Error(),
+			},
+			Status: api.StatusError,
+		})
+	}
+	created.Password = ""
 	return c.Status(fiber.StatusCreated).JSON(api.Response{
-		Data: RegisterResponse{
-			AccessToken: "reg",
-		},
+		Data:   created,
 		Status: api.StatusSuccess,
 	})
 }

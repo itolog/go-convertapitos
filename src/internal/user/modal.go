@@ -9,6 +9,6 @@ type User struct {
 	Name          string `json:"name"`
 	Email         string `json:"email" gorm:"uniqueIndex"`
 	VerifiedEmail bool   `json:"verified_email"`
-	Password      string `json:"password"`
+	Password      string `json:"password,omitempty"`
 	Picture       string `json:"picture"`
 }
