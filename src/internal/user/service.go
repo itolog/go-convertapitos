@@ -1,12 +1,9 @@
 package user
 
 import (
-	"fmt"
 	"github.com/gofiber/fiber/v2"
 	"github.com/google/uuid"
-	"github.com/itolog/go-convertapitos/src/pkg/api"
 	"github.com/itolog/go-convertapitos/src/pkg/db"
-	"github.com/itolog/go-convertapitos/src/pkg/req"
 )
 
 type Service struct {
@@ -19,117 +16,48 @@ func NewService(repository *Repository) *Service {
 	}
 }
 
-func (service *Service) findAll(c *fiber.Ctx) error {
+func (service *Service) findAll() ([]User, error) {
 	users, err := service.UserRepository.FindAll()
 	if err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(api.Response{
-			Error: &api.ErrorResponse{
-				Message: err.Error(),
-			},
-			Status: api.StatusError,
-		})
+		return nil, fiber.NewError(fiber.StatusBadRequest, err.Error())
+
 	}
 
-	return c.Status(fiber.StatusOK).JSON(api.Response{
-		Data:   users,
-		Status: api.StatusSuccess,
-	})
+	return users, nil
 }
 
-func (service *Service) findById(c *fiber.Ctx) error {
-	id := c.Params("id")
-
+func (service *Service) findById(id string) (*User, error) {
 	user, err := service.UserRepository.FindById(id)
 	if err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(api.Response{
-			Error: &api.ErrorResponse{
-				Message: err.Error(),
-			},
-			Status: api.StatusError,
-		})
+		return nil, fiber.NewError(fiber.StatusBadRequest, err.Error())
 	}
 
-	return c.Status(fiber.StatusOK).JSON(api.Response{
-		Data:   user,
-		Status: api.StatusSuccess,
-	})
+	return user, nil
 }
 
-func (service *Service) findByEmail(c *fiber.Ctx) error {
-	email := c.Params("email")
-
+func (service *Service) findByEmail(email string) (*User, error) {
 	user, err := service.UserRepository.FindByEmail(email)
 	if err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(api.Response{
-			Error: &api.ErrorResponse{
-				Message: err.Error(),
-			},
-			Status: api.StatusError,
-		})
+		return nil, fiber.NewError(fiber.StatusBadRequest, err.Error())
 	}
 
-	return c.Status(fiber.StatusOK).JSON(api.Response{
-		Data:   user,
-		Status: api.StatusSuccess,
-	})
+	return user, nil
 }
 
-func (service *Service) create(c *fiber.Ctx) error {
-	payload, err := req.DecodeBody[CreateRequest](c)
-	if err != nil {
-		return err
-	}
-	validateError, valid := req.ValidateBody(payload)
-	if !valid {
-		return c.Status(fiber.StatusBadRequest).JSON(api.Response{
-			Error:  validateError,
-			Status: api.StatusError,
-		})
-	}
-
-	user := User{
-		Name:          payload.Name,
-		Email:         payload.Email,
-		VerifiedEmail: payload.VerifiedEmail,
-		Picture:       payload.Picture,
-		Password:      payload.Password,
-	}
-
+func (service *Service) create(user User) (*User, error) {
 	created, err := service.UserRepository.Create(&user)
 	if err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(api.Response{
-			Error: &api.ErrorResponse{
-				Message: err.Error(),
-			},
-			Status: api.StatusError,
-		})
+		return nil, fiber.NewError(fiber.StatusBadRequest, err.Error())
+
 	}
 
-	return c.Status(fiber.StatusCreated).JSON(api.Response{
-		Data:   created,
-		Status: api.StatusSuccess,
-	})
+	return created, nil
 }
 
-func (service *Service) update(c *fiber.Ctx) error {
-	id := c.Params("id")
-
-	payload, err := req.DecodeBody[UpdateRequest](c)
-	if err != nil {
-		return err
-	}
-
-	validateError, valid := req.ValidateBody(payload)
-	if !valid {
-		return c.Status(fiber.StatusBadRequest).JSON(api.Response{
-			Error:  validateError,
-			Status: api.StatusError,
-		})
-	}
-
+func (service *Service) update(id string, payload *UpdateRequest) (*User, error) {
 	uid, err := uuid.Parse(id)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	updated, err := service.UserRepository.Update(&User{
@@ -142,45 +70,23 @@ func (service *Service) update(c *fiber.Ctx) error {
 	})
 
 	if err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(api.Response{
-			Error: &api.ErrorResponse{
-				Message: err.Error(),
-			},
-			Status: api.StatusError,
-		})
+		return nil, fiber.NewError(fiber.StatusBadRequest, err.Error())
+
 	}
 
-	return c.Status(fiber.StatusOK).JSON(api.Response{
-		Data:   updated,
-		Status: api.StatusSuccess,
-	})
+	return updated, nil
 }
 
-func (service *Service) delete(c *fiber.Ctx) error {
-	id := c.Params("id")
-
+func (service *Service) delete(id string) error {
 	_, err := service.UserRepository.FindById(id)
 	if err != nil {
-		return c.Status(fiber.StatusNotFound).JSON(api.Response{
-			Error: &api.ErrorResponse{
-				Message: "User not found",
-			},
-			Status: api.StatusError,
-		})
+		return fiber.NewError(fiber.StatusNotFound, "user not found")
 	}
 
 	err = service.UserRepository.Delete(id)
 	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(api.Response{
-			Error: &api.ErrorResponse{
-				Message: err.Error(),
-			},
-			Status: api.StatusError,
-		})
+		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 	}
 
-	return c.Status(fiber.StatusOK).JSON(api.Response{
-		Data:   fmt.Sprintf("User with id %s deleted", id),
-		Status: api.StatusSuccess,
-	})
+	return nil
 }

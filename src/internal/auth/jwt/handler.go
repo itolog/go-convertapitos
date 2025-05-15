@@ -1,7 +1,6 @@
 package jwt
 
 import (
-	"errors"
 	"github.com/gofiber/fiber/v2"
 	"github.com/itolog/go-convertapitos/src/pkg/api"
 	"github.com/itolog/go-convertapitos/src/pkg/req"
@@ -63,13 +62,7 @@ func NewHandler(router fiber.Router, deps HandlerDeps) {
 		}
 		data, err := handler.JwtService.register(payload)
 		if err != nil {
-			var fiberErr *fiber.Error
-			ok := errors.As(err, &fiberErr)
-			statusCode := fiber.StatusInternalServerError
-
-			if ok {
-				statusCode = fiberErr.Code
-			}
+			statusCode := api.GetErrorCode(err)
 
 			return c.Status(statusCode).JSON(api.Response{
 				Error: &api.ErrorResponse{
