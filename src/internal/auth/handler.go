@@ -31,5 +31,4 @@ func NewHandler(app *fiber.App, deps HandlerDeps) {
 	google.NewHandler(router, google.HandlerDeps{
 		GoogleService: googleService,
 	})
-
 }

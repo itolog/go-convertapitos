@@ -6,21 +6,35 @@ import (
 	"github.com/golang-jwt/jwt/v5"
 )
 
-type JWT struct {
-	Secret string
+type AccessTokens struct {
+	AccessToken  string
+	RefreshToken string
 }
 
-func NewJWT(secret string) *JWT {
+type Deps struct {
+	Secret              string
+	AccessTokenExpires  time.Duration
+	RefreshTokenExpires time.Duration
+}
+type JWT struct {
+	Secret              string
+	AccessTokenExpires  time.Duration
+	RefreshTokenExpires time.Duration
+}
+
+func NewJWT(des Deps) *JWT {
 	return &JWT{
-		Secret: secret,
+		Secret:              des.Secret,
+		AccessTokenExpires:  des.AccessTokenExpires,
+		RefreshTokenExpires: des.RefreshTokenExpires,
 	}
 }
 
-func (j *JWT) Create(email string, duration time.Duration) (string, error) {
+func (j *JWT) Create(payload string, duration time.Duration) (string, error) {
 	expirationTime := time.Now().Add(duration)
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
-		"email": email,
+		"email": payload,
 		"exp":   expirationTime.Unix(),
 	})
 
@@ -29,4 +43,21 @@ func (j *JWT) Create(email string, duration time.Duration) (string, error) {
 		return "", err
 	}
 	return s, nil
+}
+
+func (j *JWT) GenAccessTokens(payload string) (tokens *AccessTokens, err error) {
+	accessToken, err := j.Create(payload, j.AccessTokenExpires)
+	if err != nil {
+		return &AccessTokens{}, err
+	}
+
+	refreshToken, err := j.Create(payload, j.RefreshTokenExpires)
+	if err != nil {
+		return &AccessTokens{}, err
+	}
+
+	return &AccessTokens{
+		AccessToken:  accessToken,
+		RefreshToken: refreshToken,
+	}, nil
 }

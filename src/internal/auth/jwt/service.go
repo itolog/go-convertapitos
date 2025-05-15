@@ -5,12 +5,10 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/itolog/go-convertapitos/src/configs"
 	"github.com/itolog/go-convertapitos/src/internal/user"
+	"github.com/itolog/go-convertapitos/src/pkg/api"
 	"github.com/itolog/go-convertapitos/src/pkg/jwt"
 	"github.com/itolog/go-convertapitos/src/pkg/req"
 	"golang.org/x/crypto/bcrypt"
-	"time"
-
-	"github.com/itolog/go-convertapitos/src/pkg/api"
 )
 
 type ServiceDeps struct {
@@ -69,32 +67,15 @@ func (service *Service) login(c *fiber.Ctx) error {
 	})
 }
 
-func (service *Service) register(c *fiber.Ctx) error {
-	payload, err := req.DecodeBody[RegisterRequest](c)
-	if err != nil {
-		return err
-	}
-	validateError, valid := req.ValidateBody(payload)
-	if !valid {
-		return c.Status(fiber.StatusBadRequest).JSON(api.Response{
-			Error:  validateError,
-			Status: api.StatusError,
-		})
-	}
-
+func (service *Service) register(payload *RegisterRequest) (AuthResponse, error) {
 	existedUser, _ := service.UserRepository.FindByEmail(payload.Email)
 	if existedUser != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(api.Response{
-			Error: &api.ErrorResponse{
-				Message: api.ErrUserAlreadyExist,
-			},
-			Status: api.StatusError,
-		})
+		return AuthResponse{}, fmt.Errorf(api.ErrUserAlreadyExist)
 	}
 
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(payload.Password), bcrypt.DefaultCost)
 	if err != nil {
-		return err
+		return AuthResponse{}, err
 	}
 
 	created, err := service.UserRepository.Create(&user.User{
@@ -103,36 +84,27 @@ func (service *Service) register(c *fiber.Ctx) error {
 		Password: string(hashedPassword),
 	})
 	if err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(api.Response{
-			Error: &api.ErrorResponse{
-				Message: err.Error(),
-			},
-			Status: api.StatusError,
-		})
+		return AuthResponse{}, err
 	}
-
-	jwtService := jwt.NewJWT(service.Auth.JwtSecret)
-	accessToken, err := jwtService.Create(payload.Email, 2*time.Minute)
-	if err != nil {
-		return err
-	}
-
-	refreshToken, err := jwtService.Create(payload.Email, 7*24*time.Hour)
-	if err != nil {
-		return err
-	}
-
-	fmt.Println(refreshToken)
 
 	created.Password = ""
-	return c.Status(fiber.StatusCreated).JSON(api.Response{
-		Data: AuthResponse{
-			AccessToken: accessToken,
-			User: &user.User{
-				Name:  created.Name,
-				Email: created.Email,
-			},
-		},
-		Status: api.StatusSuccess,
+	return AuthResponse{
+		AccessToken: "accessToken",
+		User:        created,
+	}, nil
+}
+
+func (service *Service) SetAuthTokens(payload string) {
+	jwtService := jwt.NewJWT(jwt.Deps{
+		Secret:              service.Auth.JwtSecret,
+		AccessTokenExpires:  service.Auth.AccessTokenExpires,
+		RefreshTokenExpires: service.Auth.RefreshTokenExpires,
 	})
+
+	tokens, err := jwtService.GenAccessTokens(payload)
+	if err != nil {
+		return
+	}
+
+	fmt.Println(tokens.RefreshToken)
 }
