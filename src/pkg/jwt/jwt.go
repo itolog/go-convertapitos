@@ -1,9 +1,10 @@
 package jwt
 
 import (
-	"time"
-
 	"github.com/golang-jwt/jwt/v5"
+	"github.com/itolog/go-convertapitos/src/pkg/environments"
+	"github.com/itolog/go-convertapitos/src/pkg/timeutils"
+	"time"
 )
 
 type AccessTokens struct {
@@ -11,23 +12,30 @@ type AccessTokens struct {
 	RefreshToken string
 }
 
-type Deps struct {
-	Secret              string
-	AccessTokenExpires  time.Duration
-	RefreshTokenExpires time.Duration
-}
 type JWT struct {
-	Secret              string
+	Secret              string `env:"JWT_SECRET"`
 	AccessTokenExpires  time.Duration
 	RefreshTokenExpires time.Duration
 }
 
-func NewJWT(des Deps) *JWT {
-	return &JWT{
-		Secret:              des.Secret,
-		AccessTokenExpires:  des.AccessTokenExpires,
-		RefreshTokenExpires: des.RefreshTokenExpires,
+func NewJWT() (*JWT, error) {
+	accessTokenTTL := environments.GetEnv("JWT_ACCESS_TOKEN_TTL")
+	refreshTokenTTL := environments.GetEnv("JWT_REFRESH_TOKEN_TTL")
+
+	accessTokenDuration, err := timeutils.ParseDuration(accessTokenTTL)
+	if err != nil {
+		return nil, err
 	}
+
+	refreshTokenDuration, err := timeutils.ParseDuration(refreshTokenTTL)
+	if err != nil {
+		return nil, err
+	}
+	return &JWT{
+		Secret:              environments.GetEnv("JWT_SECRET"),
+		AccessTokenExpires:  accessTokenDuration,
+		RefreshTokenExpires: refreshTokenDuration,
+	}, nil
 }
 
 func (j *JWT) Create(payload string, duration time.Duration) (string, error) {

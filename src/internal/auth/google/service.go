@@ -5,11 +5,10 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/gofiber/fiber/v2"
-	"github.com/gofiber/fiber/v2/middleware/session"
 	"github.com/itolog/go-convertapitos/src/configs"
 	"github.com/itolog/go-convertapitos/src/internal/user"
 	"github.com/itolog/go-convertapitos/src/pkg/api"
-	"github.com/itolog/go-convertapitos/src/pkg/environments"
+	"github.com/itolog/go-convertapitos/src/pkg/cookie"
 	"golang.org/x/oauth2"
 	"io"
 	"time"
@@ -18,17 +17,14 @@ import (
 const userUrl = "https://www.googleapis.com/oauth2/v1/userinfo"
 
 type ServiceDeps struct {
-	*configs.Config
 	UserRepository *user.Repository
 }
 type Service struct {
-	*configs.Config
 	UserRepository *user.Repository
 }
 
 func NewService(deps ServiceDeps) *Service {
 	return &Service{
-		Config:         deps.Config,
 		UserRepository: deps.UserRepository,
 	}
 }
@@ -74,11 +70,12 @@ func (service *Service) callback(c *fiber.Ctx) error {
 		})
 	}
 
-	err = service.setCookie(c, CookiePayload{
-		Token:     "user",
-		Value:     jsonBytes,
-		KeyLookup: "cookie:user_session",
-		Expires:   time.Duration(token.ExpiresIn),
+	cookieStore := cookie.NewCookie()
+	err = cookieStore.SetCookie(c, cookie.Payload{
+		Key:        "user",
+		Value:      jsonBytes,
+		CookieName: "cookie:user_session",
+		Expires:    time.Duration(token.ExpiresIn),
 	})
 	if err != nil {
 		return c.Status(fiber.StatusUnauthorized).JSON(api.Response{
@@ -116,41 +113,4 @@ func (service *Service) getUser(token *oauth2.Token) (ResponseGoogle, error) {
 		return ResponseGoogle{}, fmt.Errorf("%v", err)
 	}
 	return userInfo, nil
-}
-
-func (service *Service) setCookie(c *fiber.Ctx, payload CookiePayload) error {
-	sameSite := "lax"
-	if environments.IsDev() {
-		sameSite = "none"
-	}
-
-	sessionStore := session.New(session.Config{
-		CookieHTTPOnly: true,
-		CookieSecure:   !environments.IsDev(),
-		CookieDomain:   service.Auth.CookieDomain,
-		Expiration:     payload.Expires,
-		CookieSameSite: sameSite,
-		KeyLookup:      payload.KeyLookup,
-	})
-
-	sess, err := sessionStore.Get(c)
-	if err != nil {
-		return err
-	}
-
-	sess.Set(payload.Token, payload.Value)
-
-	err = sess.Save()
-	if err != nil {
-		return err
-	}
-
-	return nil
-}
-
-type CookiePayload struct {
-	Token     string        `json:"token"`
-	Value     any           `json:"value"`
-	Expires   time.Duration `json:"expires"`
-	KeyLookup string        `json:"key_lookup"`
 }

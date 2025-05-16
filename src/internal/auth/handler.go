@@ -18,11 +18,9 @@ func NewHandler(app *fiber.App, deps HandlerDeps) {
 	// Services
 	jwtService := jwt.NewService(jwt.ServiceDeps{
 		UserRepository: deps.UserRepository,
-		Config:         deps.Config,
 	})
 	googleService := google.NewService(google.ServiceDeps{
 		UserRepository: deps.UserRepository,
-		Config:         deps.Config,
 	})
 	// Handlers
 	jwt.NewHandler(router, jwt.HandlerDeps{

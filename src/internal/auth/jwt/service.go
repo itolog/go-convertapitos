@@ -3,7 +3,6 @@ package jwt
 import (
 	"fmt"
 	"github.com/gofiber/fiber/v2"
-	"github.com/itolog/go-convertapitos/src/configs"
 	"github.com/itolog/go-convertapitos/src/internal/user"
 	"github.com/itolog/go-convertapitos/src/pkg/api"
 	"github.com/itolog/go-convertapitos/src/pkg/jwt"
@@ -11,18 +10,15 @@ import (
 )
 
 type ServiceDeps struct {
-	*configs.Config
 	UserRepository *user.Repository
 }
 type Service struct {
-	*configs.Config
 	UserRepository *user.Repository
 }
 
 func NewService(deps ServiceDeps) *Service {
 	return &Service{
 		UserRepository: deps.UserRepository,
-		Config:         deps.Config,
 	}
 }
 
@@ -70,17 +66,17 @@ func (service *Service) register(payload *RegisterRequest) (*AuthResponse, error
 	}, nil
 }
 
-func (service *Service) SetAuthTokens(payload string) {
-	jwtService := jwt.NewJWT(jwt.Deps{
-		Secret:              service.Auth.JwtSecret,
-		AccessTokenExpires:  service.Auth.AccessTokenExpires,
-		RefreshTokenExpires: service.Auth.RefreshTokenExpires,
-	})
+func (service *Service) SetAuthTokens(payload string) error {
+	jwtService, err := jwt.NewJWT()
+	if err != nil {
+		return err
+	}
 
 	tokens, err := jwtService.GenAccessTokens(payload)
 	if err != nil {
-		return
+		return err
 	}
 
 	fmt.Println(tokens.RefreshToken)
+	return nil
 }
