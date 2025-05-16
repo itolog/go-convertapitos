@@ -2,33 +2,21 @@ package auth
 
 import (
 	"github.com/gofiber/fiber/v2"
-	"github.com/itolog/go-convertapitos/src/configs"
-	"github.com/itolog/go-convertapitos/src/internal/auth/google"
-
-	"github.com/itolog/go-convertapitos/src/internal/user"
 	"github.com/itolog/go-convertapitos/src/pkg/api"
 	"github.com/itolog/go-convertapitos/src/pkg/req"
 )
 
 type HandlerDeps struct {
-	*configs.Config
-	UserService *user.Service
+	AuthService *Service
 }
 
 type Handler struct {
-	UserService *user.Service
-	authService *Service
+	AuthService *Service
 }
 
-func NewHandler(app *fiber.App, deps HandlerDeps) {
-	router := app.Group("/auth")
-	// JWT Auth
-	jwtService := NewService(ServiceDeps{
-		UserService: deps.UserService,
-	})
+func NewHandler(router fiber.Router, deps HandlerDeps) {
 	handler := &Handler{
-		UserService: deps.UserService,
-		authService: jwtService,
+		AuthService: deps.AuthService,
 	}
 
 	router.Post("/login", func(c *fiber.Ctx) error {
@@ -43,7 +31,7 @@ func NewHandler(app *fiber.App, deps HandlerDeps) {
 				Status: api.StatusError,
 			})
 		}
-		userInfo, err := handler.authService.Login(payload)
+		userInfo, err := handler.AuthService.Login(payload)
 
 		if err != nil {
 			return c.Status(fiber.StatusBadRequest).JSON(api.Response{
@@ -71,7 +59,7 @@ func NewHandler(app *fiber.App, deps HandlerDeps) {
 				Status: api.StatusError,
 			})
 		}
-		data, err := handler.authService.register(payload)
+		data, err := handler.AuthService.register(payload)
 		if err != nil {
 			statusCode := api.GetErrorCode(err)
 
@@ -87,12 +75,5 @@ func NewHandler(app *fiber.App, deps HandlerDeps) {
 			Data:   data,
 			Status: api.StatusSuccess,
 		})
-	})
-	// Google Auth
-	googleService := google.NewService(google.ServiceDeps{
-		UserService: deps.UserService,
-	})
-	google.NewHandler(router, google.HandlerDeps{
-		GoogleService: googleService,
 	})
 }
