@@ -1,4 +1,4 @@
-package jwt
+package auth
 
 import "github.com/itolog/go-convertapitos/src/internal/user"
 
@@ -13,7 +13,7 @@ type RegisterRequest struct {
 	Password string `json:"password" validate:"required,min=6,max=128"`
 }
 
-type AuthResponse struct {
+type Response struct {
 	AccessToken string `json:"access_token"`
 	User        *user.User
 }

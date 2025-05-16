@@ -1,4 +1,4 @@
-package jwt
+package auth
 
 import (
 	"fmt"
@@ -22,7 +22,7 @@ func NewService(deps ServiceDeps) *Service {
 	}
 }
 
-func (service *Service) login(payload *LoginRequest) (*user.User, error) {
+func (service *Service) Login(payload *LoginRequest) (*user.User, error) {
 
 	existedUser, _ := service.UserService.FindByEmail(payload.Email)
 	if existedUser == nil {
@@ -39,7 +39,7 @@ func (service *Service) login(payload *LoginRequest) (*user.User, error) {
 	return existedUser, nil
 }
 
-func (service *Service) register(payload *RegisterRequest) (*AuthResponse, error) {
+func (service *Service) register(payload *RegisterRequest) (*Response, error) {
 	existedUser, _ := service.UserService.FindByEmail(payload.Email)
 	if existedUser != nil {
 		return nil, fiber.NewError(fiber.StatusBadRequest, api.ErrUserAlreadyExist)
@@ -60,7 +60,7 @@ func (service *Service) register(payload *RegisterRequest) (*AuthResponse, error
 	}
 
 	created.Password = ""
-	return &AuthResponse{
+	return &Response{
 		AccessToken: "accessToken",
 		User:        created,
 	}, nil
