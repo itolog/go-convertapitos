@@ -9,6 +9,7 @@ import (
 const (
 	ErrUserAlreadyExist = "user already exists"
 	ErrWrongCredentials = "wrong email or password"
+	ErrUnauthorized     = "unauthorized"
 )
 
 func GetErrorCode(err error) int {

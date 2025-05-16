@@ -1,6 +1,7 @@
 package auth
 
 import (
+	"fmt"
 	"github.com/gofiber/fiber/v2"
 	"github.com/itolog/go-convertapitos/src/configs"
 	"github.com/itolog/go-convertapitos/src/internal/auth/google"
@@ -15,7 +16,10 @@ type Deps struct {
 
 func NewAuthHandler(app *fiber.App, deps Deps) {
 	router := app.Group("/auth")
-	authorizationService := authorization.NewAuthorization()
+	authorizationService, err := authorization.NewAuthorization()
+	if err != nil {
+		fmt.Println("Authorization Service", err.Error())
+	}
 	// JWT Auth
 	authService := NewService(ServiceDeps{
 		UserService:   deps.UserService,

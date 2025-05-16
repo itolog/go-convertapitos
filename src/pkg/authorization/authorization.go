@@ -2,47 +2,56 @@ package authorization
 
 import (
 	"github.com/gofiber/fiber/v2"
-	"github.com/itolog/go-convertapitos/src/pkg/cookie"
+	"github.com/gofiber/fiber/v2/middleware/session"
+
+	"github.com/itolog/go-convertapitos/src/pkg/environments"
 	"github.com/itolog/go-convertapitos/src/pkg/jwt"
 	"time"
 )
 
 type Authorization struct {
+	JWT         *jwt.JWT
+	cookieStore *session.Store
 }
 
-func NewAuthorization() *Authorization {
-	return &Authorization{}
-}
+const CookieKey = "refreshToken"
 
-func (auth *Authorization) SetAuth(ctx *fiber.Ctx, email string) (*string, error) {
+func NewAuthorization() (*Authorization, error) {
 	jwtService, err := jwt.NewJWT()
 	if err != nil {
 		return nil, err
 	}
 
-	tokens, err := jwtService.GenAccessTokens(email)
+	return &Authorization{
+		JWT: jwtService,
+	}, nil
+}
+
+func (auth *Authorization) SetAuth(ctx *fiber.Ctx, email string) (*string, error) {
+	tokens, err := auth.JWT.GenAccessTokens(jwt.Payload{Email: email})
 	if err != nil {
 		return nil, err
 	}
 
-	err = auth.SetCookie(ctx, tokens.RefreshToken, jwtService.RefreshTokenExpires)
-	if err != nil {
-		return nil, err
-	}
+	auth.SetCookie(ctx, tokens.RefreshToken, auth.JWT.RefreshTokenExpires)
 
 	return &tokens.AccessToken, nil
 }
 
-func (auth *Authorization) SetCookie(ctx *fiber.Ctx, token string, expires time.Duration) error {
-	cookieStore := cookie.NewCookie()
-	err := cookieStore.SetCookie(ctx, cookie.Payload{
-		Key:        "refreshToken",
-		Value:      token,
-		CookieName: "cookie:refreshToken",
-		Expires:    expires,
-	})
-	if err != nil {
-		return err
+func (auth *Authorization) SetCookie(ctx *fiber.Ctx, token string, expires time.Duration) {
+	sameSite := "lax"
+	if environments.IsDev() {
+		sameSite = "none"
 	}
-	return nil
+
+	cookie := new(fiber.Cookie)
+	cookie.Name = CookieKey
+	cookie.Value = token
+	cookie.HTTPOnly = true
+	cookie.Expires = time.Now().Add(expires)
+	cookie.SameSite = sameSite
+	cookie.Domain = environments.GetEnv("COOKIE_DOMAIN")
+	cookie.Secure = !environments.IsDev()
+
+	ctx.Cookie(cookie)
 }

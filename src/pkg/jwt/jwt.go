@@ -1,16 +1,12 @@
 package jwt
 
 import (
+	"fmt"
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/itolog/go-convertapitos/src/pkg/environments"
 	"github.com/itolog/go-convertapitos/src/pkg/timeutils"
 	"time"
 )
-
-type AccessTokens struct {
-	AccessToken  string
-	RefreshToken string
-}
 
 type JWT struct {
 	Secret              string `env:"JWT_SECRET"`
@@ -38,12 +34,14 @@ func NewJWT() (*JWT, error) {
 	}, nil
 }
 
-func (j *JWT) Create(payload string, duration time.Duration) (string, error) {
+func (j *JWT) CreateToken(payload Payload, duration time.Duration) (string, error) {
 	expirationTime := time.Now().Add(duration)
 
-	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
-		"email": payload,
-		"exp":   expirationTime.Unix(),
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, UserClaims{
+		Payload: payload,
+		RegisteredClaims: jwt.RegisteredClaims{
+			ExpiresAt: jwt.NewNumericDate(expirationTime),
+		},
 	})
 
 	s, err := token.SignedString([]byte(j.Secret))
@@ -53,13 +51,32 @@ func (j *JWT) Create(payload string, duration time.Duration) (string, error) {
 	return s, nil
 }
 
-func (j *JWT) GenAccessTokens(payload string) (tokens *AccessTokens, err error) {
-	accessToken, err := j.Create(payload, j.AccessTokenExpires)
+func (j *JWT) Verify(tokenString string) (*UserClaims, error) {
+	token, err := jwt.ParseWithClaims(tokenString, &UserClaims{}, func(token *jwt.Token) (interface{}, error) {
+		_, ok := token.Method.(*jwt.SigningMethodHMAC)
+		if !ok {
+			return nil, jwt.ErrSignatureInvalid
+		}
+		return []byte(j.Secret), nil
+	})
+	if err != nil {
+		return nil, err
+	}
+	claim, ok := token.Claims.(*UserClaims)
+	if !ok {
+		return nil, fmt.Errorf("invalid token claims")
+	}
+
+	return claim, nil
+}
+
+func (j *JWT) GenAccessTokens(payload Payload) (tokens *AccessTokens, err error) {
+	accessToken, err := j.CreateToken(payload, j.AccessTokenExpires)
 	if err != nil {
 		return &AccessTokens{}, err
 	}
 
-	refreshToken, err := j.Create(payload, j.RefreshTokenExpires)
+	refreshToken, err := j.CreateToken(payload, j.RefreshTokenExpires)
 	if err != nil {
 		return &AccessTokens{}, err
 	}

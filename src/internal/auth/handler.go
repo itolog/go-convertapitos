@@ -76,4 +76,25 @@ func NewHandler(router fiber.Router, deps HandlerDeps) {
 			Status: api.StatusSuccess,
 		})
 	})
+	router.Get("/refresh-token", func(ctx *fiber.Ctx) error {
+		refreshToken := ctx.Cookies("refreshToken")
+		if refreshToken == "" {
+			return ctx.Status(fiber.StatusUnauthorized).JSON(api.Response{
+				Error: &api.ErrorResponse{
+					Message: api.ErrUnauthorized,
+				},
+				Status: api.StatusError,
+			})
+		}
+
+		user, err := handler.AuthService.RefreshToken(ctx, refreshToken)
+		if err != nil {
+			return err
+		}
+
+		return ctx.Status(fiber.StatusOK).JSON(api.Response{
+			Data:   user,
+			Status: api.StatusSuccess,
+		})
+	})
 }

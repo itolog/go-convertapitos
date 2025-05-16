@@ -80,3 +80,26 @@ func (service *Service) register(ctx *fiber.Ctx, payload *RegisterRequest) (*Res
 		User:        created,
 	}, nil
 }
+
+func (service *Service) RefreshToken(ctx *fiber.Ctx, refreshToken string) (*Response, error) {
+	verify, err := service.Authorization.JWT.Verify(refreshToken)
+	if err != nil {
+		return nil, fiber.NewError(fiber.StatusUnauthorized, err.Error())
+	}
+
+	existedUser, _ := service.UserService.FindByEmail(verify.Email)
+	if existedUser == nil {
+		return nil, fiber.NewError(fiber.StatusNotFound, api.ErrWrongCredentials)
+	}
+
+	accessToken, err := service.Authorization.SetAuth(ctx, existedUser.Email)
+	if err != nil {
+		return nil, fiber.NewError(fiber.StatusInternalServerError, err.Error())
+	}
+
+	existedUser.Password = ""
+	return &Response{
+		AccessToken: accessToken,
+		User:        existedUser,
+	}, nil
+}
