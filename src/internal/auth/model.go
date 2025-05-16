@@ -14,6 +14,6 @@ type RegisterRequest struct {
 }
 
 type Response struct {
-	AccessToken string `json:"access_token"`
+	AccessToken *string `json:"access_token"`
 	User        *user.User
 }

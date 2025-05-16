@@ -19,22 +19,22 @@ func NewHandler(router fiber.Router, deps HandlerDeps) {
 		AuthService: deps.AuthService,
 	}
 
-	router.Post("/login", func(c *fiber.Ctx) error {
-		payload, err := req.DecodeBody[LoginRequest](c)
+	router.Post("/login", func(ctx *fiber.Ctx) error {
+		payload, err := req.DecodeBody[LoginRequest](ctx)
 		if err != nil {
 			return err
 		}
 		validateError, valid := req.ValidateBody(payload)
 		if !valid {
-			return c.Status(fiber.StatusBadRequest).JSON(api.Response{
+			return ctx.Status(fiber.StatusBadRequest).JSON(api.Response{
 				Error:  validateError,
 				Status: api.StatusError,
 			})
 		}
-		userInfo, err := handler.AuthService.Login(payload)
+		userInfo, err := handler.AuthService.Login(ctx, payload)
 
 		if err != nil {
-			return c.Status(fiber.StatusBadRequest).JSON(api.Response{
+			return ctx.Status(fiber.StatusBadRequest).JSON(api.Response{
 				Error: &api.ErrorResponse{
 					Message: err.Error(),
 				},
@@ -42,28 +42,28 @@ func NewHandler(router fiber.Router, deps HandlerDeps) {
 			})
 		}
 
-		return c.Status(fiber.StatusOK).JSON(api.Response{
+		return ctx.Status(fiber.StatusOK).JSON(api.Response{
 			Data:   userInfo,
 			Status: api.StatusSuccess,
 		})
 	})
-	router.Post("/register", func(c *fiber.Ctx) error {
-		payload, err := req.DecodeBody[RegisterRequest](c)
+	router.Post("/register", func(ctx *fiber.Ctx) error {
+		payload, err := req.DecodeBody[RegisterRequest](ctx)
 		if err != nil {
 			return err
 		}
 		validateError, valid := req.ValidateBody(payload)
 		if !valid {
-			return c.Status(fiber.StatusBadRequest).JSON(api.Response{
+			return ctx.Status(fiber.StatusBadRequest).JSON(api.Response{
 				Error:  validateError,
 				Status: api.StatusError,
 			})
 		}
-		data, err := handler.AuthService.register(payload)
+		data, err := handler.AuthService.register(ctx, payload)
 		if err != nil {
 			statusCode := api.GetErrorCode(err)
 
-			return c.Status(statusCode).JSON(api.Response{
+			return ctx.Status(statusCode).JSON(api.Response{
 				Error: &api.ErrorResponse{
 					Message: err.Error(),
 				},
@@ -71,7 +71,7 @@ func NewHandler(router fiber.Router, deps HandlerDeps) {
 			})
 		}
 
-		return c.Status(fiber.StatusOK).JSON(api.Response{
+		return ctx.Status(fiber.StatusOK).JSON(api.Response{
 			Data:   data,
 			Status: api.StatusSuccess,
 		})

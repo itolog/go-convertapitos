@@ -18,6 +18,6 @@ type ResponseGoogle struct {
 }
 
 type RegistrationResponse struct {
-	AccessToken string     `json:"access_token"`
+	AccessToken *string    `json:"access_token"`
 	User        *user.User `json:"user"`
 }

@@ -8,8 +8,8 @@ import (
 	"github.com/itolog/go-convertapitos/src/configs"
 	"github.com/itolog/go-convertapitos/src/internal/user"
 	"github.com/itolog/go-convertapitos/src/pkg/api"
-	"github.com/itolog/go-convertapitos/src/pkg/cookie"
-	"github.com/itolog/go-convertapitos/src/pkg/jwt"
+	"github.com/itolog/go-convertapitos/src/pkg/authorization"
+
 	"golang.org/x/oauth2"
 	"io"
 )
@@ -17,15 +17,18 @@ import (
 const userUrl = "https://www.googleapis.com/oauth2/v1/userinfo"
 
 type ServiceDeps struct {
-	UserService *user.Service
+	UserService   *user.Service
+	Authorization *authorization.Authorization
 }
 type Service struct {
-	UserService *user.Service
+	UserService   *user.Service
+	Authorization *authorization.Authorization
 }
 
 func NewService(deps ServiceDeps) *Service {
 	return &Service{
-		UserService: deps.UserService,
+		UserService:   deps.UserService,
+		Authorization: deps.Authorization,
 	}
 }
 
@@ -50,29 +53,13 @@ func (service *Service) callback(ctx *fiber.Ctx, token *oauth2.Token) (*Registra
 		return nil, err
 	}
 
-	jwtService, err := jwt.NewJWT()
-	if err != nil {
-		return nil, err
-	}
-
-	tokens, err := jwtService.GenAccessTokens(userInfo.Email)
-	if err != nil {
-		return nil, err
-	}
-
-	cookieStore := cookie.NewCookie()
-	err = cookieStore.SetCookie(ctx, cookie.Payload{
-		Key:        "refresh_token",
-		Value:      tokens.RefreshToken,
-		CookieName: "cookie:refresh_token",
-		Expires:    jwtService.RefreshTokenExpires,
-	})
+	accessToken, err := service.Authorization.SetAuth(ctx, userInfo.Email)
 	if err != nil {
 		return nil, fiber.NewError(fiber.StatusInternalServerError, err.Error())
 	}
 
 	return &RegistrationResponse{
-		AccessToken: tokens.AccessToken,
+		AccessToken: accessToken,
 		User:        createdUser,
 	}, nil
 }

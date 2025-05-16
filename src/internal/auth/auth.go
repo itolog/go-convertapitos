@@ -5,6 +5,7 @@ import (
 	"github.com/itolog/go-convertapitos/src/configs"
 	"github.com/itolog/go-convertapitos/src/internal/auth/google"
 	"github.com/itolog/go-convertapitos/src/internal/user"
+	"github.com/itolog/go-convertapitos/src/pkg/authorization"
 )
 
 type Deps struct {
@@ -14,16 +15,19 @@ type Deps struct {
 
 func NewAuthHandler(app *fiber.App, deps Deps) {
 	router := app.Group("/auth")
+	authorizationService := authorization.NewAuthorization()
 	// JWT Auth
 	authService := NewService(ServiceDeps{
-		UserService: deps.UserService,
+		UserService:   deps.UserService,
+		Authorization: authorizationService,
 	})
 	NewHandler(router, HandlerDeps{
 		AuthService: authService,
 	})
 	// Google Auth
 	googleService := google.NewService(google.ServiceDeps{
-		UserService: deps.UserService,
+		UserService:   deps.UserService,
+		Authorization: authorizationService,
 	})
 	google.NewHandler(router, google.HandlerDeps{
 		GoogleService: googleService,
