@@ -2,6 +2,8 @@ package google
 
 import (
 	"github.com/gofiber/fiber/v2"
+	"github.com/itolog/go-convertapitos/src/configs"
+	"github.com/itolog/go-convertapitos/src/pkg/api"
 )
 
 type HandlerDeps struct {
@@ -17,6 +19,36 @@ func NewHandler(router fiber.Router, deps HandlerDeps) {
 		GoogleService: deps.GoogleService,
 	}
 
-	router.Get("/google", handler.GoogleService.login)
-	router.Get("/google/callback", handler.GoogleService.callback)
+	router.Get("/google", func(ctx *fiber.Ctx) error {
+		from := ctx.Query("from", "/")
+		path := configs.ConfigGoogle()
+		url := path.AuthCodeURL(from)
+
+		return ctx.Redirect(url)
+	})
+	router.Get("/google/callback", func(ctx *fiber.Ctx) error {
+		code := ctx.FormValue("code")
+		from := ctx.Query("state")
+		token, err := configs.ConfigGoogle().Exchange(ctx.Context(), code)
+		if err != nil {
+			return ctx.Status(fiber.StatusUnauthorized).JSON(api.Response{
+				Error: &api.ErrorResponse{
+					Message: err.Error(),
+				},
+				Status: api.StatusError,
+			})
+		}
+
+		err = handler.GoogleService.callback(ctx, token)
+		if err != nil {
+			return ctx.Status(fiber.StatusInternalServerError).JSON(api.Response{
+				Error: &api.ErrorResponse{
+					Message: err.Error(),
+				},
+				Status: api.StatusError,
+			})
+		}
+
+		return ctx.Redirect(from)
+	})
 }

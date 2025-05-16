@@ -16,7 +16,6 @@ type Handler struct {
 
 func NewHandler(router fiber.Router, deps HandlerDeps) {
 	handler := Handler{
-
 		JwtService: deps.JwtService,
 	}
 
