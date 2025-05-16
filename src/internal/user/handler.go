@@ -27,7 +27,7 @@ func NewHandler(app *fiber.App, deps HandlerDeps) {
 	}
 
 	router.Get("/", func(ctx *fiber.Ctx) error {
-		users, err := handler.UserServices.findAll()
+		users, err := handler.UserServices.FindAll()
 		if err != nil {
 			return ctx.Status(fiber.StatusBadRequest).JSON(api.Response{
 				Error: &api.ErrorResponse{
@@ -44,7 +44,7 @@ func NewHandler(app *fiber.App, deps HandlerDeps) {
 	})
 	router.Get("/:id", func(ctx *fiber.Ctx) error {
 		id := ctx.Params("id")
-		user, err := handler.UserServices.findById(id)
+		user, err := handler.UserServices.FindById(id)
 		if err != nil {
 			return ctx.Status(fiber.StatusBadRequest).JSON(api.Response{
 				Error: &api.ErrorResponse{
@@ -62,7 +62,7 @@ func NewHandler(app *fiber.App, deps HandlerDeps) {
 	router.Get("/by_email/:email", func(ctx *fiber.Ctx) error {
 		email := ctx.Params("email")
 
-		user, err := handler.UserServices.findByEmail(email)
+		user, err := handler.UserServices.FindByEmail(email)
 		if err != nil {
 			return ctx.Status(fiber.StatusBadRequest).JSON(api.Response{
 				Error: &api.ErrorResponse{
@@ -98,7 +98,7 @@ func NewHandler(app *fiber.App, deps HandlerDeps) {
 			Password:      payload.Password,
 		}
 
-		created, err := handler.UserServices.create(user)
+		created, err := handler.UserServices.Create(user)
 		if err != nil {
 			return ctx.Status(fiber.StatusBadRequest).JSON(api.Response{
 				Error: &api.ErrorResponse{
@@ -129,7 +129,7 @@ func NewHandler(app *fiber.App, deps HandlerDeps) {
 			})
 		}
 
-		updatedUser, err := handler.UserServices.update(id, payload)
+		updatedUser, err := handler.UserServices.Update(id, payload)
 		if err != nil {
 			return ctx.Status(fiber.StatusBadRequest).JSON(api.Response{
 				Error: &api.ErrorResponse{
@@ -145,7 +145,7 @@ func NewHandler(app *fiber.App, deps HandlerDeps) {
 	})
 	router.Delete("/:id", func(ctx *fiber.Ctx) error {
 		id := ctx.Params("id")
-		err := handler.UserServices.delete(id)
+		err := handler.UserServices.Delete(id)
 		if err != nil {
 			statusCode := api.GetErrorCode(err)
 			return ctx.Status(statusCode).JSON(api.Response{

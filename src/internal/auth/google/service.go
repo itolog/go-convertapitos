@@ -7,50 +7,74 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/itolog/go-convertapitos/src/configs"
 	"github.com/itolog/go-convertapitos/src/internal/user"
+	"github.com/itolog/go-convertapitos/src/pkg/api"
 	"github.com/itolog/go-convertapitos/src/pkg/cookie"
+	"github.com/itolog/go-convertapitos/src/pkg/jwt"
 	"golang.org/x/oauth2"
 	"io"
-	"time"
 )
 
 const userUrl = "https://www.googleapis.com/oauth2/v1/userinfo"
 
 type ServiceDeps struct {
-	UserRepository *user.Repository
+	UserService *user.Service
 }
 type Service struct {
-	UserRepository *user.Repository
+	UserService *user.Service
 }
 
 func NewService(deps ServiceDeps) *Service {
 	return &Service{
-		UserRepository: deps.UserRepository,
+		UserService: deps.UserService,
 	}
 }
 
-func (service *Service) callback(ctx *fiber.Ctx, token *oauth2.Token) error {
+func (service *Service) callback(ctx *fiber.Ctx, token *oauth2.Token) (*RegistrationResponse, error) {
 	userInfo, err := service.getUser(token)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
-	jsonBytes, err := json.Marshal(&userInfo)
+	existedUser, _ := service.UserService.FindByEmail(userInfo.Email)
+	if existedUser != nil {
+		return nil, fiber.NewError(fiber.StatusBadRequest, api.ErrUserAlreadyExist)
+	}
+
+	createdUser, err := service.UserService.Create(user.User{
+		Name:          userInfo.Name,
+		Email:         userInfo.Email,
+		Picture:       userInfo.Picture,
+		VerifiedEmail: userInfo.Verified,
+	})
 	if err != nil {
-		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
+		return nil, err
+	}
+
+	jwtService, err := jwt.NewJWT()
+	if err != nil {
+		return nil, err
+	}
+
+	tokens, err := jwtService.GenAccessTokens(userInfo.Email)
+	if err != nil {
+		return nil, err
 	}
 
 	cookieStore := cookie.NewCookie()
 	err = cookieStore.SetCookie(ctx, cookie.Payload{
-		Key:        "user",
-		Value:      jsonBytes,
-		CookieName: "cookie:user_session",
-		Expires:    time.Duration(token.ExpiresIn),
+		Key:        "refresh_token",
+		Value:      tokens.RefreshToken,
+		CookieName: "cookie:refresh_token",
+		Expires:    jwtService.RefreshTokenExpires,
 	})
 	if err != nil {
-		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
+		return nil, fiber.NewError(fiber.StatusInternalServerError, err.Error())
 	}
 
-	return nil
+	return &RegistrationResponse{
+		AccessToken: tokens.AccessToken,
+		User:        createdUser,
+	}, nil
 }
 
 func (service *Service) getUser(token *oauth2.Token) (ResponseGoogle, error) {

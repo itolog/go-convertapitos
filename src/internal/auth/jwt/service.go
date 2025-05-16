@@ -10,21 +10,21 @@ import (
 )
 
 type ServiceDeps struct {
-	UserRepository *user.Repository
+	UserService *user.Service
 }
 type Service struct {
-	UserRepository *user.Repository
+	UserService *user.Service
 }
 
 func NewService(deps ServiceDeps) *Service {
 	return &Service{
-		UserRepository: deps.UserRepository,
+		UserService: deps.UserService,
 	}
 }
 
 func (service *Service) login(payload *LoginRequest) (*user.User, error) {
 
-	existedUser, _ := service.UserRepository.FindByEmail(payload.Email)
+	existedUser, _ := service.UserService.FindByEmail(payload.Email)
 	if existedUser == nil {
 		return nil, fiber.NewError(fiber.StatusBadRequest, api.ErrWrongCredentials)
 	}
@@ -40,7 +40,7 @@ func (service *Service) login(payload *LoginRequest) (*user.User, error) {
 }
 
 func (service *Service) register(payload *RegisterRequest) (*AuthResponse, error) {
-	existedUser, _ := service.UserRepository.FindByEmail(payload.Email)
+	existedUser, _ := service.UserService.FindByEmail(payload.Email)
 	if existedUser != nil {
 		return nil, fiber.NewError(fiber.StatusBadRequest, api.ErrUserAlreadyExist)
 	}
@@ -50,13 +50,13 @@ func (service *Service) register(payload *RegisterRequest) (*AuthResponse, error
 		return nil, fiber.NewError(fiber.StatusInternalServerError, err.Error())
 	}
 
-	created, err := service.UserRepository.Create(&user.User{
+	created, err := service.UserService.Create(user.User{
 		Name:     payload.Name,
 		Email:    payload.Email,
 		Password: string(hashedPassword),
 	})
 	if err != nil {
-		return nil, fiber.NewError(fiber.StatusBadRequest, err.Error())
+		return nil, err
 	}
 
 	created.Password = ""

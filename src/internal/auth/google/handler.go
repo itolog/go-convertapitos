@@ -26,9 +26,10 @@ func NewHandler(router fiber.Router, deps HandlerDeps) {
 
 		return ctx.Redirect(url)
 	})
+
 	router.Get("/google/callback", func(ctx *fiber.Ctx) error {
 		code := ctx.FormValue("code")
-		from := ctx.Query("state")
+
 		token, err := configs.ConfigGoogle().Exchange(ctx.Context(), code)
 		if err != nil {
 			return ctx.Status(fiber.StatusUnauthorized).JSON(api.Response{
@@ -39,7 +40,7 @@ func NewHandler(router fiber.Router, deps HandlerDeps) {
 			})
 		}
 
-		err = handler.GoogleService.callback(ctx, token)
+		createdUser, err := handler.GoogleService.callback(ctx, token)
 		if err != nil {
 			return ctx.Status(fiber.StatusInternalServerError).JSON(api.Response{
 				Error: &api.ErrorResponse{
@@ -49,6 +50,9 @@ func NewHandler(router fiber.Router, deps HandlerDeps) {
 			})
 		}
 
-		return ctx.Redirect(from)
+		return ctx.Status(fiber.StatusCreated).JSON(api.Response{
+			Data:   createdUser,
+			Status: api.StatusSuccess,
+		})
 	})
 }

@@ -16,7 +16,7 @@ func NewService(repository *Repository) *Service {
 	}
 }
 
-func (service *Service) findAll() ([]User, error) {
+func (service *Service) FindAll() ([]User, error) {
 	users, err := service.UserRepository.FindAll()
 	if err != nil {
 		return nil, fiber.NewError(fiber.StatusBadRequest, err.Error())
@@ -26,7 +26,7 @@ func (service *Service) findAll() ([]User, error) {
 	return users, nil
 }
 
-func (service *Service) findById(id string) (*User, error) {
+func (service *Service) FindById(id string) (*User, error) {
 	user, err := service.UserRepository.FindById(id)
 	if err != nil {
 		return nil, fiber.NewError(fiber.StatusBadRequest, err.Error())
@@ -35,7 +35,7 @@ func (service *Service) findById(id string) (*User, error) {
 	return user, nil
 }
 
-func (service *Service) findByEmail(email string) (*User, error) {
+func (service *Service) FindByEmail(email string) (*User, error) {
 	user, err := service.UserRepository.FindByEmail(email)
 	if err != nil {
 		return nil, fiber.NewError(fiber.StatusBadRequest, err.Error())
@@ -44,7 +44,7 @@ func (service *Service) findByEmail(email string) (*User, error) {
 	return user, nil
 }
 
-func (service *Service) create(user User) (*User, error) {
+func (service *Service) Create(user User) (*User, error) {
 	created, err := service.UserRepository.Create(&user)
 	if err != nil {
 		return nil, fiber.NewError(fiber.StatusBadRequest, err.Error())
@@ -54,7 +54,7 @@ func (service *Service) create(user User) (*User, error) {
 	return created, nil
 }
 
-func (service *Service) update(id string, payload *UpdateRequest) (*User, error) {
+func (service *Service) Update(id string, payload *UpdateRequest) (*User, error) {
 	uid, err := uuid.Parse(id)
 	if err != nil {
 		return nil, err
@@ -77,7 +77,7 @@ func (service *Service) update(id string, payload *UpdateRequest) (*User, error)
 	return updated, nil
 }
 
-func (service *Service) delete(id string) error {
+func (service *Service) Delete(id string) error {
 	_, err := service.UserRepository.FindById(id)
 	if err != nil {
 		return fiber.NewError(fiber.StatusNotFound, "user not found")

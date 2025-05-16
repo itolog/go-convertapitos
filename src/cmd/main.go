@@ -40,7 +40,7 @@ func main() {
 	// Services
 	userService := user.NewService(userRepository)
 	// Handlers
-	auth.NewHandler(app, auth.HandlerDeps{Config: conf, UserRepository: userRepository})
+	auth.NewHandler(app, auth.HandlerDeps{Config: conf, UserService: userService})
 	user.NewHandler(app, user.HandlerDeps{Config: conf, UserServices: userService})
 
 	err := app.Listen(":" + conf.Port)

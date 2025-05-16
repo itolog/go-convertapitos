@@ -10,17 +10,17 @@ import (
 
 type HandlerDeps struct {
 	*configs.Config
-	UserRepository *user.Repository
+	UserService *user.Service
 }
 
 func NewHandler(app *fiber.App, deps HandlerDeps) {
 	router := app.Group("/auth")
 	// Services
 	jwtService := jwt.NewService(jwt.ServiceDeps{
-		UserRepository: deps.UserRepository,
+		UserService: deps.UserService,
 	})
 	googleService := google.NewService(google.ServiceDeps{
-		UserRepository: deps.UserRepository,
+		UserService: deps.UserService,
 	})
 	// Handlers
 	jwt.NewHandler(router, jwt.HandlerDeps{
