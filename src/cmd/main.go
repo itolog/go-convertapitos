@@ -9,6 +9,7 @@ import (
 	"github.com/gofiber/fiber/v2/middleware/helmet"
 	"github.com/gofiber/fiber/v2/middleware/logger"
 	"github.com/gofiber/fiber/v2/middleware/monitor"
+	"github.com/gofiber/fiber/v2/middleware/recover"
 
 	"github.com/itolog/go-convertapitos/src/configs"
 	"github.com/itolog/go-convertapitos/src/internal/auth"
@@ -39,6 +40,7 @@ func main() {
 	app.Use(cors.New())
 	app.Use(helmet.New())
 	app.Use(logger.New())
+	app.Use(recover.New())
 
 	app.Get("/swagger/*", swagger.HandlerDefault)
 
