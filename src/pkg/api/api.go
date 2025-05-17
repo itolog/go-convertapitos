@@ -21,3 +21,13 @@ type Response struct {
 	Error  *ErrorResponse `json:"error,omitempty"`
 	Status StatusType     `json:"status"`
 }
+
+type ResponseData struct {
+	Data   any        `json:"data,omitempty"`
+	Status StatusType `json:"status"`
+}
+
+type ResponseError struct {
+	Error  *ErrorResponse `json:"error,omitempty"`
+	Status StatusType     `json:"status"`
+}

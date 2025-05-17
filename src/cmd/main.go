@@ -3,19 +3,28 @@ package main
 import (
 	"fmt"
 	"github.com/goccy/go-json"
+
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
 	"github.com/gofiber/fiber/v2/middleware/helmet"
 	"github.com/gofiber/fiber/v2/middleware/logger"
 	"github.com/gofiber/fiber/v2/middleware/monitor"
+
 	"github.com/itolog/go-convertapitos/src/configs"
 	"github.com/itolog/go-convertapitos/src/internal/auth"
 	"github.com/itolog/go-convertapitos/src/internal/user"
 	"github.com/itolog/go-convertapitos/src/middleware"
 	"github.com/itolog/go-convertapitos/src/pkg/api"
 	"github.com/itolog/go-convertapitos/src/pkg/db"
+
+	"github.com/gofiber/swagger"
+	_ "github.com/itolog/go-convertapitos/docs"
 )
 
+// @title			ConvertApiTos API
+// @version		1.0.0
+// @description	The ConvertApiTos API
+// @BasePath		/
 func main() {
 	conf := configs.NewConfig()
 	database := db.NewDb(conf)
@@ -30,6 +39,8 @@ func main() {
 	app.Use(cors.New())
 	app.Use(helmet.New())
 	app.Use(logger.New())
+
+	app.Get("/swagger/*", swagger.HandlerDefault)
 
 	app.Get("/", middleware.Protected(), func(c *fiber.Ctx) error {
 		return c.SendString("Hello, World!")

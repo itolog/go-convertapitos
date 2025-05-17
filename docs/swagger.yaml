@@ -1,0 +1,448 @@
+definitions:
+  api.ErrorResponse:
+    properties:
+      code:
+        type: integer
+      details:
+        type: string
+      fields:
+        items:
+          $ref: '#/definitions/validation.ErrorFields'
+        type: array
+      message:
+        type: string
+    type: object
+  api.ResponseData:
+    properties:
+      data: {}
+      status:
+        $ref: '#/definitions/api.StatusType'
+    type: object
+  api.ResponseError:
+    properties:
+      error:
+        $ref: '#/definitions/api.ErrorResponse'
+      status:
+        $ref: '#/definitions/api.StatusType'
+    type: object
+  api.StatusType:
+    enum:
+    - success
+    - error
+    type: string
+    x-enum-varnames:
+    - StatusSuccess
+    - StatusError
+  auth.LoginRequest:
+    properties:
+      email:
+        type: string
+      password:
+        maxLength: 128
+        minLength: 6
+        type: string
+    required:
+    - email
+    - password
+    type: object
+  auth.RegisterRequest:
+    properties:
+      email:
+        type: string
+      name:
+        maxLength: 70
+        type: string
+      password:
+        maxLength: 128
+        minLength: 6
+        type: string
+    required:
+    - email
+    - name
+    - password
+    type: object
+  common.AuthResponse:
+    properties:
+      access_token:
+        type: string
+      user:
+        $ref: '#/definitions/user.User'
+    type: object
+  user.CreateRequest:
+    properties:
+      email:
+        type: string
+      name:
+        maxLength: 70
+        type: string
+      password:
+        maxLength: 128
+        minLength: 6
+        type: string
+      picture:
+        type: string
+      verified_email:
+        type: boolean
+    required:
+    - email
+    - name
+    - password
+    type: object
+  user.UpdateRequest:
+    properties:
+      email:
+        type: string
+      name:
+        maxLength: 70
+        type: string
+      password:
+        maxLength: 128
+        minLength: 6
+        type: string
+      picture:
+        type: string
+      verified_email:
+        type: boolean
+    type: object
+  user.User:
+    properties:
+      createdAt:
+        type: string
+      email:
+        type: string
+      id:
+        type: string
+      name:
+        type: string
+      password:
+        type: string
+      picture:
+        type: string
+      updatedAt:
+        type: string
+      verified_email:
+        type: boolean
+    type: object
+  validation.ErrorFields:
+    properties:
+      field:
+        type: string
+      param:
+        type: string
+      tag:
+        type: string
+    type: object
+info:
+  contact: {}
+paths:
+  /auth/google:
+    get:
+      description: Redirects the user to the Google OAuth consent page.
+      produces:
+      - application/json
+      responses:
+        "302":
+          description: Redirect to Google login
+          schema:
+            type: string
+      summary: Google Auth Login
+      tags:
+      - Auth Google
+  /auth/google/callback:
+    get:
+      consumes:
+      - application/json
+      description: Handles OAuth callback and authenticates/creates user account using
+        Google data.
+      parameters:
+      - description: OAuth authorization code from Google
+        in: query
+        name: code
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OAuth success, token and user info
+          schema:
+            allOf:
+            - $ref: '#/definitions/api.ResponseData'
+            - properties:
+                data:
+                  $ref: '#/definitions/common.AuthResponse'
+              type: object
+        "400":
+          description: Failed to authenticate
+          schema:
+            $ref: '#/definitions/api.ResponseError'
+      summary: Google Auth Callback
+      tags:
+      - Auth Google
+  /auth/login:
+    post:
+      consumes:
+      - application/json
+      description: Authenticate user with email and password
+      parameters:
+      - description: User credentials
+        in: body
+        name: payload
+        required: true
+        schema:
+          $ref: '#/definitions/auth.LoginRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successfully authenticated
+          schema:
+            allOf:
+            - $ref: '#/definitions/api.ResponseData'
+            - properties:
+                data:
+                  $ref: '#/definitions/user.User'
+              type: object
+        "400":
+          description: Invalid request or credentials
+          schema:
+            $ref: '#/definitions/api.ResponseError'
+      summary: User login
+      tags:
+      - Auth
+  /auth/refresh-token:
+    get:
+      consumes:
+      - application/json
+      description: Refresh access token using refresh token cookie
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Token refreshed successfully
+          schema:
+            allOf:
+            - $ref: '#/definitions/api.ResponseData'
+            - properties:
+                data:
+                  $ref: '#/definitions/common.AuthResponse'
+              type: object
+        "401":
+          description: Unauthorized or invalid refresh token
+          schema:
+            $ref: '#/definitions/api.ResponseError'
+      summary: Refresh JWT token
+      tags:
+      - Auth
+  /auth/register:
+    post:
+      consumes:
+      - application/json
+      description: Register a new user with email and password
+      parameters:
+      - description: User registration data
+        in: body
+        name: payload
+        required: true
+        schema:
+          $ref: '#/definitions/auth.RegisterRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successfully registered
+          schema:
+            allOf:
+            - $ref: '#/definitions/api.ResponseData'
+            - properties:
+                data:
+                  $ref: '#/definitions/user.User'
+              type: object
+        "400":
+          description: Invalid request or registration error
+          schema:
+            $ref: '#/definitions/api.ResponseError'
+      summary: User registration
+      tags:
+      - Auth
+  /user:
+    get:
+      consumes:
+      - application/json
+      description: Returns a list of all users
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successful response with list of users
+          schema:
+            allOf:
+            - $ref: '#/definitions/api.ResponseData'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/user.User'
+                  type: array
+              type: object
+        "400":
+          description: Bad request error
+          schema:
+            $ref: '#/definitions/api.ResponseError'
+      summary: Get all user's
+      tags:
+      - User
+    post:
+      consumes:
+      - application/json
+      description: Creates a new user with provided data
+      parameters:
+      - description: User data
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/user.CreateRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Successfully created user
+          schema:
+            allOf:
+            - $ref: '#/definitions/api.ResponseData'
+            - properties:
+                data:
+                  $ref: '#/definitions/user.User'
+              type: object
+        "400":
+          description: Bad request error
+          schema:
+            $ref: '#/definitions/api.ResponseError'
+      summary: Create new user
+      tags:
+      - User
+  /user/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Deletes a user by ID
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success message
+          schema:
+            allOf:
+            - $ref: '#/definitions/api.ResponseData'
+            - properties:
+                data:
+                  type: string
+              type: object
+        "400":
+          description: Bad request error
+          schema:
+            $ref: '#/definitions/api.ResponseError'
+      summary: Delete user
+      tags:
+      - User
+    get:
+      consumes:
+      - application/json
+      description: Returns user data by ID
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successful response with user data
+          schema:
+            allOf:
+            - $ref: '#/definitions/api.ResponseData'
+            - properties:
+                data:
+                  $ref: '#/definitions/user.User'
+              type: object
+        "400":
+          description: Bad request error
+          schema:
+            $ref: '#/definitions/api.ResponseError'
+      summary: Get user by ID
+      tags:
+      - User
+    patch:
+      consumes:
+      - application/json
+      description: Updates existing user data
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Update data
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/user.UpdateRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successfully updated user
+          schema:
+            allOf:
+            - $ref: '#/definitions/api.ResponseData'
+            - properties:
+                data:
+                  $ref: '#/definitions/user.User'
+              type: object
+        "400":
+          description: Bad request error
+          schema:
+            $ref: '#/definitions/api.ResponseError'
+      summary: Update user
+      tags:
+      - User
+  /user/by_email/{email}:
+    get:
+      consumes:
+      - application/json
+      description: Returns user data by email
+      parameters:
+      - description: User email
+        in: path
+        name: email
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successful response with user data
+          schema:
+            allOf:
+            - $ref: '#/definitions/api.ResponseData'
+            - properties:
+                data:
+                  $ref: '#/definitions/user.User'
+              type: object
+        "400":
+          description: Bad request error
+          schema:
+            $ref: '#/definitions/api.ResponseError'
+      summary: Get user by email
+      tags:
+      - User
+swagger: "2.0"

@@ -19,69 +19,107 @@ func NewHandler(router fiber.Router, deps HandlerDeps) {
 		AuthService: deps.AuthService,
 	}
 
-	router.Post("/login", func(ctx *fiber.Ctx) error {
-		payload, err := req.DecodeBody[LoginRequest](ctx)
-		if err != nil {
-			return err
-		}
+	router.Post("/login", handler.Login)
+	router.Post("/register", handler.Register)
+	router.Get("/refresh-token", handler.RefreshToken)
+}
 
-		validateError, valid := req.ValidateBody(payload)
-		if !valid {
-			return ctx.Status(fiber.StatusBadRequest).JSON(api.Response{
-				Error:  validateError,
-				Status: api.StatusError,
-			})
-		}
+// Login handles user authentication.
+//
+//	@Summary		User login
+//	@Description	Authenticate user with email and password
+//	@Tags			Auth
+//	@Accept			json
+//	@Produce		json
+//	@Param			payload	body		LoginRequest						true	"User credentials"
+//	@Success		200		{object}	api.ResponseData{data=user.User}	"Successfully authenticated"
+//	@Failure		400		{object}	api.ResponseError					"Invalid request or credentials"
+//	@Router			/auth/login [post]
+func (h *Handler) Login(ctx *fiber.Ctx) error {
+	payload, err := req.DecodeBody[LoginRequest](ctx)
+	if err != nil {
+		return err
+	}
 
-		userInfo, err := handler.AuthService.Login(ctx, payload)
-		if err != nil {
-			return fiber.NewError(fiber.StatusBadRequest, err.Error())
-		}
-
-		return ctx.Status(fiber.StatusOK).JSON(api.Response{
-			Data:   userInfo,
-			Status: api.StatusSuccess,
+	validateError, valid := req.ValidateBody(payload)
+	if !valid {
+		return ctx.Status(fiber.StatusBadRequest).JSON(api.Response{
+			Error:  validateError,
+			Status: api.StatusError,
 		})
+	}
+
+	userInfo, err := h.AuthService.Login(ctx, payload)
+	if err != nil {
+		return fiber.NewError(fiber.StatusBadRequest, err.Error())
+	}
+
+	return ctx.Status(fiber.StatusOK).JSON(api.Response{
+		Data:   userInfo,
+		Status: api.StatusSuccess,
 	})
-	router.Post("/register", func(ctx *fiber.Ctx) error {
-		payload, err := req.DecodeBody[RegisterRequest](ctx)
-		if err != nil {
-			return err
-		}
+}
 
-		validateError, valid := req.ValidateBody(payload)
-		if !valid {
-			return ctx.Status(fiber.StatusBadRequest).JSON(api.Response{
-				Error:  validateError,
-				Status: api.StatusError,
-			})
-		}
+// Register handles user registration.
+//
+//	@Summary		User registration
+//	@Description	Register a new user with email and password
+//	@Tags			Auth
+//	@Accept			json
+//	@Produce		json
+//	@Param			payload	body		RegisterRequest						true	"User registration data"
+//	@Success		200		{object}	api.ResponseData{data=user.User}	"Successfully registered"
+//	@Failure		400		{object}	api.ResponseError					"Invalid request or registration error"
+//	@Router			/auth/register [post]
+func (h *Handler) Register(ctx *fiber.Ctx) error {
+	payload, err := req.DecodeBody[RegisterRequest](ctx)
+	if err != nil {
+		return err
+	}
 
-		data, err := handler.AuthService.register(ctx, payload)
-		if err != nil {
-			statusCode := api.GetErrorCode(err)
-			return fiber.NewError(statusCode, err.Error())
-		}
-
-		return ctx.Status(fiber.StatusOK).JSON(api.Response{
-			Data:   data,
-			Status: api.StatusSuccess,
+	validateError, valid := req.ValidateBody(payload)
+	if !valid {
+		return ctx.Status(fiber.StatusBadRequest).JSON(api.Response{
+			Error:  validateError,
+			Status: api.StatusError,
 		})
+	}
+
+	data, err := h.AuthService.register(ctx, payload)
+	if err != nil {
+		statusCode := api.GetErrorCode(err)
+		return fiber.NewError(statusCode, err.Error())
+	}
+
+	return ctx.Status(fiber.StatusOK).JSON(api.Response{
+		Data:   data,
+		Status: api.StatusSuccess,
 	})
-	router.Get("/refresh-token", func(ctx *fiber.Ctx) error {
-		refreshToken := ctx.Cookies("refreshToken")
-		if refreshToken == "" {
-			return fiber.NewError(fiber.StatusUnauthorized, api.ErrUnauthorized)
-		}
+}
 
-		user, err := handler.AuthService.RefreshToken(ctx, refreshToken)
-		if err != nil {
-			return err
-		}
+// RefreshToken handles refresh token requests.
+//
+//	@Summary		Refresh JWT token
+//	@Description	Refresh access token using refresh token cookie
+//	@Tags			Auth
+//	@Accept			json
+//	@Produce		json
+//	@Success		200	{object}	api.ResponseData{data=common.AuthResponse}	"Token refreshed successfully"
+//	@Failure		401	{object}	api.ResponseError				"Unauthorized or invalid refresh token"
+//	@Router			/auth/refresh-token [get]
+func (h *Handler) RefreshToken(ctx *fiber.Ctx) error {
+	refreshToken := ctx.Cookies("refreshToken")
+	if refreshToken == "" {
+		return fiber.NewError(fiber.StatusUnauthorized, api.ErrUnauthorized)
+	}
 
-		return ctx.Status(fiber.StatusOK).JSON(api.Response{
-			Data:   user,
-			Status: api.StatusSuccess,
-		})
+	user, err := h.AuthService.RefreshToken(ctx, refreshToken)
+	if err != nil {
+		return err
+	}
+
+	return ctx.Status(fiber.StatusOK).JSON(api.Response{
+		Data:   user,
+		Status: api.StatusSuccess,
 	})
 }

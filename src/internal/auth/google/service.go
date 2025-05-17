@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/gofiber/fiber/v2"
+	"github.com/itolog/go-convertapitos/src/common"
 	"github.com/itolog/go-convertapitos/src/configs"
 	"github.com/itolog/go-convertapitos/src/internal/user"
 	"github.com/itolog/go-convertapitos/src/pkg/api"
@@ -32,7 +33,7 @@ func NewService(deps ServiceDeps) *Service {
 	}
 }
 
-func (service *Service) callback(ctx *fiber.Ctx, token *oauth2.Token) (*RegistrationResponse, error) {
+func (service *Service) callback(ctx *fiber.Ctx, token *oauth2.Token) (*common.AuthResponse, error) {
 	userInfo, err := service.getUser(token)
 	if err != nil {
 		return nil, err
@@ -58,7 +59,7 @@ func (service *Service) callback(ctx *fiber.Ctx, token *oauth2.Token) (*Registra
 		return nil, fiber.NewError(fiber.StatusInternalServerError, err.Error())
 	}
 
-	return &RegistrationResponse{
+	return &common.AuthResponse{
 		AccessToken: accessToken,
 		User:        createdUser,
 	}, nil

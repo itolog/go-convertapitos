@@ -2,6 +2,7 @@ package auth
 
 import (
 	"github.com/gofiber/fiber/v2"
+	"github.com/itolog/go-convertapitos/src/common"
 	"github.com/itolog/go-convertapitos/src/internal/user"
 	"github.com/itolog/go-convertapitos/src/pkg/api"
 	"github.com/itolog/go-convertapitos/src/pkg/authorization"
@@ -25,7 +26,7 @@ func NewService(deps ServiceDeps) *Service {
 	}
 }
 
-func (service *Service) Login(ctx *fiber.Ctx, payload *LoginRequest) (*Response, error) {
+func (service *Service) Login(ctx *fiber.Ctx, payload *LoginRequest) (*common.AuthResponse, error) {
 	existedUser, _ := service.UserService.FindByEmail(payload.Email)
 	if existedUser == nil {
 		return nil, fiber.NewError(fiber.StatusBadRequest, api.ErrWrongCredentials)
@@ -43,13 +44,13 @@ func (service *Service) Login(ctx *fiber.Ctx, payload *LoginRequest) (*Response,
 		return nil, err
 	}
 
-	return &Response{
+	return &common.AuthResponse{
 		AccessToken: accessToken,
 		User:        existedUser,
 	}, nil
 }
 
-func (service *Service) register(ctx *fiber.Ctx, payload *RegisterRequest) (*Response, error) {
+func (service *Service) register(ctx *fiber.Ctx, payload *RegisterRequest) (*common.AuthResponse, error) {
 	existedUser, _ := service.UserService.FindByEmail(payload.Email)
 	if existedUser != nil {
 		return nil, fiber.NewError(fiber.StatusBadRequest, api.ErrUserAlreadyExist)
@@ -75,13 +76,13 @@ func (service *Service) register(ctx *fiber.Ctx, payload *RegisterRequest) (*Res
 	}
 
 	created.Password = ""
-	return &Response{
+	return &common.AuthResponse{
 		AccessToken: accessToken,
 		User:        created,
 	}, nil
 }
 
-func (service *Service) RefreshToken(ctx *fiber.Ctx, refreshToken string) (*Response, error) {
+func (service *Service) RefreshToken(ctx *fiber.Ctx, refreshToken string) (*common.AuthResponse, error) {
 	verify, err := service.Authorization.JWT.Verify(refreshToken)
 	if err != nil {
 		return nil, fiber.NewError(fiber.StatusUnauthorized, err.Error())
@@ -98,7 +99,7 @@ func (service *Service) RefreshToken(ctx *fiber.Ctx, refreshToken string) (*Resp
 	}
 
 	existedUser.Password = ""
-	return &Response{
+	return &common.AuthResponse{
 		AccessToken: accessToken,
 		User:        existedUser,
 	}, nil

@@ -1,0 +1,8 @@
+basePath: /
+info:
+  contact: {}
+  description: The ConvertApiTos API
+  title: ConvertApiTos API
+  version: 1.0.0
+paths: {}
+swagger: "2.0"
