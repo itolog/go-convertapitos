@@ -7,7 +7,7 @@ func DecodeBody[T any](c *fiber.Ctx) (*T, error) {
 
 	err := c.BodyParser(payload)
 	if err != nil {
-		return payload, err
+		return payload, fiber.NewError(fiber.StatusBadRequest, err.Error())
 	}
 
 	return payload, nil

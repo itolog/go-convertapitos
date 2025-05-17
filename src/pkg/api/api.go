@@ -10,7 +10,7 @@ const (
 )
 
 type ErrorResponse struct {
-	Code    uint16                   `json:"code,omitempty"`
+	Code    int                      `json:"code,omitempty"`
 	Message string                   `json:"message"`
 	Details string                   `json:"details,omitempty"`
 	Fields  []validation.ErrorFields `json:"fields,omitempty"`

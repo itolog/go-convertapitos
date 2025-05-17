@@ -29,12 +29,7 @@ func NewHandler(app *fiber.App, deps HandlerDeps) {
 	router.Get("/", func(ctx *fiber.Ctx) error {
 		users, err := handler.UserServices.FindAll()
 		if err != nil {
-			return ctx.Status(fiber.StatusBadRequest).JSON(api.Response{
-				Error: &api.ErrorResponse{
-					Message: err.Error(),
-				},
-				Status: api.StatusError,
-			})
+			return fiber.NewError(fiber.StatusBadRequest, err.Error())
 		}
 
 		return ctx.Status(fiber.StatusOK).JSON(api.Response{
@@ -46,12 +41,7 @@ func NewHandler(app *fiber.App, deps HandlerDeps) {
 		id := ctx.Params("id")
 		user, err := handler.UserServices.FindById(id)
 		if err != nil {
-			return ctx.Status(fiber.StatusBadRequest).JSON(api.Response{
-				Error: &api.ErrorResponse{
-					Message: err.Error(),
-				},
-				Status: api.StatusError,
-			})
+			return fiber.NewError(fiber.StatusBadRequest, err.Error())
 		}
 
 		return ctx.Status(fiber.StatusOK).JSON(api.Response{
@@ -64,12 +54,7 @@ func NewHandler(app *fiber.App, deps HandlerDeps) {
 
 		user, err := handler.UserServices.FindByEmail(email)
 		if err != nil {
-			return ctx.Status(fiber.StatusBadRequest).JSON(api.Response{
-				Error: &api.ErrorResponse{
-					Message: err.Error(),
-				},
-				Status: api.StatusError,
-			})
+			return fiber.NewError(fiber.StatusBadRequest, err.Error())
 		}
 
 		return ctx.Status(fiber.StatusOK).JSON(api.Response{
@@ -100,12 +85,7 @@ func NewHandler(app *fiber.App, deps HandlerDeps) {
 
 		created, err := handler.UserServices.Create(user)
 		if err != nil {
-			return ctx.Status(fiber.StatusBadRequest).JSON(api.Response{
-				Error: &api.ErrorResponse{
-					Message: err.Error(),
-				},
-				Status: api.StatusError,
-			})
+			return fiber.NewError(fiber.StatusBadRequest, err.Error())
 		}
 
 		return ctx.Status(fiber.StatusCreated).JSON(api.Response{
@@ -131,13 +111,9 @@ func NewHandler(app *fiber.App, deps HandlerDeps) {
 
 		updatedUser, err := handler.UserServices.Update(id, payload)
 		if err != nil {
-			return ctx.Status(fiber.StatusBadRequest).JSON(api.Response{
-				Error: &api.ErrorResponse{
-					Message: err.Error(),
-				},
-				Status: api.StatusError,
-			})
+			return fiber.NewError(fiber.StatusBadRequest, err.Error())
 		}
+
 		return ctx.Status(fiber.StatusOK).JSON(api.Response{
 			Data:   updatedUser,
 			Status: api.StatusSuccess,
@@ -145,15 +121,11 @@ func NewHandler(app *fiber.App, deps HandlerDeps) {
 	})
 	router.Delete("/:id", func(ctx *fiber.Ctx) error {
 		id := ctx.Params("id")
+
 		err := handler.UserServices.Delete(id)
 		if err != nil {
 			statusCode := api.GetErrorCode(err)
-			return ctx.Status(statusCode).JSON(api.Response{
-				Error: &api.ErrorResponse{
-					Message: err.Error(),
-				},
-				Status: api.StatusError,
-			})
+			return fiber.NewError(statusCode, err.Error())
 		}
 
 		return ctx.Status(fiber.StatusOK).JSON(api.Response{

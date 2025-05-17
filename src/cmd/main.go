@@ -12,6 +12,7 @@ import (
 	"github.com/itolog/go-convertapitos/src/internal/auth"
 	"github.com/itolog/go-convertapitos/src/internal/user"
 	"github.com/itolog/go-convertapitos/src/middleware"
+	"github.com/itolog/go-convertapitos/src/pkg/api"
 	"github.com/itolog/go-convertapitos/src/pkg/db"
 )
 
@@ -20,9 +21,10 @@ func main() {
 	database := db.NewDb(conf)
 
 	app := fiber.New(fiber.Config{
-		Prefork:     true,
-		JSONEncoder: json.Marshal,
-		JSONDecoder: json.Unmarshal,
+		Prefork:      true,
+		JSONEncoder:  json.Marshal,
+		JSONDecoder:  json.Unmarshal,
+		ErrorHandler: api.ErrorHandler,
 	})
 
 	app.Use(cors.New())

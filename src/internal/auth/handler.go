@@ -24,6 +24,7 @@ func NewHandler(router fiber.Router, deps HandlerDeps) {
 		if err != nil {
 			return err
 		}
+
 		validateError, valid := req.ValidateBody(payload)
 		if !valid {
 			return ctx.Status(fiber.StatusBadRequest).JSON(api.Response{
@@ -31,15 +32,10 @@ func NewHandler(router fiber.Router, deps HandlerDeps) {
 				Status: api.StatusError,
 			})
 		}
-		userInfo, err := handler.AuthService.Login(ctx, payload)
 
+		userInfo, err := handler.AuthService.Login(ctx, payload)
 		if err != nil {
-			return ctx.Status(fiber.StatusBadRequest).JSON(api.Response{
-				Error: &api.ErrorResponse{
-					Message: err.Error(),
-				},
-				Status: api.StatusError,
-			})
+			return fiber.NewError(fiber.StatusBadRequest, err.Error())
 		}
 
 		return ctx.Status(fiber.StatusOK).JSON(api.Response{
@@ -52,6 +48,7 @@ func NewHandler(router fiber.Router, deps HandlerDeps) {
 		if err != nil {
 			return err
 		}
+
 		validateError, valid := req.ValidateBody(payload)
 		if !valid {
 			return ctx.Status(fiber.StatusBadRequest).JSON(api.Response{
@@ -59,16 +56,11 @@ func NewHandler(router fiber.Router, deps HandlerDeps) {
 				Status: api.StatusError,
 			})
 		}
+
 		data, err := handler.AuthService.register(ctx, payload)
 		if err != nil {
 			statusCode := api.GetErrorCode(err)
-
-			return ctx.Status(statusCode).JSON(api.Response{
-				Error: &api.ErrorResponse{
-					Message: err.Error(),
-				},
-				Status: api.StatusError,
-			})
+			return fiber.NewError(statusCode, err.Error())
 		}
 
 		return ctx.Status(fiber.StatusOK).JSON(api.Response{
@@ -79,12 +71,7 @@ func NewHandler(router fiber.Router, deps HandlerDeps) {
 	router.Get("/refresh-token", func(ctx *fiber.Ctx) error {
 		refreshToken := ctx.Cookies("refreshToken")
 		if refreshToken == "" {
-			return ctx.Status(fiber.StatusUnauthorized).JSON(api.Response{
-				Error: &api.ErrorResponse{
-					Message: api.ErrUnauthorized,
-				},
-				Status: api.StatusError,
-			})
+			return fiber.NewError(fiber.StatusUnauthorized, api.ErrUnauthorized)
 		}
 
 		user, err := handler.AuthService.RefreshToken(ctx, refreshToken)

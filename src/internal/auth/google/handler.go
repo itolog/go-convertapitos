@@ -32,22 +32,12 @@ func NewHandler(router fiber.Router, deps HandlerDeps) {
 
 		token, err := configs.ConfigGoogle().Exchange(ctx.Context(), code)
 		if err != nil {
-			return ctx.Status(fiber.StatusUnauthorized).JSON(api.Response{
-				Error: &api.ErrorResponse{
-					Message: err.Error(),
-				},
-				Status: api.StatusError,
-			})
+			return fiber.NewError(fiber.StatusUnauthorized, err.Error())
 		}
 
 		createdUser, err := handler.GoogleService.callback(ctx, token)
 		if err != nil {
-			return ctx.Status(fiber.StatusInternalServerError).JSON(api.Response{
-				Error: &api.ErrorResponse{
-					Message: err.Error(),
-				},
-				Status: api.StatusError,
-			})
+			return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 		}
 
 		return ctx.Status(fiber.StatusCreated).JSON(api.Response{

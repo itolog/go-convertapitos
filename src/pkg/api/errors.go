@@ -23,3 +23,24 @@ func GetErrorCode(err error) int {
 
 	return statusCode
 }
+
+func ErrorHandler(ctx *fiber.Ctx, err error) error {
+	code := fiber.StatusInternalServerError
+
+	var e *fiber.Error
+	if errors.As(err, &e) {
+		code = e.Code
+	}
+
+	if err != nil {
+		return ctx.Status(code).JSON(Response{
+			Error: &ErrorResponse{
+				Message: err.Error(),
+				Code:    code,
+			},
+			Status: StatusError,
+		})
+	}
+
+	return nil
+}
