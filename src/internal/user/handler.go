@@ -6,6 +6,7 @@ import (
 	"github.com/itolog/go-convertapitos/src/configs"
 	"github.com/itolog/go-convertapitos/src/pkg/api"
 	"github.com/itolog/go-convertapitos/src/pkg/req"
+	"strconv"
 )
 
 // HandlerDeps contains dependencies for the user handler
@@ -46,13 +47,25 @@ func NewHandler(app *fiber.App, deps HandlerDeps) {
 // @Failure 400 {object} api.ResponseError "Bad request error"
 // @Router /user [get]
 func (h *Handler) GetAllUsers(ctx *fiber.Ctx) error {
-	users, err := h.UserServices.FindAll()
+	limit, err := strconv.Atoi(ctx.Query("limit", "10"))
+	if err != nil {
+		return fiber.NewError(fiber.StatusBadRequest, fmt.Sprintf("Invalid limit: %s", api.ErrMustBeANumber))
+	}
+	offset, err := strconv.Atoi(ctx.Query("offset", "0"))
+	if err != nil {
+		return fiber.NewError(fiber.StatusBadRequest, fmt.Sprintf("Invalid offset: %s", api.ErrMustBeANumber))
+	}
+
+	users, err := h.UserServices.FindAll(limit, offset)
 	if err != nil {
 		return fiber.NewError(fiber.StatusBadRequest, err.Error())
 	}
 
 	return ctx.Status(fiber.StatusOK).JSON(api.Response{
-		Data:   users,
+		Data: users.Users,
+		Meta: &api.Meta{
+			Count: *users.Count,
+		},
 		Status: api.StatusSuccess,
 	})
 }

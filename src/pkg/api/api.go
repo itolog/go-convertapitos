@@ -19,11 +19,17 @@ type ErrorResponse struct {
 type Response struct {
 	Data   any            `json:"data,omitempty"`
 	Error  *ErrorResponse `json:"error,omitempty"`
+	Meta   *Meta          `json:"meta,omitempty"`
 	Status StatusType     `json:"status"`
+}
+
+type Meta struct {
+	Count int64 `json:"count"`
 }
 
 type ResponseData struct {
 	Data   any        `json:"data,omitempty"`
+	Meta   *Meta      `json:"meta,omitempty"`
 	Status StatusType `json:"status"`
 }
 

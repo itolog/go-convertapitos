@@ -28,3 +28,8 @@ type UpdateRequest struct {
 	Password      string `json:"password" validate:"omitempty,min=6,max=128"`
 	Picture       string `json:"picture"`
 }
+
+type FindAllResponse struct {
+	Users []User
+	Count *int64
+}

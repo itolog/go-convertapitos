@@ -9,15 +9,30 @@ type Repository struct {
 	Database *db.Db
 }
 
+const tableName = "users"
+
 func NewRepository(database *db.Db) *Repository {
 	return &Repository{
 		Database: database,
 	}
 }
 
-func (repo *Repository) FindAll() ([]User, error) {
+func (repo *Repository) Count() *int64 {
+	count := new(int64)
+
+	repo.Database.DB.Table(tableName).Count(count)
+
+	return count
+}
+
+func (repo *Repository) FindAll(limit, offset int) ([]User, error) {
 	var users []User
-	res := repo.Database.DB.Find(&users)
+	res := repo.Database.DB.
+		Table(tableName).
+		Order("updated_at desc").
+		Limit(limit).
+		Offset(offset).
+		Scan(&users)
 
 	if res.Error != nil {
 		return nil, res.Error

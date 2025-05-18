@@ -10,6 +10,7 @@ const (
 	ErrUserAlreadyExist = "user already exists"
 	ErrWrongCredentials = "wrong email or password"
 	ErrUnauthorized     = "unauthorized"
+	ErrMustBeANumber    = "must be a number"
 )
 
 func GetErrorCode(err error) int {
