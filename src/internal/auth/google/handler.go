@@ -7,11 +7,11 @@ import (
 )
 
 type HandlerDeps struct {
-	GoogleService *Service
+	GoogleService IGoogleService
 }
 
 type Handler struct {
-	GoogleService *Service
+	GoogleService IGoogleService
 }
 
 func NewHandler(router fiber.Router, deps HandlerDeps) {
@@ -59,7 +59,7 @@ func (h *Handler) GoogleCallback(ctx *fiber.Ctx) error {
 		return fiber.NewError(fiber.StatusUnauthorized, err.Error())
 	}
 
-	createdUser, err := h.GoogleService.callback(ctx, token)
+	createdUser, err := h.GoogleService.Callback(ctx, token)
 	if err != nil {
 		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 	}

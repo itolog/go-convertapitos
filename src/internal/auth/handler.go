@@ -7,11 +7,11 @@ import (
 )
 
 type HandlerDeps struct {
-	AuthService *Service
+	AuthService IAuthService
 }
 
 type Handler struct {
-	AuthService *Service
+	AuthService IAuthService
 }
 
 func NewHandler(router fiber.Router, deps HandlerDeps) {
@@ -20,7 +20,7 @@ func NewHandler(router fiber.Router, deps HandlerDeps) {
 	}
 
 	router.Post("/login", handler.Login)
-	router.Post("/register", handler.Register)
+	router.Post("/Register", handler.Register)
 	router.Get("/refresh-token", handler.RefreshToken)
 }
 
@@ -70,7 +70,7 @@ func (h *Handler) Login(ctx *fiber.Ctx) error {
 //	@Param			payload	body		RegisterRequest						true	"User registration data"
 //	@Success		200		{object}	api.ResponseData{data=user.User}	"Successfully registered"
 //	@Failure		400		{object}	api.ResponseError					"Invalid request or registration error"
-//	@Router			/auth/register [post]
+//	@Router			/auth/Register [post]
 func (h *Handler) Register(ctx *fiber.Ctx) error {
 	payload, err := req.DecodeBody[RegisterRequest](ctx)
 	if err != nil {
@@ -85,7 +85,7 @@ func (h *Handler) Register(ctx *fiber.Ctx) error {
 		})
 	}
 
-	data, err := h.AuthService.register(ctx, payload)
+	data, err := h.AuthService.Register(ctx, payload)
 	if err != nil {
 		statusCode := api.GetErrorCode(err)
 		return fiber.NewError(statusCode, err.Error())

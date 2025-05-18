@@ -17,12 +17,16 @@ import (
 
 const userUrl = "https://www.googleapis.com/oauth2/v1/userinfo"
 
+type IGoogleService interface {
+	Callback(ctx *fiber.Ctx, token *oauth2.Token) (*common.AuthResponse, error)
+}
+
 type ServiceDeps struct {
-	UserService   *user.Service
+	UserService   user.IUserService
 	Authorization *authorization.Authorization
 }
 type Service struct {
-	UserService   *user.Service
+	UserService   user.IUserService
 	Authorization *authorization.Authorization
 }
 
@@ -33,7 +37,7 @@ func NewService(deps ServiceDeps) *Service {
 	}
 }
 
-func (service *Service) callback(ctx *fiber.Ctx, token *oauth2.Token) (*common.AuthResponse, error) {
+func (service *Service) Callback(ctx *fiber.Ctx, token *oauth2.Token) (*common.AuthResponse, error) {
 	userInfo, err := service.getUser(token)
 	if err != nil {
 		return nil, err

@@ -26,12 +26,8 @@ func (repo *Repository) Count() *int64 {
 	return count
 }
 
-func (repo *Repository) FindAll(limit int, offset int, orderBy string, desc bool) ([]User, error) {
+func (repo *Repository) FindAll(limit int, offset int, orderBy string, order string) ([]User, error) {
 	var users []User
-	order := "asc"
-	if desc {
-		order = "desc"
-	}
 
 	res := repo.Database.DB.
 		Table(tableName).

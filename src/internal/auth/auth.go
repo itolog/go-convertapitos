@@ -11,7 +11,7 @@ import (
 
 type Deps struct {
 	*configs.Config
-	UserService *user.Service
+	UserService user.IUserService
 }
 
 func NewAuthHandler(app *fiber.App, deps Deps) {

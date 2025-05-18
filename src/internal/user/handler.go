@@ -12,13 +12,13 @@ import (
 // HandlerDeps contains dependencies for the user handler
 type HandlerDeps struct {
 	*configs.Config
-	UserServices *Service
+	UserServices IUserService
 }
 
 // Handler for user requests
 type Handler struct {
 	*configs.Config
-	UserServices *Service
+	UserServices IUserService
 }
 
 func NewHandler(app *fiber.App, deps HandlerDeps) {

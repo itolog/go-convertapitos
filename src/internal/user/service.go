@@ -6,6 +6,15 @@ import (
 	"github.com/itolog/go-convertapitos/src/pkg/db"
 )
 
+type IUserService interface {
+	FindAll(limit int, offset int, orderBy string, desc bool) (*FindAllResponse, error)
+	FindById(id string) (*User, error)
+	FindByEmail(email string) (*User, error)
+	Create(user User) (*User, error)
+	Update(id string, payload *UpdateRequest) (*User, error)
+	Delete(id string) error
+}
+
 type Service struct {
 	UserRepository *Repository
 }
@@ -19,7 +28,11 @@ func NewService(repository *Repository) *Service {
 func (service *Service) FindAll(limit int, offset int, orderBy string, desc bool) (*FindAllResponse, error) {
 	count := service.UserRepository.Count()
 
-	users, err := service.UserRepository.FindAll(limit, offset, orderBy, desc)
+	order := "asc"
+	if desc {
+		order = "desc"
+	}
+	users, err := service.UserRepository.FindAll(limit, offset, orderBy, order)
 	if err != nil {
 		return nil, fiber.NewError(fiber.StatusBadRequest, err.Error())
 

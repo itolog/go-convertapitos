@@ -10,12 +10,18 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
+type IAuthService interface {
+	Login(ctx *fiber.Ctx, payload *LoginRequest) (*common.AuthResponse, error)
+	Register(ctx *fiber.Ctx, payload *RegisterRequest) (*common.AuthResponse, error)
+	RefreshToken(ctx *fiber.Ctx, refreshToken string) (*common.AuthResponse, error)
+}
+
 type ServiceDeps struct {
-	UserService   *user.Service
+	UserService   user.IUserService
 	Authorization *authorization.Authorization
 }
 type Service struct {
-	UserService   *user.Service
+	UserService   user.IUserService
 	Authorization *authorization.Authorization
 }
 
@@ -50,7 +56,7 @@ func (service *Service) Login(ctx *fiber.Ctx, payload *LoginRequest) (*common.Au
 	}, nil
 }
 
-func (service *Service) register(ctx *fiber.Ctx, payload *RegisterRequest) (*common.AuthResponse, error) {
+func (service *Service) Register(ctx *fiber.Ctx, payload *RegisterRequest) (*common.AuthResponse, error) {
 	existedUser, _ := service.UserService.FindByEmail(payload.Email)
 	if existedUser != nil {
 		return nil, fiber.NewError(fiber.StatusBadRequest, api.ErrUserAlreadyExist)
