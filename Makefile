@@ -49,7 +49,7 @@ migrations-auto:
 swagger-init:
 	swag init --dir ${SWAGGER_DIR} ${SWAGGER_OPTIONS}
 
-
+.PHONY: swagger-gen
 swagger-gen:
 ifndef FILE
 	$(error FILE is required for swagger-gen. Example: make swagger-gen FILE=src/internal/user/handler.go)
@@ -60,4 +60,8 @@ endif
 swagger-fmt:
 	swag fmt --dir ${SWAGGER_DIR}
 
+# TEMPLE
+.PHONY: temple-g
+temple-g:
+	templ generate
 .DEFAULT_GOAL := watch

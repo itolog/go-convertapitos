@@ -9,15 +9,15 @@ import (
 	"github.com/gofiber/fiber/v2/middleware/helmet"
 	"github.com/gofiber/fiber/v2/middleware/monitor"
 	"github.com/gofiber/fiber/v2/middleware/recover"
+	"github.com/gofiber/swagger"
 	"github.com/itolog/go-convertapitos/src/configs"
 	"github.com/itolog/go-convertapitos/src/internal/auth"
+	"github.com/itolog/go-convertapitos/src/internal/home"
 	"github.com/itolog/go-convertapitos/src/internal/user"
-	"github.com/itolog/go-convertapitos/src/middleware"
 	"github.com/itolog/go-convertapitos/src/pkg/api"
 	"github.com/itolog/go-convertapitos/src/pkg/db"
 	"github.com/itolog/go-convertapitos/src/pkg/logger"
 
-	"github.com/gofiber/swagger"
 	_ "github.com/itolog/go-convertapitos/docs"
 )
 
@@ -47,21 +47,19 @@ func main() {
 	app.Use(helmet.New())
 	app.Use(recover.New())
 
+	app.Static("/public", "./src/public")
+
 	apiV1 := app.Group("api/v1")
-
-	apiV1.Get("/swagger/*", swagger.HandlerDefault)
-
-	app.Get("/", middleware.Protected(), func(c *fiber.Ctx) error {
-		return c.SendString("Hello, World!")
-	})
-
-	app.Get("/metrics", monitor.New(monitor.Config{Title: "MyService Metrics Page"}))
 
 	// Repositories
 	userRepository := user.NewRepository(database)
 	// Services
 	userService := user.NewService(userRepository)
 	// Handlers
+	apiV1.Get("/swagger/*", swagger.HandlerDefault)
+	app.Get("/metrics", monitor.New(monitor.Config{Title: "MyService Metrics Page"}))
+
+	home.NewHandler(app)
 	auth.NewAuthHandler(apiV1, auth.Deps{
 		Config:       conf,
 		UserService:  userService,

@@ -1,0 +1,15 @@
+package views
+
+import "github.com/itolog/go-convertapitos/src/views/layout"
+import "github.com/itolog/go-convertapitos/src/views/components"
+
+templ Main() {
+	@layout.Layout(layout.LayoutProps{
+		Title:       "ConvertApiTos",
+		Description: "Supa",
+	}) {
+		<div>
+		    @components.Title("ConvertApiTos")
+		</div>
+	}
+}
