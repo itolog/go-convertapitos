@@ -29,10 +29,11 @@ func (repo *Repository) FindAll(limit, offset int) ([]User, error) {
 	var users []User
 	res := repo.Database.DB.
 		Table(tableName).
+		Omit("password").
 		Order("updated_at desc").
 		Limit(limit).
 		Offset(offset).
-		Scan(&users)
+		Find(&users)
 
 	if res.Error != nil {
 		return nil, res.Error
