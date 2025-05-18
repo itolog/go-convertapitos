@@ -1,6 +1,7 @@
 package user
 
 import (
+	"fmt"
 	"github.com/itolog/go-convertapitos/src/pkg/db"
 	"gorm.io/gorm/clause"
 )
@@ -25,12 +26,17 @@ func (repo *Repository) Count() *int64 {
 	return count
 }
 
-func (repo *Repository) FindAll(limit, offset int) ([]User, error) {
+func (repo *Repository) FindAll(limit int, offset int, orderBy string, desc bool) ([]User, error) {
 	var users []User
+	order := "asc"
+	if desc {
+		order = "desc"
+	}
+
 	res := repo.Database.DB.
 		Table(tableName).
 		Omit("password").
-		Order("updated_at desc").
+		Order(fmt.Sprintf("%s %s", orderBy, order)).
 		Limit(limit).
 		Offset(offset).
 		Find(&users)
