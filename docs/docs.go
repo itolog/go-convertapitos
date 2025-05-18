@@ -232,7 +232,7 @@ const docTemplate = `{
         },
         "/user": {
             "get": {
-                "description": "Returns a list of all users with pagination",
+                "description": "Returns a list of all users with pagination and sorting options",
                 "consumes": [
                     "application/json"
                 ],
@@ -256,6 +256,20 @@ const docTemplate = `{
                         "default": 0,
                         "description": "Pagination offset",
                         "name": "offset",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "default": "updated_at",
+                        "description": "Field to order by",
+                        "name": "order_by",
+                        "in": "query"
+                    },
+                    {
+                        "type": "boolean",
+                        "default": false,
+                        "description": "Sort in descending order",
+                        "name": "desc",
                         "in": "query"
                     }
                 ],

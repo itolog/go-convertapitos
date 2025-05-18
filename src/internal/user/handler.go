@@ -39,12 +39,14 @@ func NewHandler(app *fiber.App, deps HandlerDeps) {
 
 // GetAllUsers godoc
 // @Summary Get all users
-// @Description Returns a list of all users with pagination
+// @Description Returns a list of all users with pagination and sorting options
 // @Tags User
 // @Accept json
 // @Produce json
 // @Param limit query int false "Number of records per page" default(10)
 // @Param offset query int false "Pagination offset" default(0)
+// @Param order_by query string false "Field to order by" default(updated_at)
+// @Param desc query boolean false "Sort in descending order" default(false)
 // @Success 200 {object} api.ResponseData{data=[]User,meta=api.Meta} "Successful response with list of users"
 // @Failure 400 {object} api.ResponseError{error=string} "Bad request error"
 // @Router /user [get]
@@ -58,7 +60,10 @@ func (h *Handler) GetAllUsers(ctx *fiber.Ctx) error {
 		return fiber.NewError(fiber.StatusBadRequest, fmt.Sprintf("Invalid offset: %s", api.ErrMustBeANumber))
 	}
 
-	users, err := h.UserServices.FindAll(limit, offset)
+	desc := ctx.QueryBool("desc", false)
+	orderBy := ctx.Query("order_by", "updated_at")
+
+	users, err := h.UserServices.FindAll(limit, offset, orderBy, desc)
 	if err != nil {
 		return fiber.NewError(fiber.StatusBadRequest, err.Error())
 	}

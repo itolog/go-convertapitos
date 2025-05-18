@@ -276,7 +276,7 @@ paths:
     get:
       consumes:
       - application/json
-      description: Returns a list of all users with pagination
+      description: Returns a list of all users with pagination and sorting options
       parameters:
       - default: 10
         description: Number of records per page
@@ -288,6 +288,16 @@ paths:
         in: query
         name: offset
         type: integer
+      - default: updated_at
+        description: Field to order by
+        in: query
+        name: order_by
+        type: string
+      - default: false
+        description: Sort in descending order
+        in: query
+        name: desc
+        type: boolean
       produces:
       - application/json
       responses:

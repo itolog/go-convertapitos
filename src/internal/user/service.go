@@ -16,10 +16,10 @@ func NewService(repository *Repository) *Service {
 	}
 }
 
-func (service *Service) FindAll(limit, offset int) (*FindAllResponse, error) {
+func (service *Service) FindAll(limit int, offset int, orderBy string, desc bool) (*FindAllResponse, error) {
 	count := service.UserRepository.Count()
 
-	users, err := service.UserRepository.FindAll(limit, offset)
+	users, err := service.UserRepository.FindAll(limit, offset, orderBy, desc)
 	if err != nil {
 		return nil, fiber.NewError(fiber.StatusBadRequest, err.Error())
 
