@@ -3,20 +3,19 @@ package main
 import (
 	"fmt"
 	"github.com/goccy/go-json"
-
+	"github.com/gofiber/contrib/fiberzerolog"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
 	"github.com/gofiber/fiber/v2/middleware/helmet"
-	"github.com/gofiber/fiber/v2/middleware/logger"
 	"github.com/gofiber/fiber/v2/middleware/monitor"
 	"github.com/gofiber/fiber/v2/middleware/recover"
-
 	"github.com/itolog/go-convertapitos/src/configs"
 	"github.com/itolog/go-convertapitos/src/internal/auth"
 	"github.com/itolog/go-convertapitos/src/internal/user"
 	"github.com/itolog/go-convertapitos/src/middleware"
 	"github.com/itolog/go-convertapitos/src/pkg/api"
 	"github.com/itolog/go-convertapitos/src/pkg/db"
+	"github.com/itolog/go-convertapitos/src/pkg/logger"
 
 	"github.com/gofiber/swagger"
 	_ "github.com/itolog/go-convertapitos/docs"
@@ -29,20 +28,28 @@ import (
 func main() {
 	conf := configs.NewConfig()
 	database := db.NewDb(conf)
+	logConfig := configs.NewLogConfig()
+	customLogger := logger.NewLogger(logConfig)
 
 	app := fiber.New(fiber.Config{
 		Prefork:      true,
 		JSONEncoder:  json.Marshal,
 		JSONDecoder:  json.Unmarshal,
 		ErrorHandler: api.ErrorHandler,
+		AppName:      "ConvertApiTos",
 	})
+
+	app.Use(fiberzerolog.New(fiberzerolog.Config{
+		Logger: customLogger,
+	}))
 
 	app.Use(cors.New())
 	app.Use(helmet.New())
-	app.Use(logger.New())
 	app.Use(recover.New())
 
-	app.Get("/swagger/*", swagger.HandlerDefault)
+	apiV1 := app.Group("api/v1")
+
+	apiV1.Get("/swagger/*", swagger.HandlerDefault)
 
 	app.Get("/", middleware.Protected(), func(c *fiber.Ctx) error {
 		return c.SendString("Hello, World!")
@@ -55,12 +62,16 @@ func main() {
 	// Services
 	userService := user.NewService(userRepository)
 	// Handlers
-	auth.NewAuthHandler(app, auth.Deps{Config: conf, UserService: userService})
-	user.NewHandler(app, user.HandlerDeps{Config: conf, UserServices: userService})
+	auth.NewAuthHandler(apiV1, auth.Deps{
+		Config:       conf,
+		UserService:  userService,
+		CustomLogger: customLogger,
+	})
+	user.NewHandler(apiV1, user.HandlerDeps{Config: conf, UserServices: userService})
 
 	err := app.Listen(":" + conf.Port)
 
 	if err != nil {
-		fmt.Println("App Error", err)
+		customLogger.Error().Msg(fmt.Sprintf("Server error %v", err.Error()))
 	}
 }

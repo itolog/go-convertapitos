@@ -4,19 +4,23 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/itolog/go-convertapitos/src/configs"
 	"github.com/itolog/go-convertapitos/src/pkg/api"
+	"github.com/rs/zerolog"
 )
 
 type HandlerDeps struct {
 	GoogleService IGoogleService
+	CustomLogger  *zerolog.Logger
 }
 
 type Handler struct {
 	GoogleService IGoogleService
+	CustomLogger  *zerolog.Logger
 }
 
 func NewHandler(router fiber.Router, deps HandlerDeps) {
 	handler := Handler{
 		GoogleService: deps.GoogleService,
+		CustomLogger:  deps.CustomLogger,
 	}
 
 	router.Get("/google", handler.GoogleLogin)

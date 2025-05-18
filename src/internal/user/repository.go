@@ -6,6 +6,16 @@ import (
 	"gorm.io/gorm/clause"
 )
 
+type IRepository interface {
+	Count() *int64
+	FindAll(limit int, offset int, orderBy string, order string) ([]User, error)
+	FindById(id string) (*User, error)
+	FindByEmail(email string) (*User, error)
+	Create(user *User) (*User, error)
+	Update(user *User) (*User, error)
+	Delete(id string) error
+}
+
 type Repository struct {
 	Database *db.Db
 }

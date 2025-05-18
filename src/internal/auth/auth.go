@@ -7,18 +7,20 @@ import (
 	"github.com/itolog/go-convertapitos/src/internal/auth/google"
 	"github.com/itolog/go-convertapitos/src/internal/user"
 	"github.com/itolog/go-convertapitos/src/pkg/authorization"
+	"github.com/rs/zerolog"
 )
 
 type Deps struct {
 	*configs.Config
-	UserService user.IUserService
+	UserService  user.IUserService
+	CustomLogger *zerolog.Logger
 }
 
-func NewAuthHandler(app *fiber.App, deps Deps) {
+func NewAuthHandler(app fiber.Router, deps Deps) {
 	router := app.Group("/auth")
 	authorizationService, err := authorization.NewAuthorization()
 	if err != nil {
-		fmt.Println("Authorization Service", err.Error())
+		deps.CustomLogger.Error().Msg(fmt.Sprintf("Authorization Service %v", err.Error()))
 	}
 	// JWT Auth
 	authService := NewService(ServiceDeps{
@@ -35,5 +37,6 @@ func NewAuthHandler(app *fiber.App, deps Deps) {
 	})
 	google.NewHandler(router, google.HandlerDeps{
 		GoogleService: googleService,
+		CustomLogger:  deps.CustomLogger,
 	})
 }

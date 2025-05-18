@@ -10,6 +10,7 @@ import (
 	"github.com/itolog/go-convertapitos/src/internal/user"
 	"github.com/itolog/go-convertapitos/src/pkg/api"
 	"github.com/itolog/go-convertapitos/src/pkg/authorization"
+	"github.com/rs/zerolog"
 
 	"golang.org/x/oauth2"
 	"io"
@@ -24,16 +25,19 @@ type IGoogleService interface {
 type ServiceDeps struct {
 	UserService   user.IUserService
 	Authorization *authorization.Authorization
+	customLogger  zerolog.Logger
 }
 type Service struct {
 	UserService   user.IUserService
 	Authorization *authorization.Authorization
+	customLogger  zerolog.Logger
 }
 
 func NewService(deps ServiceDeps) *Service {
 	return &Service{
 		UserService:   deps.UserService,
 		Authorization: deps.Authorization,
+		customLogger:  deps.customLogger,
 	}
 }
 
@@ -76,7 +80,7 @@ func (service *Service) getUser(token *oauth2.Token) (ResponseGoogle, error) {
 	defer func(Body io.ReadCloser) {
 		err := Body.Close()
 		if err != nil {
-			fmt.Println(err)
+			service.customLogger.Error().Msg(fmt.Sprintf("Error closing response body %v", err.Error()))
 		}
 	}(response.Body)
 

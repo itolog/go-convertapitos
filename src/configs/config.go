@@ -9,9 +9,8 @@ type DbConfig struct {
 }
 
 type Config struct {
-	Port   string `env:"PORT" env-default:"3000"`
-	Prefix string `env:"PREFIX" env-default:"api"`
-	Db     DbConfig
+	Port string `env:"PORT" env-default:"3000"`
+	Db   DbConfig
 }
 
 func init() {
@@ -20,8 +19,7 @@ func init() {
 
 func NewConfig() *Config {
 	return &Config{
-		Port:   environments.GetEnv("PORT"),
-		Prefix: environments.GetEnv("PREFIX"),
+		Port: environments.GetString("PORT", "3000"),
 		Db: DbConfig{
 			Dsn: environments.GetEnv("DB_DSN"),
 		},

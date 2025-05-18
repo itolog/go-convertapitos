@@ -16,7 +16,7 @@ type IUserService interface {
 }
 
 type Service struct {
-	UserRepository *Repository
+	UserRepository IRepository
 }
 
 func NewService(repository *Repository) *Service {

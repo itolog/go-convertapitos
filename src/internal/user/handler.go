@@ -21,7 +21,7 @@ type Handler struct {
 	UserServices IUserService
 }
 
-func NewHandler(app *fiber.App, deps HandlerDeps) {
+func NewHandler(app fiber.Router, deps HandlerDeps) {
 	router := app.Group("/user")
 
 	handler := Handler{
