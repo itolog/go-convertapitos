@@ -232,7 +232,7 @@ const docTemplate = `{
         },
         "/user": {
             "get": {
-                "description": "Returns a list of all users",
+                "description": "Returns a list of all users with pagination",
                 "consumes": [
                     "application/json"
                 ],
@@ -242,7 +242,23 @@ const docTemplate = `{
                 "tags": [
                     "User"
                 ],
-                "summary": "Get all user's",
+                "summary": "Get all users",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "default": 10,
+                        "description": "Number of records per page",
+                        "name": "limit",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "default": 0,
+                        "description": "Pagination offset",
+                        "name": "offset",
+                        "in": "query"
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "Successful response with list of users",
@@ -259,6 +275,9 @@ const docTemplate = `{
                                             "items": {
                                                 "$ref": "#/definitions/user.User"
                                             }
+                                        },
+                                        "meta": {
+                                            "$ref": "#/definitions/api.Meta"
                                         }
                                     }
                                 }
@@ -268,7 +287,19 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad request error",
                         "schema": {
-                            "$ref": "#/definitions/api.ResponseError"
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/api.ResponseError"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            ]
                         }
                     }
                 }
@@ -551,10 +582,21 @@ const docTemplate = `{
                 }
             }
         },
+        "api.Meta": {
+            "type": "object",
+            "properties": {
+                "count": {
+                    "type": "integer"
+                }
+            }
+        },
         "api.ResponseData": {
             "type": "object",
             "properties": {
                 "data": {},
+                "meta": {
+                    "$ref": "#/definitions/api.Meta"
+                },
                 "status": {
                     "$ref": "#/definitions/api.StatusType"
                 }

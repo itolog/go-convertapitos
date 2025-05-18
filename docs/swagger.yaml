@@ -12,9 +12,16 @@ definitions:
       message:
         type: string
     type: object
+  api.Meta:
+    properties:
+      count:
+        type: integer
+    type: object
   api.ResponseData:
     properties:
       data: {}
+      meta:
+        $ref: '#/definitions/api.Meta'
       status:
         $ref: '#/definitions/api.StatusType'
     type: object
@@ -269,7 +276,18 @@ paths:
     get:
       consumes:
       - application/json
-      description: Returns a list of all users
+      description: Returns a list of all users with pagination
+      parameters:
+      - default: 10
+        description: Number of records per page
+        in: query
+        name: limit
+        type: integer
+      - default: 0
+        description: Pagination offset
+        in: query
+        name: offset
+        type: integer
       produces:
       - application/json
       responses:
@@ -283,12 +301,19 @@ paths:
                   items:
                     $ref: '#/definitions/user.User'
                   type: array
+                meta:
+                  $ref: '#/definitions/api.Meta'
               type: object
         "400":
           description: Bad request error
           schema:
-            $ref: '#/definitions/api.ResponseError'
-      summary: Get all user's
+            allOf:
+            - $ref: '#/definitions/api.ResponseError'
+            - properties:
+                error:
+                  type: string
+              type: object
+      summary: Get all users
       tags:
       - User
     post:

@@ -38,13 +38,15 @@ func NewHandler(app *fiber.App, deps HandlerDeps) {
 }
 
 // GetAllUsers godoc
-// @Summary Get all user's
-// @Description Returns a list of all users
+// @Summary Get all users
+// @Description Returns a list of all users with pagination
 // @Tags User
 // @Accept json
 // @Produce json
-// @Success 200 {object} api.ResponseData{data=[]User} "Successful response with list of users"
-// @Failure 400 {object} api.ResponseError "Bad request error"
+// @Param limit query int false "Number of records per page" default(10)
+// @Param offset query int false "Pagination offset" default(0)
+// @Success 200 {object} api.ResponseData{data=[]User,meta=api.Meta} "Successful response with list of users"
+// @Failure 400 {object} api.ResponseError{error=string} "Bad request error"
 // @Router /user [get]
 func (h *Handler) GetAllUsers(ctx *fiber.Ctx) error {
 	limit, err := strconv.Atoi(ctx.Query("limit", "10"))
