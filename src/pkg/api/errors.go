@@ -7,10 +7,12 @@ import (
 
 // Auth Errors
 const (
-	ErrUserAlreadyExist = "user already exists"
-	ErrWrongCredentials = "wrong email or password"
-	ErrUnauthorized     = "unauthorized"
-	ErrMustBeANumber    = "must be a number"
+	ErrUserAlreadyExist      = "user already exists"
+	ErrWrongCredentials      = "wrong email or password"
+	ErrUnauthorized          = "unauthorized"
+	ErrMustBeANumber         = "must be a number"
+	ErrMissingOrMalformedJWT = "missing or malformed jwt"
+	ErrInvalidToken          = "invalid or expired token"
 )
 
 func GetErrorCode(err error) int {

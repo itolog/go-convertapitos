@@ -2,6 +2,7 @@ package home
 
 import (
 	"github.com/gofiber/fiber/v2"
+	"github.com/itolog/go-convertapitos/src/middleware"
 	templadaptor "github.com/itolog/go-convertapitos/src/pkg/templ-adaptor"
 	"github.com/itolog/go-convertapitos/src/views"
 )
@@ -11,7 +12,7 @@ type Handler struct{}
 func NewHandler(app *fiber.App) {
 	handler := &Handler{}
 
-	app.Get("/", handler.Index)
+	app.Get("/", middleware.Protected(), handler.Index)
 }
 
 func (h *Handler) Index(c *fiber.Ctx) error {

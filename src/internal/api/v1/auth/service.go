@@ -13,6 +13,7 @@ import (
 type IAuthService interface {
 	Login(ctx *fiber.Ctx, payload *LoginRequest) (*common.AuthResponse, error)
 	Register(ctx *fiber.Ctx, payload *RegisterRequest) (*common.AuthResponse, error)
+	Logout(ctx *fiber.Ctx)
 	RefreshToken(ctx *fiber.Ctx, refreshToken string) (*common.AuthResponse, error)
 }
 
@@ -88,8 +89,12 @@ func (service *Service) Register(ctx *fiber.Ctx, payload *RegisterRequest) (*com
 	}, nil
 }
 
+func (service *Service) Logout(ctx *fiber.Ctx) {
+	service.Authorization.SetCookie(ctx, "refreshToken", 0)
+}
+
 func (service *Service) RefreshToken(ctx *fiber.Ctx, refreshToken string) (*common.AuthResponse, error) {
-	verify, err := service.Authorization.JWT.Verify(refreshToken)
+	verify, err := service.Authorization.VerifyToken(refreshToken)
 	if err != nil {
 		return nil, fiber.NewError(fiber.StatusUnauthorized, err.Error())
 	}

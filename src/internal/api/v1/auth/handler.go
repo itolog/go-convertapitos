@@ -20,7 +20,8 @@ func NewHandler(router fiber.Router, deps HandlerDeps) {
 	}
 
 	router.Post("/login", handler.Login)
-	router.Post("/Register", handler.Register)
+	router.Post("/register", handler.Register)
+	router.Post("/logout", handler.Logout)
 	router.Get("/refresh-token", handler.RefreshToken)
 }
 
@@ -120,6 +121,15 @@ func (h *Handler) RefreshToken(ctx *fiber.Ctx) error {
 
 	return ctx.Status(fiber.StatusOK).JSON(api.Response{
 		Data:   user,
+		Status: api.StatusSuccess,
+	})
+}
+
+func (h *Handler) Logout(ctx *fiber.Ctx) error {
+	h.AuthService.Logout(ctx)
+
+	return ctx.Status(fiber.StatusOK).JSON(api.Response{
+		Data:   "User logged out.",
 		Status: api.StatusSuccess,
 	})
 }

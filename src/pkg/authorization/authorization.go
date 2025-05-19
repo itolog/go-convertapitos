@@ -55,3 +55,12 @@ func (auth *Authorization) SetCookie(ctx *fiber.Ctx, token string, expires time.
 
 	ctx.Cookie(cookie)
 }
+
+func (auth *Authorization) VerifyToken(refreshToken string) (*jwt.UserClaims, error) {
+	verify, err := auth.JWT.Verify(refreshToken)
+	if err != nil {
+		return nil, fiber.NewError(fiber.StatusUnauthorized, err.Error())
+	}
+
+	return verify, nil
+}
