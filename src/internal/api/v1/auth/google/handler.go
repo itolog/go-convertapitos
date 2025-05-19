@@ -35,7 +35,7 @@ func NewHandler(router fiber.Router, deps HandlerDeps) {
 //	@Tags			Auth Google
 //	@Produce		json
 //	@Success		302	{string}	string	"Redirect to Google login"
-//	@Router			/auth/google [get]
+//	@Router			/api/v1/auth/google [get]
 func (h *Handler) GoogleLogin(ctx *fiber.Ctx) error {
 	from := ctx.Query("from", "/")
 	path := configs.ConfigGoogle()
@@ -54,7 +54,7 @@ func (h *Handler) GoogleLogin(ctx *fiber.Ctx) error {
 //	@Param			code	query		string										true	"OAuth authorization code from Google"
 //	@Success		200		{object}	api.ResponseData{data=common.AuthResponse}	"OAuth success, token and user info"
 //	@Failure		400		{object}	api.ResponseError							"Failed to authenticate"
-//	@Router			/auth/google/callback [get]
+//	@Router			/api/v1/auth/google/callback [get]
 func (h *Handler) GoogleCallback(ctx *fiber.Ctx) error {
 	code := ctx.FormValue("code")
 

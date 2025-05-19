@@ -14,7 +14,9 @@ definitions:
     type: object
   api.Meta:
     properties:
-      count:
+      items:
+        type: integer
+      pages:
         type: integer
     type: object
   api.ResponseData:
@@ -142,7 +144,7 @@ definitions:
 info:
   contact: {}
 paths:
-  /auth/Register:
+  /api/v1/auth/Register:
     post:
       consumes:
       - application/json
@@ -173,7 +175,7 @@ paths:
       summary: User registration
       tags:
       - Auth
-  /auth/google:
+  /api/v1/auth/google:
     get:
       description: Redirects the user to the Google OAuth consent page.
       produces:
@@ -186,7 +188,7 @@ paths:
       summary: Google Auth Login
       tags:
       - Auth Google
-  /auth/google/callback:
+  /api/v1/auth/google/callback:
     get:
       consumes:
       - application/json
@@ -217,7 +219,7 @@ paths:
       summary: Google Auth Callback
       tags:
       - Auth Google
-  /auth/login:
+  /api/v1/auth/login:
     post:
       consumes:
       - application/json
@@ -248,7 +250,7 @@ paths:
       summary: User login
       tags:
       - Auth
-  /auth/logout:
+  /api/v1/auth/logout:
     post:
       consumes:
       - application/json
@@ -273,7 +275,7 @@ paths:
       summary: Logout user
       tags:
       - Auth
-  /auth/refresh-token:
+  /api/v1/auth/refresh-token:
     get:
       consumes:
       - application/json
@@ -297,7 +299,7 @@ paths:
       summary: Refresh JWT token
       tags:
       - Auth
-  /user:
+  /api/v1/user:
     get:
       consumes:
       - application/json
@@ -308,10 +310,11 @@ paths:
         in: query
         name: limit
         type: integer
-      - default: 0
-        description: Pagination offset
+      - default: 1
+        description: Page number
         in: query
-        name: offset
+        minimum: 1
+        name: page
         type: integer
       - default: updated_at
         description: Field to order by
@@ -327,7 +330,7 @@ paths:
       - application/json
       responses:
         "200":
-          description: Successful response with list of users
+          description: Successful response with list of users and metadata
           schema:
             allOf:
             - $ref: '#/definitions/api.ResponseData'
@@ -381,7 +384,7 @@ paths:
       summary: Create new user
       tags:
       - User
-  /user/{id}:
+  /api/v1/user/{id}:
     delete:
       consumes:
       - application/json
@@ -475,7 +478,7 @@ paths:
       summary: Update user
       tags:
       - User
-  /user/by_email/{email}:
+  /api/v1/user/by_email/{email}:
     get:
       consumes:
       - application/json

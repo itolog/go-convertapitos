@@ -24,7 +24,8 @@ type Response struct {
 }
 
 type Meta struct {
-	Count int64 `json:"count"`
+	Items int64 `json:"items"`
+	Pages int   `json:"pages"`
 }
 
 type ResponseData struct {

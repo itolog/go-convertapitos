@@ -15,7 +15,7 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
-        "/auth/Register": {
+        "/api/v1/auth/Register": {
             "post": {
                 "description": "Register a new user with email and password",
                 "consumes": [
@@ -67,7 +67,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/auth/google": {
+        "/api/v1/auth/google": {
             "get": {
                 "description": "Redirects the user to the Google OAuth consent page.",
                 "produces": [
@@ -87,7 +87,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/auth/google/callback": {
+        "/api/v1/auth/google/callback": {
             "get": {
                 "description": "Handles OAuth callback and authenticates/creates user account using Google data.",
                 "consumes": [
@@ -137,7 +137,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/auth/login": {
+        "/api/v1/auth/login": {
             "post": {
                 "description": "Authenticate user with email and password",
                 "consumes": [
@@ -189,7 +189,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/auth/logout": {
+        "/api/v1/auth/logout": {
             "post": {
                 "description": "Performs logout by invalidating user's authentication (such as token or session)",
                 "consumes": [
@@ -230,7 +230,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/auth/refresh-token": {
+        "/api/v1/auth/refresh-token": {
             "get": {
                 "description": "Refresh access token using refresh token cookie",
                 "consumes": [
@@ -271,7 +271,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/user": {
+        "/api/v1/user": {
             "get": {
                 "description": "Returns a list of all users with pagination and sorting options",
                 "consumes": [
@@ -293,10 +293,11 @@ const docTemplate = `{
                         "in": "query"
                     },
                     {
+                        "minimum": 1,
                         "type": "integer",
-                        "default": 0,
-                        "description": "Pagination offset",
-                        "name": "offset",
+                        "default": 1,
+                        "description": "Page number",
+                        "name": "page",
                         "in": "query"
                     },
                     {
@@ -316,7 +317,7 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "Successful response with list of users",
+                        "description": "Successful response with list of users and metadata",
                         "schema": {
                             "allOf": [
                                 {
@@ -410,7 +411,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/user/by_email/{email}": {
+        "/api/v1/user/by_email/{email}": {
             "get": {
                 "description": "Returns user data by email",
                 "consumes": [
@@ -460,7 +461,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/user/{id}": {
+        "/api/v1/user/{id}": {
             "get": {
                 "description": "Returns user data by ID",
                 "consumes": [
@@ -640,7 +641,10 @@ const docTemplate = `{
         "api.Meta": {
             "type": "object",
             "properties": {
-                "count": {
+                "items": {
+                    "type": "integer"
+                },
+                "pages": {
                     "type": "integer"
                 }
             }

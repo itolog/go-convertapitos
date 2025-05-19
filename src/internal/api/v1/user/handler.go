@@ -6,6 +6,7 @@ import (
 	"github.com/itolog/go-convertapitos/src/configs"
 	"github.com/itolog/go-convertapitos/src/pkg/api"
 	"github.com/itolog/go-convertapitos/src/pkg/req"
+	"math"
 	"strconv"
 )
 
@@ -44,24 +45,29 @@ func NewHandler(app fiber.Router, deps HandlerDeps) {
 // @Accept json
 // @Produce json
 // @Param limit query int false "Number of records per page" default(10)
-// @Param offset query int false "Pagination offset" default(0)
+// @Param page query int false "Page number" default(1) minimum(1)
 // @Param order_by query string false "Field to order by" default(updated_at)
 // @Param desc query boolean false "Sort in descending order" default(false)
-// @Success 200 {object} api.ResponseData{data=[]User,meta=api.Meta} "Successful response with list of users"
+// @Success 200 {object} api.ResponseData{data=[]User,meta=api.Meta} "Successful response with list of users and metadata"
 // @Failure 400 {object} api.ResponseError{error=string} "Bad request error"
-// @Router /user [get]
+// @Router /api/v1/user [get]
 func (h *Handler) GetAllUsers(ctx *fiber.Ctx) error {
 	limit, err := strconv.Atoi(ctx.Query("limit", "10"))
 	if err != nil {
 		return fiber.NewError(fiber.StatusBadRequest, fmt.Sprintf("Invalid limit: %s", api.ErrMustBeANumber))
 	}
-	offset, err := strconv.Atoi(ctx.Query("offset", "0"))
+	page, err := strconv.Atoi(ctx.Query("page", "1"))
 	if err != nil {
-		return fiber.NewError(fiber.StatusBadRequest, fmt.Sprintf("Invalid offset: %s", api.ErrMustBeANumber))
+		return fiber.NewError(fiber.StatusBadRequest, fmt.Sprintf("Invalid page: %s", api.ErrMustBeANumber))
+	}
+	if page < 1 {
+		return fiber.NewError(fiber.StatusBadRequest, "page must be greater than 0")
 	}
 
 	desc := ctx.QueryBool("desc", false)
 	orderBy := ctx.Query("order_by", "updated_at")
+
+	offset := (page - 1) * limit
 
 	users, err := h.UserServices.FindAll(limit, offset, orderBy, desc)
 	if err != nil {
@@ -71,7 +77,8 @@ func (h *Handler) GetAllUsers(ctx *fiber.Ctx) error {
 	return ctx.Status(fiber.StatusOK).JSON(api.Response{
 		Data: users.Users,
 		Meta: &api.Meta{
-			Count: *users.Count,
+			Items: *users.Count,
+			Pages: int(math.Ceil(float64(*users.Count) / float64(limit))),
 		},
 		Status: api.StatusSuccess,
 	})
@@ -86,7 +93,7 @@ func (h *Handler) GetAllUsers(ctx *fiber.Ctx) error {
 // @Param id path string true "User ID"
 // @Success 200 {object} api.ResponseData{data=User} "Successful response with user data"
 // @Failure 400 {object} api.ResponseError "Bad request error"
-// @Router /user/{id} [get]
+// @Router /api/v1/user/{id} [get]
 func (h *Handler) GetUserById(ctx *fiber.Ctx) error {
 	id := ctx.Params("id")
 	user, err := h.UserServices.FindById(id)
@@ -109,7 +116,7 @@ func (h *Handler) GetUserById(ctx *fiber.Ctx) error {
 // @Param email path string true "User email"
 // @Success 200 {object} api.ResponseData{data=User} "Successful response with user data"
 // @Failure 400 {object} api.ResponseError "Bad request error"
-// @Router /user/by_email/{email} [get]
+// @Router /api/v1/user/by_email/{email} [get]
 func (h *Handler) GetUserByEmail(ctx *fiber.Ctx) error {
 	email := ctx.Params("email")
 
@@ -133,7 +140,7 @@ func (h *Handler) GetUserByEmail(ctx *fiber.Ctx) error {
 // @Param user body CreateRequest true "User data"
 // @Success 201 {object} api.ResponseData{data=User} "Successfully created user"
 // @Failure 400 {object} api.ResponseError "Bad request error"
-// @Router /user [post]
+// @Router /api/v1/user [post]
 func (h *Handler) CreateUser(ctx *fiber.Ctx) error {
 	payload, err := req.DecodeBody[CreateRequest](ctx)
 	if err != nil {
@@ -176,7 +183,7 @@ func (h *Handler) CreateUser(ctx *fiber.Ctx) error {
 // @Param user body UpdateRequest true "Update data"
 // @Success 200 {object} api.ResponseData{data=User} "Successfully updated user"
 // @Failure 400 {object} api.ResponseError "Bad request error"
-// @Router /user/{id} [patch]
+// @Router /api/v1/user/{id} [patch]
 func (h *Handler) UpdateUser(ctx *fiber.Ctx) error {
 	id := ctx.Params("id")
 
@@ -213,7 +220,7 @@ func (h *Handler) UpdateUser(ctx *fiber.Ctx) error {
 // @Param id path string true "User ID"
 // @Success 200 {object} api.ResponseData{data=string} "Success message"
 // @Failure 400 {object} api.ResponseError "Bad request error"
-// @Router /user/{id} [delete]
+// @Router /api/v1/user/{id} [delete]
 func (h *Handler) DeleteUser(ctx *fiber.Ctx) error {
 	id := ctx.Params("id")
 

@@ -56,7 +56,13 @@ func main() {
 	// Services
 	userService := user.NewService(userRepository)
 	// Handlers
-	apiV1.Get("/swagger/*", swagger.HandlerDefault)
+	apiV1.Get("/swagger/*", swagger.New(swagger.Config{
+		Title: "ConvertApiTos API",
+		SyntaxHighlight: &swagger.SyntaxHighlightConfig{
+			Theme:    "monokai",
+			Activate: true,
+		},
+	}))
 	app.Get("/metrics", monitor.New(monitor.Config{Title: "MyService Metrics Page"}))
 
 	home.NewHandler(app)
