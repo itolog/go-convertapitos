@@ -3,7 +3,7 @@ package auth
 import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/itolog/go-convertapitos/src/common"
-	"github.com/itolog/go-convertapitos/src/internal/user"
+	"github.com/itolog/go-convertapitos/src/internal/api/v1/user"
 	"github.com/itolog/go-convertapitos/src/pkg/api"
 	"github.com/itolog/go-convertapitos/src/pkg/authorization"
 

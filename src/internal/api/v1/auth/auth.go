@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"github.com/gofiber/fiber/v2"
 	"github.com/itolog/go-convertapitos/src/configs"
-	"github.com/itolog/go-convertapitos/src/internal/auth/google"
-	"github.com/itolog/go-convertapitos/src/internal/user"
+	"github.com/itolog/go-convertapitos/src/internal/api/v1/auth/google"
+	"github.com/itolog/go-convertapitos/src/internal/api/v1/user"
 	"github.com/itolog/go-convertapitos/src/pkg/authorization"
 	"github.com/rs/zerolog"
 )

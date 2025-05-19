@@ -1,7 +1,7 @@
 package main
 
 import (
-	"github.com/itolog/go-convertapitos/src/internal/user"
+	"github.com/itolog/go-convertapitos/src/internal/api/v1/user"
 	"github.com/itolog/go-convertapitos/src/pkg/environments"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
