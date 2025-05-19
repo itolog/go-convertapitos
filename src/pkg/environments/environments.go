@@ -1,8 +1,8 @@
 package environments
 
 import (
-	"github.com/gofiber/fiber/v2/log"
 	"github.com/joho/godotenv"
+	"github.com/rs/zerolog/log"
 	"os"
 	"strconv"
 )
@@ -12,21 +12,15 @@ const (
 )
 
 func LoadEnv() {
-	appEnv := GetEnv("APP_ENV")
-
-	if appEnv == "" {
-		log.Error("Error loading APP_ENV")
-	}
-
 	if IsDev() {
 		err := godotenv.Load(".env.development")
 		if err != nil {
-			log.Error(err)
+			log.Error().Msg(err.Error())
 		}
 	} else {
 		err := godotenv.Load(".env")
 		if err != nil {
-			log.Error(err)
+			log.Error().Msg(err.Error())
 		}
 	}
 }
@@ -67,6 +61,6 @@ func GetBool(key string, defaultValue bool) bool {
 }
 
 func IsDev() bool {
-	appEnv := GetEnv("APP_ENV")
+	appEnv := GetString("APP_ENV", "development")
 	return appEnv == DEV
 }
