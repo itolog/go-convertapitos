@@ -125,6 +125,15 @@ func (h *Handler) RefreshToken(ctx *fiber.Ctx) error {
 	})
 }
 
+// Logout godoc
+// @Summary Logout user
+// @Description Performs logout by invalidating user's authentication (such as token or session)
+// @Tags Auth
+// @Accept json
+// @Produce json
+// @Success 200 {object} api.ResponseData{data=string} "Logout successful"
+// @Failure 401 {object} api.ResponseError "Unauthorized"
+// @Router /auth/logout [post]
 func (h *Handler) Logout(ctx *fiber.Ctx) error {
 	h.AuthService.Logout(ctx)
 
