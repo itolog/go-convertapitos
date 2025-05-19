@@ -15,7 +15,7 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
-        "/api/v1/auth/Register": {
+        "/auth/Register": {
             "post": {
                 "description": "Register a new user with email and password",
                 "consumes": [
@@ -67,7 +67,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/v1/auth/google": {
+        "/auth/google": {
             "get": {
                 "description": "Redirects the user to the Google OAuth consent page.",
                 "produces": [
@@ -87,7 +87,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/v1/auth/google/callback": {
+        "/auth/google/callback": {
             "get": {
                 "description": "Handles OAuth callback and authenticates/creates user account using Google data.",
                 "consumes": [
@@ -137,7 +137,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/v1/auth/login": {
+        "/auth/login": {
             "post": {
                 "description": "Authenticate user with email and password",
                 "consumes": [
@@ -189,7 +189,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/v1/auth/logout": {
+        "/auth/logout": {
             "post": {
                 "description": "Performs logout by invalidating user's authentication (such as token or session)",
                 "consumes": [
@@ -230,7 +230,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/v1/auth/refresh-token": {
+        "/auth/refresh-token": {
             "get": {
                 "description": "Refresh access token using refresh token cookie",
                 "consumes": [
@@ -271,7 +271,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/v1/user": {
+        "/user": {
             "get": {
                 "description": "Returns a list of all users with pagination and sorting options",
                 "consumes": [
@@ -411,7 +411,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/v1/user/by_email/{email}": {
+        "/user/by_email/{email}": {
             "get": {
                 "description": "Returns user data by email",
                 "consumes": [
@@ -461,7 +461,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/v1/user/{id}": {
+        "/user/{id}": {
             "get": {
                 "description": "Returns user data by ID",
                 "consumes": [
@@ -832,12 +832,12 @@ const docTemplate = `{
 
 // SwaggerInfo holds exported Swagger Info so clients can modify it
 var SwaggerInfo = &swag.Spec{
-	Version:          "",
+	Version:          "1.0.0",
 	Host:             "",
-	BasePath:         "",
+	BasePath:         "/api/v1",
 	Schemes:          []string{},
-	Title:            "",
-	Description:      "",
+	Title:            "ConvertApiTos API",
+	Description:      "The ConvertApiTos API",
 	InfoInstanceName: "swagger",
 	SwaggerTemplate:  docTemplate,
 	LeftDelim:        "{{",

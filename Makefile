@@ -1,9 +1,6 @@
 BINARY=convertapitos
 CMD_DIR=./src/cmd
-# SWAGGER
-SWAGGER_DIR ?= ./src/cmd
-SWAGGER_OPTIONS ?= --parseDependency --parseInternal --parseFuncBody --parseDepth 5
-
+SWAGGER_FILE ?=./src/internal/router/router.go
 
 # DEVELOPMENT
 .PHONY: run
@@ -47,18 +44,11 @@ migrations-auto:
 # SWAGGER
 .PHONY: swagger-init
 swagger-init:
-	swag init --dir ${SWAGGER_DIR} ${SWAGGER_OPTIONS}
-
-.PHONY: swagger-gen
-swagger-gen:
-ifndef FILE
-	$(error FILE is required for swagger-gen. Example: make swagger-gen FILE=src/internal/user/handler.go)
-endif
-	swag init -g $(FILE) --parseInternal
+	swag init -g ${SWAGGER_FILE}
 
 .PHONY: swagger-fmt
 swagger-fmt:
-	swag fmt --dir ${SWAGGER_DIR}
+	swag fmt -g ${SWAGGER_FILE}
 
 # TEMPLE
 .PHONY: temple-g

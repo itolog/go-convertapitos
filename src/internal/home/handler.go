@@ -8,7 +8,7 @@ import (
 
 type Handler struct{}
 
-func NewHandler(app *fiber.App) {
+func NewHandler(app fiber.Router) {
 	handler := &Handler{}
 
 	app.Get("/", handler.Index)

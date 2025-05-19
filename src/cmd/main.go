@@ -9,22 +9,14 @@ import (
 	"github.com/gofiber/fiber/v2/middleware/helmet"
 	"github.com/gofiber/fiber/v2/middleware/monitor"
 	"github.com/gofiber/fiber/v2/middleware/recover"
-	"github.com/gofiber/swagger"
+
 	"github.com/itolog/go-convertapitos/src/configs"
-	"github.com/itolog/go-convertapitos/src/internal/api/v1/auth"
-	"github.com/itolog/go-convertapitos/src/internal/api/v1/user"
-	"github.com/itolog/go-convertapitos/src/internal/home"
+	"github.com/itolog/go-convertapitos/src/internal/router"
 	"github.com/itolog/go-convertapitos/src/pkg/api"
 	"github.com/itolog/go-convertapitos/src/pkg/db"
 	"github.com/itolog/go-convertapitos/src/pkg/logger"
-
-	_ "github.com/itolog/go-convertapitos/docs"
 )
 
-// @title			ConvertApiTos API
-// @version		1.0.0
-// @description	The ConvertApiTos API
-// @BasePath		/
 func main() {
 	conf := configs.NewConfig()
 	database := db.NewDb(conf)
@@ -49,30 +41,13 @@ func main() {
 
 	app.Static("/public", "./src/public")
 
-	apiV1 := app.Group("api/v1")
-
-	// Repositories
-	userRepository := user.NewRepository(database)
-	// Services
-	userService := user.NewService(userRepository)
-	// Handlers
-	apiV1.Get("/swagger/*", swagger.New(swagger.Config{
-		Title: "ConvertApiTos API",
-		SyntaxHighlight: &swagger.SyntaxHighlightConfig{
-			Theme:    "monokai",
-			Activate: true,
-		},
-	}))
 	app.Get("/metrics", monitor.New(monitor.Config{Title: "MyService Metrics Page"}))
 
-	home.NewHandler(app)
-	auth.NewAuthHandler(apiV1, auth.Deps{
+	router.New(app, router.Deps{
 		Config:       conf,
-		UserService:  userService,
+		Database:     database,
 		CustomLogger: customLogger,
 	})
-	user.NewHandler(apiV1, user.HandlerDeps{Config: conf, UserServices: userService})
-
 	err := app.Listen(":" + conf.Port)
 
 	if err != nil {

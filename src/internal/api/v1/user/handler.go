@@ -39,18 +39,19 @@ func NewHandler(app fiber.Router, deps HandlerDeps) {
 }
 
 // GetAllUsers godoc
-// @Summary Get all users
-// @Description Returns a list of all users with pagination and sorting options
-// @Tags User
-// @Accept json
-// @Produce json
-// @Param limit query int false "Number of records per page" default(10)
-// @Param page query int false "Page number" default(1) minimum(1)
-// @Param order_by query string false "Field to order by" default(updated_at)
-// @Param desc query boolean false "Sort in descending order" default(false)
-// @Success 200 {object} api.ResponseData{data=[]User,meta=api.Meta} "Successful response with list of users and metadata"
-// @Failure 400 {object} api.ResponseError{error=string} "Bad request error"
-// @Router /api/v1/user [get]
+//
+//	@Summary		Get all users
+//	@Description	Returns a list of all users with pagination and sorting options
+//	@Tags			User
+//	@Accept			json
+//	@Produce		json
+//	@Param			limit		query		int											false	"Number of records per page"	default(10)
+//	@Param			page		query		int											false	"Page number"					default(1)	minimum(1)
+//	@Param			order_by	query		string										false	"Field to order by"				default(updated_at)
+//	@Param			desc		query		boolean										false	"Sort in descending order"		default(false)
+//	@Success		200			{object}	api.ResponseData{data=[]User,meta=api.Meta}	"Successful response with list of users and metadata"
+//	@Failure		400			{object}	api.ResponseError{error=string}				"Bad request error"
+//	@Router			/user [get]
 func (h *Handler) GetAllUsers(ctx *fiber.Ctx) error {
 	limit, err := strconv.Atoi(ctx.Query("limit", "10"))
 	if err != nil {
@@ -85,15 +86,16 @@ func (h *Handler) GetAllUsers(ctx *fiber.Ctx) error {
 }
 
 // GetUserById godoc
-// @Summary Get user by ID
-// @Description Returns user data by ID
-// @Tags User
-// @Accept json
-// @Produce json
-// @Param id path string true "User ID"
-// @Success 200 {object} api.ResponseData{data=User} "Successful response with user data"
-// @Failure 400 {object} api.ResponseError "Bad request error"
-// @Router /api/v1/user/{id} [get]
+//
+//	@Summary		Get user by ID
+//	@Description	Returns user data by ID
+//	@Tags			User
+//	@Accept			json
+//	@Produce		json
+//	@Param			id	path		string						true	"User ID"
+//	@Success		200	{object}	api.ResponseData{data=User}	"Successful response with user data"
+//	@Failure		400	{object}	api.ResponseError			"Bad request error"
+//	@Router			/user/{id} [get]
 func (h *Handler) GetUserById(ctx *fiber.Ctx) error {
 	id := ctx.Params("id")
 	user, err := h.UserServices.FindById(id)
@@ -108,15 +110,16 @@ func (h *Handler) GetUserById(ctx *fiber.Ctx) error {
 }
 
 // GetUserByEmail godoc
-// @Summary Get user by email
-// @Description Returns user data by email
-// @Tags User
-// @Accept json
-// @Produce json
-// @Param email path string true "User email"
-// @Success 200 {object} api.ResponseData{data=User} "Successful response with user data"
-// @Failure 400 {object} api.ResponseError "Bad request error"
-// @Router /api/v1/user/by_email/{email} [get]
+//
+//	@Summary		Get user by email
+//	@Description	Returns user data by email
+//	@Tags			User
+//	@Accept			json
+//	@Produce		json
+//	@Param			email	path		string						true	"User email"
+//	@Success		200		{object}	api.ResponseData{data=User}	"Successful response with user data"
+//	@Failure		400		{object}	api.ResponseError			"Bad request error"
+//	@Router			/user/by_email/{email} [get]
 func (h *Handler) GetUserByEmail(ctx *fiber.Ctx) error {
 	email := ctx.Params("email")
 
@@ -132,15 +135,16 @@ func (h *Handler) GetUserByEmail(ctx *fiber.Ctx) error {
 }
 
 // CreateUser godoc
-// @Summary Create new user
-// @Description Creates a new user with provided data
-// @Tags User
-// @Accept json
-// @Produce json
-// @Param user body CreateRequest true "User data"
-// @Success 201 {object} api.ResponseData{data=User} "Successfully created user"
-// @Failure 400 {object} api.ResponseError "Bad request error"
-// @Router /api/v1/user [post]
+//
+//	@Summary		Create new user
+//	@Description	Creates a new user with provided data
+//	@Tags			User
+//	@Accept			json
+//	@Produce		json
+//	@Param			user	body		CreateRequest				true	"User data"
+//	@Success		201		{object}	api.ResponseData{data=User}	"Successfully created user"
+//	@Failure		400		{object}	api.ResponseError			"Bad request error"
+//	@Router			/user [post]
 func (h *Handler) CreateUser(ctx *fiber.Ctx) error {
 	payload, err := req.DecodeBody[CreateRequest](ctx)
 	if err != nil {
@@ -174,16 +178,17 @@ func (h *Handler) CreateUser(ctx *fiber.Ctx) error {
 }
 
 // UpdateUser godoc
-// @Summary Update user
-// @Description Updates existing user data
-// @Tags User
-// @Accept json
-// @Produce json
-// @Param id path string true "User ID"
-// @Param user body UpdateRequest true "Update data"
-// @Success 200 {object} api.ResponseData{data=User} "Successfully updated user"
-// @Failure 400 {object} api.ResponseError "Bad request error"
-// @Router /api/v1/user/{id} [patch]
+//
+//	@Summary		Update user
+//	@Description	Updates existing user data
+//	@Tags			User
+//	@Accept			json
+//	@Produce		json
+//	@Param			id		path		string						true	"User ID"
+//	@Param			user	body		UpdateRequest				true	"Update data"
+//	@Success		200		{object}	api.ResponseData{data=User}	"Successfully updated user"
+//	@Failure		400		{object}	api.ResponseError			"Bad request error"
+//	@Router			/user/{id} [patch]
 func (h *Handler) UpdateUser(ctx *fiber.Ctx) error {
 	id := ctx.Params("id")
 
@@ -212,15 +217,16 @@ func (h *Handler) UpdateUser(ctx *fiber.Ctx) error {
 }
 
 // DeleteUser godoc
-// @Summary Delete user
-// @Description Deletes a user by ID
-// @Tags User
-// @Accept json
-// @Produce json
-// @Param id path string true "User ID"
-// @Success 200 {object} api.ResponseData{data=string} "Success message"
-// @Failure 400 {object} api.ResponseError "Bad request error"
-// @Router /api/v1/user/{id} [delete]
+//
+//	@Summary		Delete user
+//	@Description	Deletes a user by ID
+//	@Tags			User
+//	@Accept			json
+//	@Produce		json
+//	@Param			id	path		string							true	"User ID"
+//	@Success		200	{object}	api.ResponseData{data=string}	"Success message"
+//	@Failure		400	{object}	api.ResponseError				"Bad request error"
+//	@Router			/user/{id} [delete]
 func (h *Handler) DeleteUser(ctx *fiber.Ctx) error {
 	id := ctx.Params("id")
 
