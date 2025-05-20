@@ -1,6 +1,22 @@
 name: go-convertapitos-dev
 
 services:
+  frontend:
+    container_name: frontend_dev
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    ports:
+      - "5173:5173"
+    environment:
+      - NODE_ENV=development
+    command: npm run dev -- --host 0.0.0.0
+    networks:
+      - app-network
+
   postgres:
     image: postgres:latest
     container_name: postgres_go_dev
@@ -23,7 +39,6 @@ services:
       timeout: 5s
       retries: 5
       start_period: 10s
-
 
 networks:
   app-network:

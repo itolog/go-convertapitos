@@ -1,19 +1,6 @@
 name: go-convertapitos
 
 services:
-  migrate:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    command: ["/app/migrate"]
-    env_file:
-      - .env
-    depends_on:
-      postgres:
-        condition: service_healthy
-    networks:
-      - app-network
-
   server:
     container_name: server
     build:
@@ -25,16 +12,12 @@ services:
       - "${PORT}:${PORT}"
     env_file:
       - .env
-    volumes:
-      - .:/usr/src/app
     depends_on:
-      migrate:
-        condition: service_completed_successfully
       postgres:
         condition: service_healthy
     networks:
       - app-network
-    command: ["/app/server" ]
+    command: ["/app/server"]
 
   postgres:
     image: postgres:latest

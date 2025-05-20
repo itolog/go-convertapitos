@@ -1,6 +1,7 @@
 BINARY=convertapitos
 CMD_DIR=./src/cmd
 SWAGGER_FILE ?=./src/internal/router/router.go
+COMOSE_DEV_FILE=compose.dev.yaml
 
 # DEVELOPMENT
 .PHONY: run
@@ -14,6 +15,11 @@ run-gcf:
 .PHONY: watch
 watch:
 	APP_ENV="development" air
+# FRONTEND
+.PHONY: frontend-build
+frontend-build:
+	cd frontend && npm install && npm run build
+
 # BUILD
 .PHONY: build
 build:
@@ -26,15 +32,19 @@ run-prod:
 # DOCKER
 .PHONY: docker-up-dev
 docker-up-dev:
-	docker compose -f docker.dev.yml up -d --build
+	docker compose -f ${COMOSE_DEV_FILE} up -d --build
 
 .PHONY: docker-stop-dev
 docker-stop-dev:
-	docker compose -f docker.dev.yml stop
+	docker compose -f ${COMOSE_DEV_FILE} stop
 
 .PHONY: docker-down-dev
 docker-down-dev:
-	docker compose -f docker.dev.yml down
+	docker compose -f ${COMOSE_DEV_FILE} down
+
+.PHONY: docker-up-with-frontend
+docker-up-with-frontend: frontend-build
+	docker compose up -d --build
 
 .PHONY: docker-up
 docker-up:
