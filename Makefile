@@ -17,7 +17,7 @@ watch:
 # BUILD
 .PHONY: build
 build:
-	make tailwind-build && make temple-g && go build -o ./bin/${BINARY} ${CMD_DIR}
+	go build -o ./bin/${BINARY} ${CMD_DIR}
 
 .PHONY: run-prod
 run-prod:
@@ -50,18 +50,5 @@ swagger-init:
 swagger-fmt:
 	swag fmt -g ${SWAGGER_FILE}
 
-# TEMPLE
-.PHONY: temple-g
-temple-g:
-	templ generate
-
-# TAILWIND
-.PHONY: tailwind-watch
-tailwind-watch:
-	npx @tailwindcss/cli -i ./src/public/styles/styles.css -o ./src/public/styles/build.css --watch
-
-.PHONY: tailwind-build
-tailwind-build:
-	npx @tailwindcss/cli -i ./src/public/styles/styles.css -o ./src/public/styles/build.css --minify
 
 .DEFAULT_GOAL := watch

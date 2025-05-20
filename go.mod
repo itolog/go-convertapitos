@@ -3,7 +3,6 @@ module github.com/itolog/go-convertapitos
 go 1.24.3
 
 require (
-	github.com/a-h/templ v0.3.865
 	github.com/go-playground/validator/v10 v10.26.0
 	github.com/goccy/go-json v0.10.5
 	github.com/gofiber/contrib/fiberzerolog v1.0.3

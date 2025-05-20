@@ -2,8 +2,6 @@ package home
 
 import (
 	"github.com/gofiber/fiber/v2"
-	templadaptor "github.com/itolog/go-convertapitos/src/pkg/templ-adaptor"
-	"github.com/itolog/go-convertapitos/src/views"
 )
 
 type Handler struct{}
@@ -15,6 +13,5 @@ func NewHandler(app fiber.Router) {
 }
 
 func (h *Handler) Index(c *fiber.Ctx) error {
-	component := views.Main()
-	return templadaptor.Render(c, component)
+	return c.SendString("Hello, World!")
 }
