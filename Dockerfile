@@ -11,7 +11,6 @@ COPY . .
 
 # Building the application
 RUN CGO_ENABLED=0 go build -o /app/server ./src/cmd/
-RUN CGO_ENABLED=0 go build -o /app/migrate ./src/migrations/
 
 # Final stage
 FROM alpine:latest

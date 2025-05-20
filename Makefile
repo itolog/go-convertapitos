@@ -64,6 +64,10 @@ docker-down:
 migrations-auto:
 	APP_ENV="development" go run ./src/migrations
 
+.PHONY: migrations-auto
+migrations-auto-prod:
+	APP_ENV="production" go run ./src/migrations
+
 # SWAGGER
 .PHONY: swagger-init
 swagger-init:
