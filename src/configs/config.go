@@ -9,8 +9,9 @@ type DbConfig struct {
 }
 
 type Config struct {
-	Port string `env:"PORT" env-default:"3000"`
-	Db   DbConfig
+	Port          string `env:"PORT" env-default:"3000"`
+	EnablePrefork bool   `env:"ENABLE_PREFORK" env-default:"false"`
+	Db            DbConfig
 }
 
 func init() {
@@ -19,7 +20,8 @@ func init() {
 
 func NewConfig() *Config {
 	return &Config{
-		Port: environments.GetString("PORT", "3000"),
+		Port:          environments.GetString("PORT", "3000"),
+		EnablePrefork: environments.GetBool("ENABLE_PREFORK", false),
 		Db: DbConfig{
 			Dsn: environments.GetEnv("DB_DSN"),
 		},

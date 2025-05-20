@@ -24,6 +24,18 @@ run-prod:
 	APP_ENV="production" ./bin/${BINARY}
 
 # DOCKER
+.PHONY: docker-up-dev
+docker-up-dev:
+	docker compose -f docker.dev.yml up -d --build
+
+.PHONY: docker-stop-dev
+docker-stop-dev:
+	docker compose -f docker.dev.yml stop
+
+.PHONY: docker-down-dev
+docker-down-dev:
+	docker compose -f docker.dev.yml down
+
 .PHONY: docker-up
 docker-up:
 	docker compose up -d --build

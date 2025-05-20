@@ -24,7 +24,7 @@ func main() {
 	customLogger := logger.NewLogger(logConfig)
 
 	app := fiber.New(fiber.Config{
-		Prefork:      true,
+		Prefork:      conf.EnablePrefork,
 		JSONEncoder:  json.Marshal,
 		JSONDecoder:  json.Unmarshal,
 		ErrorHandler: api.ErrorHandler,
@@ -39,7 +39,8 @@ func main() {
 	app.Use(helmet.New())
 	app.Use(recover.New())
 
-	app.Static("/public", "./src/public")
+	app.Static("/public", "./public")
+	app.Static("/", "./frontend/dist")
 
 	app.Get("/metrics", monitor.New(monitor.Config{Title: "MyService Metrics Page"}))
 
