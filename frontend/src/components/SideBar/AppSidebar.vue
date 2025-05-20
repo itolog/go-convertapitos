@@ -10,6 +10,7 @@ import {
   SidebarRail,
   type SidebarProps,
 } from '@/components/ui/sidebar'
+import ThemeSwitcher from '@/components/ThemeSwitcher/ThemeSwitcher.vue'
 
 const props = withDefaults(defineProps<SidebarProps>(), {
   collapsible: 'icon',
@@ -37,6 +38,7 @@ const data = {
       <NavUser :user="data.user" />
     </SidebarHeader>
     <SidebarContent>
+      <ThemeSwitcher />
       <NavMain :items="data.navMain" />
     </SidebarContent>
     <SidebarRail />

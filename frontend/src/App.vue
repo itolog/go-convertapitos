@@ -8,7 +8,7 @@ import AppSidebar from '@/components/SideBar/AppSidebar.vue'
   <SidebarProvider>
     <AppSidebar />
     <SidebarTrigger />
-    <main class="w-full">
+    <main class="w-full p-4">
       <RouterView />
     </main>
   </SidebarProvider>
