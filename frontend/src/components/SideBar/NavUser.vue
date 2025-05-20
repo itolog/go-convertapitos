@@ -84,7 +84,7 @@ const { isMobile } = useSidebar()
           </DropdownMenuGroup>
           <DropdownMenuSeparator />
           <DropdownMenuItem>
-            <RouterLink class="flex gap-2 items-center" to="/login">
+            <RouterLink class="flex gap-2 items-center w-full" to="/login">
               <LogIn />
               <span> Log In</span>
             </RouterLink>
