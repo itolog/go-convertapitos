@@ -29,7 +29,7 @@ build:
 run-prod:
 	APP_ENV="production" ./bin/${BINARY}
 
-# DOCKER
+# DOCKER DEV
 .PHONY: docker-up-dev
 docker-up-dev:
 	docker compose -f ${COMOSE_DEV_FILE} up -d --build
@@ -42,6 +42,7 @@ docker-stop-dev:
 docker-down-dev:
 	docker compose -f ${COMOSE_DEV_FILE} down
 
+# DOCKER PROD
 .PHONY: docker-up-with-frontend
 docker-up-with-frontend: frontend-build
 	docker compose up -d --build
