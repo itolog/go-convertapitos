@@ -10,5 +10,6 @@ export default defineConfig({
   locale: "en",
   axios: {
     withCredentials: true,
+    baseURL: import.meta.env.VITE_API_URL,
   },
 });

@@ -1,8 +1,10 @@
 <script setup lang="ts">
 import { ref } from "vue";
+import router from "@/router";
 import { type Vueform } from "@vueform/vueform";
-import type { ApiResponseData } from "@/generated/apiClient/data-contracts.ts";
 import type { AxiosResponse } from "axios";
+
+import type { ApiResponseData } from "@/generated/apiClient/data-contracts.ts";
 import { clearFormErrors, handleFormError } from "@/helpers/formHelpers.ts";
 
 const schema = ref({
@@ -18,6 +20,7 @@ const handleSuccess = (response: AxiosResponse<ApiResponseData>, form$: Vueform)
   // console.log(response.data.data.user);
 
   form$.reset();
+  router.push({ name: "home" });
 };
 </script>
 
@@ -28,7 +31,7 @@ const handleSuccess = (response: AxiosResponse<ApiResponseData>, form$: Vueform)
     <h2 class="text-center text-2xl/9 font-bold tracking-tight">Sign in to your account</h2>
 
     <Vueform
-      endpoint="http://localhost:3000/api/v1/auth/login"
+      endpoint="/api/v1/auth/login"
       method="post"
       @error="handleFormError"
       @success="handleSuccess"
