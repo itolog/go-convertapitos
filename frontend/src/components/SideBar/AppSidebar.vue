@@ -14,12 +14,13 @@ import ThemeSwitcher from '@/components/ThemeSwitcher/ThemeSwitcher.vue'
 
 const props = withDefaults(defineProps<SidebarProps>(), {
   collapsible: 'icon',
+  variant: 'floating',
 })
 
 const data = {
   user: {
-    name: 'shadcn',
-    email: 'm@example.com',
+    name: '',
+    email: '',
     avatar: '',
   },
   navMain: [

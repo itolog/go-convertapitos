@@ -1,16 +1,16 @@
-import './assets/main.css'
-import Vueform from '@vueform/vueform'
-import vueformConfig from './../vueform.config'
-import { createApp } from 'vue'
-import { createPinia } from 'pinia'
+import "./assets/main.css";
+import VueForm from "@vueform/vueform";
+import vueFormConfig from "./../vueform.config";
+import { createApp } from "vue";
+import { createPinia } from "pinia";
 
-import App from './App.vue'
-import router from './router'
+import App from "./App.vue";
+import router from "./router";
 
-const app = createApp(App)
+const app = createApp(App);
 
-app.use(createPinia())
-app.use(router)
-app.use(Vueform, vueformConfig)
+app.use(createPinia());
+app.use(router);
+app.use(VueForm, vueFormConfig);
 
-app.mount('#app')
+app.mount("#app");

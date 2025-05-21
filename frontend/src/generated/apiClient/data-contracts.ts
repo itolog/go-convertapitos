@@ -1,0 +1,107 @@
+/* eslint-disable */
+/* tslint:disable */
+// @ts-nocheck
+/*
+ * ---------------------------------------------------------------
+ * ## THIS FILE WAS GENERATED VIA SWAGGER-TYPESCRIPT-API        ##
+ * ##                                                           ##
+ * ## AUTHOR: acacode                                           ##
+ * ## SOURCE: https://github.com/acacode/swagger-typescript-api ##
+ * ---------------------------------------------------------------
+ */
+
+export enum ApiStatusType {
+  StatusSuccess = "success",
+  StatusError = "error",
+}
+
+export interface ApiErrorResponse {
+  code?: number;
+  details?: string;
+  fields?: ValidationErrorFields[];
+  message?: string;
+}
+
+export interface ApiMeta {
+  items?: number;
+  pages?: number;
+}
+
+export interface ApiResponseData {
+  data?: any;
+  meta?: ApiMeta;
+  status?: ApiStatusType;
+}
+
+export interface ApiResponseError {
+  error?: ApiErrorResponse;
+  status?: ApiStatusType;
+}
+
+export interface AuthLoginRequest {
+  email: string;
+  /**
+   * @minLength 6
+   * @maxLength 128
+   */
+  password: string;
+}
+
+export interface AuthRegisterRequest {
+  email: string;
+  /** @maxLength 70 */
+  name: string;
+  /**
+   * @minLength 6
+   * @maxLength 128
+   */
+  password: string;
+}
+
+export interface CommonAuthResponse {
+  access_token?: string;
+  user?: UserUser;
+}
+
+export interface UserCreateRequest {
+  email: string;
+  /** @maxLength 70 */
+  name: string;
+  /**
+   * @minLength 6
+   * @maxLength 128
+   */
+  password: string;
+  picture?: string;
+  verified_email?: boolean;
+}
+
+export interface UserUpdateRequest {
+  email?: string;
+  /** @maxLength 70 */
+  name?: string;
+  /**
+   * @minLength 6
+   * @maxLength 128
+   */
+  password?: string;
+  picture?: string;
+  verified_email?: boolean;
+}
+
+export interface UserUser {
+  createdAt?: string;
+  email?: string;
+  id?: string;
+  name?: string;
+  password?: string;
+  picture?: string;
+  updatedAt?: string;
+  verified_email?: boolean;
+}
+
+export interface ValidationErrorFields {
+  field?: string;
+  param?: string;
+  tag?: string;
+}

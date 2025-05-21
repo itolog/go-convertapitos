@@ -12,12 +12,14 @@
     "lint:oxlint": "oxlint . --fix -D correctness --ignore-path .gitignore",
     "lint:eslint": "eslint . --fix",
     "lint": "run-s lint:*",
-    "format": "prettier --write src/"
+    "format": "prettier --write src/",
+    "gen-api-types": "npx swagger-typescript-api generate -p http://localhost:3000/api/v1/swagger/doc.json -o ./src/generate/apiClient --modular"
   },
   "dependencies": {
     "@tailwindcss/vite": "^4.1.7",
     "@vueform/vueform": "^1.12.7",
     "@vueuse/core": "^13.2.0",
+    "axios": "^1.9.0",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "lucide-vue-next": "^0.511.0",
