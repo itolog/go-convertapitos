@@ -59,7 +59,7 @@ export interface AuthRegisterRequest {
 }
 
 export interface CommonAuthResponse {
-  access_token?: string;
+  accessToken?: string;
   user?: UserUser;
 }
 
@@ -73,7 +73,7 @@ export interface UserCreateRequest {
    */
   password: string;
   picture?: string;
-  verified_email?: boolean;
+  verifiedEmail?: boolean;
 }
 
 export interface UserUpdateRequest {
@@ -86,7 +86,7 @@ export interface UserUpdateRequest {
    */
   password?: string;
   picture?: string;
-  verified_email?: boolean;
+  verifiedEmail?: boolean;
 }
 
 export interface UserUser {
@@ -97,7 +97,7 @@ export interface UserUser {
   password?: string;
   picture?: string;
   updatedAt?: string;
-  verified_email?: boolean;
+  verifiedEmail?: boolean;
 }
 
 export interface ValidationErrorFields {
