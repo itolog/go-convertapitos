@@ -8,4 +8,7 @@ export default defineConfig({
   theme: vueform,
   locales: { en },
   locale: "en",
+  axios: {
+    withCredentials: true,
+  },
 });

@@ -9,6 +9,7 @@ import (
 	"github.com/gofiber/fiber/v2/middleware/helmet"
 	"github.com/gofiber/fiber/v2/middleware/monitor"
 	"github.com/gofiber/fiber/v2/middleware/recover"
+	"github.com/itolog/go-convertapitos/src/pkg/environments"
 
 	"github.com/itolog/go-convertapitos/src/configs"
 	"github.com/itolog/go-convertapitos/src/internal/router"
@@ -35,7 +36,13 @@ func main() {
 		Logger: customLogger,
 	}))
 
-	app.Use(cors.New())
+	app.Use(cors.New(cors.Config{
+		AllowOrigins:     environments.GetString("ALLOW_ORIGINS", ""),
+		AllowMethods:     "GET,POST,PUT,DELETE,OPTIONS",
+		AllowHeaders:     "Origin,Content-Type,Accept,Content-Length,Accept-Language,Accept-Encoding,Connection,Access-Control-Allow-Origin,Authorization",
+		AllowCredentials: true,
+		MaxAge:           3600,
+	}))
 	app.Use(helmet.New())
 	app.Use(recover.New())
 
