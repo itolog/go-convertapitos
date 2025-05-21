@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { BadgeCheck, Bell, ChevronsUpDown, CreditCard, LogIn, LogOut } from "lucide-vue-next";
+import { useUserStore } from "@/stores/user.ts";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
@@ -18,6 +19,7 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar";
 import { Button } from "@/components/ui/button";
+import { ACCESS_TOKEN } from "@/constants";
 
 defineProps<{
   user: {
@@ -28,11 +30,13 @@ defineProps<{
 }>();
 
 const { isMobile } = useSidebar();
+const userStore = useUserStore();
 
 const handleLogOut = () => {
-  //1. call logout api
-  //2. remove token from localStorage
-  //3. set isLoggedIn to false
+  //TODO: call logout api
+  localStorage.removeItem(ACCESS_TOKEN);
+  userStore.setUser(null);
+  userStore.setIsLogged(false);
 };
 </script>
 
@@ -90,13 +94,13 @@ const handleLogOut = () => {
             </DropdownMenuItem>
           </DropdownMenuGroup>
           <DropdownMenuSeparator />
-          <DropdownMenuItem>
+          <DropdownMenuItem v-if="!userStore.isLoggedIn">
             <RouterLink class="flex gap-2 items-center w-full" to="/login">
               <LogIn />
               Log In
             </RouterLink>
           </DropdownMenuItem>
-          <DropdownMenuItem class="pl-0">
+          <DropdownMenuItem class="pl-0" v-else>
             <Button
               @click="handleLogOut"
               variant="ghost"

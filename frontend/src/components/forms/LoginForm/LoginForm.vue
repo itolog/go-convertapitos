@@ -7,6 +7,9 @@ import type { AxiosResponse } from "axios";
 import type { ApiResponseData, CommonAuthResponse } from "@/generated/apiClient/data-contracts.ts";
 import { clearFormErrors, handleFormError } from "@/helpers/formHelpers.ts";
 import { ACCESS_TOKEN } from "@/constants";
+import { useUserStore } from "@/stores/user";
+
+const userStore = useUserStore();
 
 const schema = ref({
   email: { type: "text", label: "Email", rules: ["required", "email"] },
@@ -22,6 +25,8 @@ const handleSuccess = ({ data: { data } }: AxiosResponse<ApiResponseData>, form$
   if (accessToken) {
     localStorage.setItem(ACCESS_TOKEN, accessToken);
   }
+  userStore.setUser(data.user);
+  userStore.setIsLogged(true);
 
   form$.reset();
   router.push({ name: "home" });
