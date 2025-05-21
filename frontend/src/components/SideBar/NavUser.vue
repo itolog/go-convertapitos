@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { BadgeCheck, Bell, ChevronsUpDown, CreditCard, LogIn } from 'lucide-vue-next'
+import { BadgeCheck, Bell, ChevronsUpDown, CreditCard, LogIn, LogOut } from "lucide-vue-next";
 
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -10,23 +10,30 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu'
+} from "@/components/ui/dropdown-menu";
 import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
   useSidebar,
-} from '@/components/ui/sidebar'
+} from "@/components/ui/sidebar";
+import { Button } from "@/components/ui/button";
 
 defineProps<{
   user: {
-    name: string
-    email: string
-    avatar: string
-  }
-}>()
+    name: string;
+    email: string;
+    avatar: string;
+  };
+}>();
 
-const { isMobile } = useSidebar()
+const { isMobile } = useSidebar();
+
+const handleLogOut = () => {
+  //1. call logout api
+  //2. remove token from localStorage
+  //3. set isLoggedIn to false
+};
 </script>
 
 <template>
@@ -86,8 +93,19 @@ const { isMobile } = useSidebar()
           <DropdownMenuItem>
             <RouterLink class="flex gap-2 items-center w-full" to="/login">
               <LogIn />
-              <span> Log In</span>
+              Log In
             </RouterLink>
+          </DropdownMenuItem>
+          <DropdownMenuItem class="pl-0">
+            <Button
+              @click="handleLogOut"
+              variant="ghost"
+              size="sm"
+              class="w-full flex justify-start cursor-pointer"
+            >
+              <LogOut />
+              Log Out
+            </Button>
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>

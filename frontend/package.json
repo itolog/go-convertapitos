@@ -13,7 +13,7 @@
     "lint:eslint": "eslint . --fix",
     "lint": "run-s lint:*",
     "format": "prettier --write src/",
-    "gen-api-types": "npx swagger-typescript-api generate -p http://localhost:3000/api/v1/swagger/doc.json -o ./src/generate/apiClient --modular"
+    "gen-api-types": "npx swagger-typescript-api generate -p http://localhost:3000/api/v1/swagger/doc.json -o ./src/generated/apiClient --modular"
   },
   "dependencies": {
     "@tailwindcss/vite": "^4.1.7",

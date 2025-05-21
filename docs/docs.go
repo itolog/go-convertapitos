@@ -51,7 +51,7 @@ const docTemplate = `{
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/user.User"
+                                            "$ref": "#/definitions/common.AuthResponse"
                                         }
                                     }
                                 }
@@ -173,7 +173,7 @@ const docTemplate = `{
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/user.User"
+                                            "$ref": "#/definitions/common.AuthResponse"
                                         }
                                     }
                                 }
@@ -725,7 +725,7 @@ const docTemplate = `{
         "common.AuthResponse": {
             "type": "object",
             "properties": {
-                "access_token": {
+                "accessToken": {
                     "type": "string"
                 },
                 "user": {
@@ -756,7 +756,7 @@ const docTemplate = `{
                 "picture": {
                     "type": "string"
                 },
-                "verified_email": {
+                "verifiedEmail": {
                     "type": "boolean"
                 }
             }
@@ -779,7 +779,7 @@ const docTemplate = `{
                 "picture": {
                     "type": "string"
                 },
-                "verified_email": {
+                "verifiedEmail": {
                     "type": "boolean"
                 }
             }
@@ -808,7 +808,7 @@ const docTemplate = `{
                 "updatedAt": {
                     "type": "string"
                 },
-                "verified_email": {
+                "verifiedEmail": {
                     "type": "boolean"
                 }
             }

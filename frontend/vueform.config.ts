@@ -3,13 +3,11 @@ import vueform from "@vueform/vueform/dist/vueform";
 import { defineConfig } from "@vueform/vueform";
 
 import "@vueform/vueform/dist/vueform.css";
+import { axios } from "@/configs/axiosConfig";
 
 export default defineConfig({
   theme: vueform,
   locales: { en },
   locale: "en",
-  axios: {
-    withCredentials: true,
-    baseURL: import.meta.env.VITE_API_URL,
-  },
+  axios,
 });

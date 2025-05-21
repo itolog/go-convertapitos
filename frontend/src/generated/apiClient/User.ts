@@ -17,10 +17,12 @@ import {
   UserCreateRequest,
   UserUpdateRequest,
   UserUser,
-} from './data-contracts.ts'
-import { ContentType, HttpClient, RequestParams } from './http-client.ts'
+} from "./data-contracts";
+import { ContentType, HttpClient, RequestParams } from "./http-client";
 
-export class User<SecurityDataType = unknown> extends HttpClient<SecurityDataType> {
+export class User<
+  SecurityDataType = unknown,
+> extends HttpClient<SecurityDataType> {
   /**
    * @description Returns a list of all users with pagination and sorting options
    *
@@ -35,42 +37,42 @@ export class User<SecurityDataType = unknown> extends HttpClient<SecurityDataTyp
        * Number of records per page
        * @default 10
        */
-      limit?: number
+      limit?: number;
       /**
        * Page number
        * @min 1
        * @default 1
        */
-      page?: number
+      page?: number;
       /**
        * Field to order by
        * @default "updated_at"
        */
-      order_by?: string
+      order_by?: string;
       /**
        * Sort in descending order
        * @default false
        */
-      desc?: boolean
+      desc?: boolean;
     },
     params: RequestParams = {},
   ) =>
     this.request<
       ApiResponseData & {
-        data?: UserUser[]
-        meta?: ApiMeta
+        data?: UserUser[];
+        meta?: ApiMeta;
       },
       ApiResponseError & {
-        error?: string
+        error?: string;
       }
     >({
       path: `/user`,
-      method: 'GET',
+      method: "GET",
       query: query,
       type: ContentType.Json,
-      format: 'json',
+      format: "json",
       ...params,
-    })
+    });
   /**
    * @description Creates a new user with provided data
    *
@@ -82,17 +84,17 @@ export class User<SecurityDataType = unknown> extends HttpClient<SecurityDataTyp
   userCreate = (user: UserCreateRequest, params: RequestParams = {}) =>
     this.request<
       ApiResponseData & {
-        data?: UserUser
+        data?: UserUser;
       },
       ApiResponseError
     >({
       path: `/user`,
-      method: 'POST',
+      method: "POST",
       body: user,
       type: ContentType.Json,
-      format: 'json',
+      format: "json",
       ...params,
-    })
+    });
   /**
    * @description Returns user data by email
    *
@@ -104,16 +106,16 @@ export class User<SecurityDataType = unknown> extends HttpClient<SecurityDataTyp
   byEmailDetail = (email: string, params: RequestParams = {}) =>
     this.request<
       ApiResponseData & {
-        data?: UserUser
+        data?: UserUser;
       },
       ApiResponseError
     >({
       path: `/user/by_email/${email}`,
-      method: 'GET',
+      method: "GET",
       type: ContentType.Json,
-      format: 'json',
+      format: "json",
       ...params,
-    })
+    });
   /**
    * @description Returns user data by ID
    *
@@ -125,16 +127,16 @@ export class User<SecurityDataType = unknown> extends HttpClient<SecurityDataTyp
   userDetail = (id: string, params: RequestParams = {}) =>
     this.request<
       ApiResponseData & {
-        data?: UserUser
+        data?: UserUser;
       },
       ApiResponseError
     >({
       path: `/user/${id}`,
-      method: 'GET',
+      method: "GET",
       type: ContentType.Json,
-      format: 'json',
+      format: "json",
       ...params,
-    })
+    });
   /**
    * @description Deletes a user by ID
    *
@@ -146,16 +148,16 @@ export class User<SecurityDataType = unknown> extends HttpClient<SecurityDataTyp
   userDelete = (id: string, params: RequestParams = {}) =>
     this.request<
       ApiResponseData & {
-        data?: string
+        data?: string;
       },
       ApiResponseError
     >({
       path: `/user/${id}`,
-      method: 'DELETE',
+      method: "DELETE",
       type: ContentType.Json,
-      format: 'json',
+      format: "json",
       ...params,
-    })
+    });
   /**
    * @description Updates existing user data
    *
@@ -164,18 +166,22 @@ export class User<SecurityDataType = unknown> extends HttpClient<SecurityDataTyp
    * @summary Update user
    * @request PATCH:/user/{id}
    */
-  userPartialUpdate = (id: string, user: UserUpdateRequest, params: RequestParams = {}) =>
+  userPartialUpdate = (
+    id: string,
+    user: UserUpdateRequest,
+    params: RequestParams = {},
+  ) =>
     this.request<
       ApiResponseData & {
-        data?: UserUser
+        data?: UserUser;
       },
       ApiResponseError
     >({
       path: `/user/${id}`,
-      method: 'PATCH',
+      method: "PATCH",
       body: user,
       type: ContentType.Json,
-      format: 'json',
+      format: "json",
       ...params,
-    })
+    });
 }

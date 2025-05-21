@@ -4,8 +4,9 @@ import router from "@/router";
 import { type Vueform } from "@vueform/vueform";
 import type { AxiosResponse } from "axios";
 
-import type { ApiResponseData } from "@/generated/apiClient/data-contracts.ts";
+import type { ApiResponseData, CommonAuthResponse } from "@/generated/apiClient/data-contracts.ts";
 import { clearFormErrors, handleFormError } from "@/helpers/formHelpers.ts";
+import { ACCESS_TOKEN } from "@/constants";
 
 const schema = ref({
   email: { type: "text", label: "Email", rules: ["required", "email"] },
@@ -14,10 +15,13 @@ const schema = ref({
   submit: { type: "submit", url: "" },
 });
 
-const handleSuccess = (response: AxiosResponse<ApiResponseData>, form$: Vueform) => {
+const handleSuccess = ({ data: { data } }: AxiosResponse<ApiResponseData>, form$: Vueform) => {
   clearFormErrors(form$);
-  // console.log(form$.formErrors);
-  // console.log(response.data.data.user);
+  const { accessToken } = data as CommonAuthResponse;
+
+  if (accessToken) {
+    localStorage.setItem(ACCESS_TOKEN, accessToken);
+  }
 
   form$.reset();
   router.push({ name: "home" });

@@ -8,7 +8,7 @@ type User struct {
 	db.Model
 	Name          string `json:"name"`
 	Email         string `json:"email" gorm:"uniqueIndex"`
-	VerifiedEmail bool   `json:"verified_email"`
+	VerifiedEmail bool   `json:"verifiedEmail"`
 	Password      string `json:"password,omitempty"`
 	Picture       string `json:"picture"`
 }

@@ -5,6 +5,6 @@ import (
 )
 
 type AuthResponse struct {
-	AccessToken *string    `json:"access_token"`
+	AccessToken *string    `json:"accessToken"`
 	User        *user.User `json:"user"`
 }

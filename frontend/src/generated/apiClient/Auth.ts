@@ -16,11 +16,12 @@ import {
   AuthLoginRequest,
   AuthRegisterRequest,
   CommonAuthResponse,
-  UserUser,
-} from './data-contracts.ts'
-import { ContentType, HttpClient, RequestParams } from './http-client.ts'
+} from "./data-contracts";
+import { ContentType, HttpClient, RequestParams } from "./http-client";
 
-export class Auth<SecurityDataType = unknown> extends HttpClient<SecurityDataType> {
+export class Auth<
+  SecurityDataType = unknown,
+> extends HttpClient<SecurityDataType> {
   /**
    * @description Register a new user with email and password
    *
@@ -32,17 +33,17 @@ export class Auth<SecurityDataType = unknown> extends HttpClient<SecurityDataTyp
   registerCreate = (payload: AuthRegisterRequest, params: RequestParams = {}) =>
     this.request<
       ApiResponseData & {
-        data?: UserUser
+        data?: CommonAuthResponse;
       },
       ApiResponseError
     >({
       path: `/auth/Register`,
-      method: 'POST',
+      method: "POST",
       body: payload,
       type: ContentType.Json,
-      format: 'json',
+      format: "json",
       ...params,
-    })
+    });
   /**
    * @description Redirects the user to the Google OAuth consent page.
    *
@@ -54,9 +55,9 @@ export class Auth<SecurityDataType = unknown> extends HttpClient<SecurityDataTyp
   googleList = (params: RequestParams = {}) =>
     this.request<any, string>({
       path: `/auth/google`,
-      method: 'GET',
+      method: "GET",
       ...params,
-    })
+    });
   /**
    * @description Handles OAuth callback and authenticates/creates user account using Google data.
    *
@@ -68,23 +69,23 @@ export class Auth<SecurityDataType = unknown> extends HttpClient<SecurityDataTyp
   googleCallbackList = (
     query: {
       /** OAuth authorization code from Google */
-      code: string
+      code: string;
     },
     params: RequestParams = {},
   ) =>
     this.request<
       ApiResponseData & {
-        data?: CommonAuthResponse
+        data?: CommonAuthResponse;
       },
       ApiResponseError
     >({
       path: `/auth/google/callback`,
-      method: 'GET',
+      method: "GET",
       query: query,
       type: ContentType.Json,
-      format: 'json',
+      format: "json",
       ...params,
-    })
+    });
   /**
    * @description Authenticate user with email and password
    *
@@ -96,17 +97,17 @@ export class Auth<SecurityDataType = unknown> extends HttpClient<SecurityDataTyp
   loginCreate = (payload: AuthLoginRequest, params: RequestParams = {}) =>
     this.request<
       ApiResponseData & {
-        data?: UserUser
+        data?: CommonAuthResponse;
       },
       ApiResponseError
     >({
       path: `/auth/login`,
-      method: 'POST',
+      method: "POST",
       body: payload,
       type: ContentType.Json,
-      format: 'json',
+      format: "json",
       ...params,
-    })
+    });
   /**
    * @description Performs logout by invalidating user's authentication (such as token or session)
    *
@@ -118,16 +119,16 @@ export class Auth<SecurityDataType = unknown> extends HttpClient<SecurityDataTyp
   logoutCreate = (params: RequestParams = {}) =>
     this.request<
       ApiResponseData & {
-        data?: string
+        data?: string;
       },
       ApiResponseError
     >({
       path: `/auth/logout`,
-      method: 'POST',
+      method: "POST",
       type: ContentType.Json,
-      format: 'json',
+      format: "json",
       ...params,
-    })
+    });
   /**
    * @description Refresh access token using refresh token cookie
    *
@@ -139,14 +140,14 @@ export class Auth<SecurityDataType = unknown> extends HttpClient<SecurityDataTyp
   refreshTokenList = (params: RequestParams = {}) =>
     this.request<
       ApiResponseData & {
-        data?: CommonAuthResponse
+        data?: CommonAuthResponse;
       },
       ApiResponseError
     >({
       path: `/auth/refresh-token`,
-      method: 'GET',
+      method: "GET",
       type: ContentType.Json,
-      format: 'json',
+      format: "json",
       ...params,
-    })
+    });
 }

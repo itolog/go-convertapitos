@@ -44,7 +44,7 @@
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/user.User"
+                                            "$ref": "#/definitions/common.AuthResponse"
                                         }
                                     }
                                 }
@@ -166,7 +166,7 @@
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/user.User"
+                                            "$ref": "#/definitions/common.AuthResponse"
                                         }
                                     }
                                 }
@@ -718,7 +718,7 @@
         "common.AuthResponse": {
             "type": "object",
             "properties": {
-                "access_token": {
+                "accessToken": {
                     "type": "string"
                 },
                 "user": {
@@ -749,7 +749,7 @@
                 "picture": {
                     "type": "string"
                 },
-                "verified_email": {
+                "verifiedEmail": {
                     "type": "boolean"
                 }
             }
@@ -772,7 +772,7 @@
                 "picture": {
                     "type": "string"
                 },
-                "verified_email": {
+                "verifiedEmail": {
                     "type": "boolean"
                 }
             }
@@ -801,7 +801,7 @@
                 "updatedAt": {
                     "type": "string"
                 },
-                "verified_email": {
+                "verifiedEmail": {
                     "type": "boolean"
                 }
             }

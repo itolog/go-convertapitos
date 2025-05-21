@@ -73,7 +73,7 @@ definitions:
     type: object
   common.AuthResponse:
     properties:
-      access_token:
+      accessToken:
         type: string
       user:
         $ref: '#/definitions/user.User'
@@ -91,7 +91,7 @@ definitions:
         type: string
       picture:
         type: string
-      verified_email:
+      verifiedEmail:
         type: boolean
     required:
     - email
@@ -111,7 +111,7 @@ definitions:
         type: string
       picture:
         type: string
-      verified_email:
+      verifiedEmail:
         type: boolean
     type: object
   user.User:
@@ -130,7 +130,7 @@ definitions:
         type: string
       updatedAt:
         type: string
-      verified_email:
+      verifiedEmail:
         type: boolean
     type: object
   validation.ErrorFields:
@@ -170,7 +170,7 @@ paths:
             - $ref: '#/definitions/api.ResponseData'
             - properties:
                 data:
-                  $ref: '#/definitions/user.User'
+                  $ref: '#/definitions/common.AuthResponse'
               type: object
         "400":
           description: Invalid request or registration error
@@ -245,7 +245,7 @@ paths:
             - $ref: '#/definitions/api.ResponseData'
             - properties:
                 data:
-                  $ref: '#/definitions/user.User'
+                  $ref: '#/definitions/common.AuthResponse'
               type: object
         "400":
           description: Invalid request or credentials

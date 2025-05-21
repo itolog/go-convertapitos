@@ -33,7 +33,7 @@ func NewHandler(router fiber.Router, deps HandlerDeps) {
 //	@Accept			json
 //	@Produce		json
 //	@Param			payload	body		LoginRequest						true	"User credentials"
-//	@Success		200		{object}	api.ResponseData{data=user.User}	"Successfully authenticated"
+//	@Success		200		{object}	api.ResponseData{data=common.AuthResponse}	"Successfully authenticated"
 //	@Failure		400		{object}	api.ResponseError					"Invalid request or credentials"
 //	@Router			/auth/login [post]
 func (h *Handler) Login(ctx *fiber.Ctx) error {
@@ -69,7 +69,7 @@ func (h *Handler) Login(ctx *fiber.Ctx) error {
 //	@Accept			json
 //	@Produce		json
 //	@Param			payload	body		RegisterRequest						true	"User registration data"
-//	@Success		200		{object}	api.ResponseData{data=user.User}	"Successfully registered"
+//	@Success		200		{object}	api.ResponseData{data=common.AuthResponse}	"Successfully registered"
 //	@Failure		400		{object}	api.ResponseError					"Invalid request or registration error"
 //	@Router			/auth/Register [post]
 func (h *Handler) Register(ctx *fiber.Ctx) error {
