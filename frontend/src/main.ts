@@ -1,6 +1,5 @@
 import "./assets/main.css";
-import VueForm from "@vueform/vueform";
-import vueFormConfig from "./../vueform.config";
+
 import { createApp } from "vue";
 import { createPinia } from "pinia";
 
@@ -11,6 +10,5 @@ const app = createApp(App);
 
 app.use(createPinia());
 app.use(router);
-app.use(VueForm, vueFormConfig);
 
 app.mount("#app");

@@ -1,36 +1,32 @@
 <script setup lang="ts">
-import { ref } from "vue";
-import router from "@/router";
-import { type Vueform } from "@vueform/vueform";
-import type { AxiosResponse } from "axios";
+import { useForm } from "vee-validate";
 
-import type { ApiResponseData, CommonAuthResponse } from "@/generated/apiClient/data-contracts.ts";
-import { clearFormErrors, handleFormError } from "@/helpers/formHelpers.ts";
-import { ACCESS_TOKEN } from "@/constants";
-import { useUserStore } from "@/stores/user";
+import { RectangleEllipsis, LucideMail } from "lucide-vue-next";
 
-const userStore = useUserStore();
+import FormInput from "@/components/Inputs/FormInput/FormInput.vue";
 
-const schema = ref({
-  email: { type: "text", label: "Email", rules: ["required", "email"] },
-  password: { type: "text", label: "Password", rules: ["required"] },
-  button: { type: "button", buttonLabel: "Login", submits: true },
-  submit: { type: "submit", url: "" },
+import { toTypedSchema } from "@vee-validate/zod";
+import * as z from "zod";
+
+import { Button } from "@/components/ui/button";
+
+const formSchema = toTypedSchema(
+  z.object({
+    email: z.string().email().min(1),
+    password: z.string().min(6).max(128),
+  }),
+);
+
+import { toast } from "vue-sonner";
+const { isFieldDirty, handleSubmit } = useForm({
+  validationSchema: formSchema,
 });
 
-const handleSuccess = ({ data: { data } }: AxiosResponse<ApiResponseData>, form$: Vueform) => {
-  clearFormErrors(form$);
-  const { accessToken } = data as CommonAuthResponse;
-
-  if (accessToken) {
-    localStorage.setItem(ACCESS_TOKEN, accessToken);
-  }
-  userStore.setUser(data.user);
-  userStore.setIsLogged(true);
-
-  form$.reset();
-  router.push({ name: "home" });
-};
+const onSubmit = handleSubmit(() => {
+  toast("Event has been created", {
+    description: "Sunday, December 03, 2023 at 9:00 AM",
+  });
+});
 </script>
 
 <template>
@@ -38,14 +34,22 @@ const handleSuccess = ({ data: { data } }: AxiosResponse<ApiResponseData>, form$
     class="flex flex-col w-full sm:w-sm md:w-md justify-center p-6 gap-4 lg:p-8 shadow-2xl/50 rounded-2xl dark:shadow-orange-500"
   >
     <h2 class="text-center text-2xl/9 font-bold tracking-tight">Sign in to your account</h2>
+    <form class="flex flex-col gap-8" @submit="onSubmit">
+      <div class="flex flex-col gap-6">
+        <FormInput name="email" :is-field-dirty="isFieldDirty">
+          <template v-slot:icon>
+            <LucideMail />
+          </template>
+        </FormInput>
+        <FormInput name="password" :is-field-dirty="isFieldDirty">
+          <template v-slot:icon>
+            <RectangleEllipsis />
+          </template>
+        </FormInput>
+      </div>
 
-    <Vueform
-      endpoint="/api/v1/auth/login"
-      method="post"
-      @error="handleFormError"
-      @success="handleSuccess"
-      :schema="schema"
-    />
+      <Button type="submit"> Submit </Button>
+    </form>
   </div>
 </template>
 
