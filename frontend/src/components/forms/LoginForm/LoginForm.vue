@@ -1,15 +1,24 @@
 <script setup lang="ts">
-import { useForm } from "vee-validate";
 import { useMutation } from "@tanstack/vue-query";
-import { RectangleEllipsis, LucideMail } from "lucide-vue-next";
-
-import FormInput from "@/components/Inputs/FormInput/FormInput.vue";
-
 import { toTypedSchema } from "@vee-validate/zod";
+import type { AxiosError, AxiosResponse } from "axios";
+import { LucideMail, RectangleEllipsis } from "lucide-vue-next";
+import { useForm } from "vee-validate";
+import { toast } from "vue-sonner";
 import * as z from "zod";
 
+import router from "@/router";
+
+import FormInput from "@/components/Inputs/FormInput/FormInput.vue";
 import { Button } from "@/components/ui/button";
-import type { AxiosError, AxiosResponse } from "axios";
+import { axios } from "@/configs/axiosConfig";
+import { ACCESS_TOKEN } from "@/constants";
+import type {
+  ApiResponseData,
+  ApiResponseError,
+  AuthLoginRequest,
+  CommonAuthResponse,
+} from "@/generated/apiClient/data-contracts";
 
 const formSchema = toTypedSchema(
   z.object({
@@ -18,18 +27,7 @@ const formSchema = toTypedSchema(
   }),
 );
 
-import { toast } from "vue-sonner";
-import { axios } from "@/configs/axiosConfig.ts";
-import type {
-  AuthLoginRequest,
-  CommonAuthResponse,
-  ApiResponseError,
-  ApiResponseData,
-} from "@/generated/apiClient/data-contracts.ts";
-import { ACCESS_TOKEN } from "@/constants";
-import router from "@/router";
-
-const { isFieldDirty, handleSubmit } = useForm({
+const { isFieldDirty, handleSubmit, isSubmitting } = useForm({
   validationSchema: formSchema,
 });
 
@@ -80,7 +78,7 @@ const onSubmit = handleSubmit(({ email, password }) => {
         </FormInput>
       </div>
 
-      <Button :disabled="isPending" type="submit">Submit</Button>
+      <Button :disabled="isPending || isSubmitting" type="submit">Submit</Button>
     </form>
   </div>
 </template>
