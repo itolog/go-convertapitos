@@ -20,7 +20,7 @@ import type {
   CommonAuthResponse,
   ValidationErrorFields,
 } from "@/generated/apiClient/data-contracts";
-import { useUserStore } from "@/types/user.ts";
+import { useUserStore } from "@/stores/user/user";
 
 const userStore = useUserStore();
 
@@ -81,7 +81,7 @@ const onSubmit = handleSubmit(({ email, password }) => {
 
 <template>
   <div
-    class="flex flex-col w-full sm:w-sm md:w-md justify-center p-6 gap-4 lg:p-8 shadow-2xl/50 rounded-2xl dark:shadow-orange-500"
+    class="flex flex-col w-full sm:w-sm md:w-md justify-center p-6 gap-4 lg:p-8 shadow-xl/50 rounded-2xl dark:shadow-orange-500"
   >
     <h2 class="text-center text-2xl/9 font-bold tracking-tight">Sign in to your account</h2>
     <form class="flex flex-col gap-8" @submit="onSubmit">

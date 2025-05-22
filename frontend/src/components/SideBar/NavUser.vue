@@ -1,5 +1,10 @@
 <script setup lang="ts">
+import { useMutation } from "@tanstack/vue-query";
+import type { AxiosError } from "axios";
 import { BadgeCheck, Bell, ChevronsUpDown, CreditCard, LogIn, LogOut } from "lucide-vue-next";
+import { toast } from "vue-sonner";
+
+import router from "@/router";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
@@ -18,26 +23,27 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from "@/components/ui/sidebar";
+import { axios } from "@/configs/axiosConfig";
 import { ACCESS_TOKEN } from "@/constants";
-import { useUserStore } from "@/types/user.ts";
-
-defineProps<{
-  user: {
-    name: string;
-    email: string;
-    avatar: string;
-  };
-}>();
+import type { ApiResponseError } from "@/generated/apiClient/data-contracts";
+import { useUserStore } from "@/stores/user/user";
 
 const { isMobile } = useSidebar();
 const userStore = useUserStore();
 
-const handleLogOut = () => {
-  //TODO: call logout api
-  localStorage.removeItem(ACCESS_TOKEN);
-  userStore.setUser(null);
-  userStore.setIsLogged(false);
-};
+const { isPending, mutate } = useMutation({
+  mutationFn: (payload) => axios.post("/api/v1/auth/logout", payload),
+  onSuccess: () => {
+    localStorage.removeItem(ACCESS_TOKEN);
+    userStore.$reset();
+
+    toast.success("User logged out successfully. Redirecting to home page.");
+    router.push({ name: "home" });
+  },
+  onError: (error: AxiosError<ApiResponseError>) => {
+    toast.error(error.response?.data.error?.message ?? "Something went wrong");
+  },
+});
 </script>
 
 <template>
@@ -102,9 +108,10 @@ const handleLogOut = () => {
           </DropdownMenuItem>
           <DropdownMenuItem class="pl-0" v-else>
             <Button
-              @click="handleLogOut"
+              @click="mutate"
               variant="ghost"
               size="sm"
+              :disabled="isPending"
               class="w-full flex justify-start cursor-pointer"
             >
               <LogOut />

@@ -1,42 +1,37 @@
 <script setup lang="ts">
-import { Home } from 'lucide-vue-next'
-import NavMain from '@/components/SideBar/NavMain.vue'
-import NavUser from '@/components/SideBar/NavUser.vue'
+import { Home } from "lucide-vue-next";
 
+import NavMain from "@/components/SideBar/NavMain.vue";
+import NavUser from "@/components/SideBar/NavUser.vue";
+import ThemeSwitcher from "@/components/ThemeSwitcher/ThemeSwitcher.vue";
 import {
   Sidebar,
   SidebarContent,
   SidebarHeader,
   SidebarRail,
   type SidebarProps,
-} from '@/components/ui/sidebar'
-import ThemeSwitcher from '@/components/ThemeSwitcher/ThemeSwitcher.vue'
+} from "@/components/ui/sidebar";
 
 const props = withDefaults(defineProps<SidebarProps>(), {
-  collapsible: 'icon',
-  variant: 'floating',
-})
+  collapsible: "icon",
+  variant: "floating",
+});
 
 const data = {
-  user: {
-    name: '',
-    email: '',
-    avatar: '',
-  },
   navMain: [
     {
-      title: 'Home',
-      url: '/',
+      title: "Home",
+      url: "/",
       icon: Home,
     },
   ],
-}
+};
 </script>
 
 <template>
   <Sidebar v-bind="props">
     <SidebarHeader>
-      <NavUser :user="data.user" />
+      <NavUser />
     </SidebarHeader>
     <SidebarContent>
       <ThemeSwitcher />
