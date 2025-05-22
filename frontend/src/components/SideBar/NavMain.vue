@@ -1,6 +1,8 @@
 <script setup lang="ts">
-import { ChevronRight, type LucideIcon } from 'lucide-vue-next'
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible'
+import { ChevronRight, Home, Users } from "lucide-vue-next";
+import { useRoute } from "vue-router";
+
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import {
   SidebarGroup,
   SidebarMenu,
@@ -9,30 +11,30 @@ import {
   SidebarMenuSub,
   SidebarMenuSubButton,
   SidebarMenuSubItem,
-} from '@/components/ui/sidebar'
-import { useRoute } from 'vue-router'
+} from "@/components/ui/sidebar";
+import type { Navigation } from "@/types/navigation.ts";
 
-defineProps<{
-  items: {
-    title: string
-    url: string
-    icon?: LucideIcon
-    isActive?: boolean
-    items?: {
-      title: string
-      url: string
-    }[]
-  }[]
-}>()
+const navItems: Navigation = [
+  {
+    title: "Home",
+    url: "/",
+    icon: Home,
+  },
+  {
+    title: "Users",
+    url: "/users",
+    icon: Users,
+  },
+];
 
-const route = useRoute()
+const route = useRoute();
 </script>
 
 <template>
   <SidebarGroup>
     <SidebarMenu>
       <Collapsible
-        v-for="item in items"
+        v-for="item in navItems"
         :key="item.title"
         as-child
         :default-open="item.isActive"
