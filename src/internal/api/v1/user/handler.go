@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/gofiber/fiber/v2"
 	"github.com/itolog/go-convertapitos/src/configs"
+	"github.com/itolog/go-convertapitos/src/middleware"
 	"github.com/itolog/go-convertapitos/src/pkg/api"
 	"github.com/itolog/go-convertapitos/src/pkg/req"
 	"math"
@@ -30,12 +31,12 @@ func NewHandler(app fiber.Router, deps HandlerDeps) {
 		UserServices: deps.UserServices,
 	}
 
-	router.Get("/", handler.GetAllUsers)
-	router.Get("/:id", handler.GetUserById)
-	router.Get("/by_email/:email", handler.GetUserByEmail)
-	router.Post("/", handler.CreateUser)
-	router.Patch("/:id", handler.UpdateUser)
-	router.Delete("/:id", handler.DeleteUser)
+	router.Get("/", middleware.Protected(), handler.GetAllUsers)
+	router.Get("/:id", middleware.Protected(), handler.GetUserById)
+	router.Get("/by_email/:email", middleware.Protected(), handler.GetUserByEmail)
+	router.Post("/", middleware.Protected(), handler.CreateUser)
+	router.Patch("/:id", middleware.Protected(), handler.UpdateUser)
+	router.Delete("/:id", middleware.Protected(), handler.DeleteUser)
 }
 
 // GetAllUsers godoc
