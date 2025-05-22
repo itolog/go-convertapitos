@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { useForm } from "vee-validate";
-
+import { useMutation } from "@tanstack/vue-query";
 import { RectangleEllipsis, LucideMail } from "lucide-vue-next";
 
 import FormInput from "@/components/Inputs/FormInput/FormInput.vue";
@@ -18,13 +18,37 @@ const formSchema = toTypedSchema(
 );
 
 import { toast } from "vue-sonner";
+import { axios } from "@/configs/axiosConfig.ts";
+import type {
+  AuthLoginRequest,
+  CommonAuthResponse,
+  ApiResponseError,
+  ApiResponseData,
+} from "@/generated/apiClient/data-contracts.ts";
+import type { AxiosError, AxiosResponse } from "axios";
+
 const { isFieldDirty, handleSubmit } = useForm({
   validationSchema: formSchema,
 });
 
-const onSubmit = handleSubmit(() => {
-  toast("Event has been created", {
-    description: "Sunday, December 03, 2023 at 9:00 AM",
+const { isPending, mutate } = useMutation<
+  AxiosResponse<ApiResponseData<CommonAuthResponse>>,
+  AxiosError<ApiResponseError>,
+  AuthLoginRequest
+>({
+  mutationFn: (payload) => axios.post("/api/v1/auth/login", payload),
+  onSuccess: () => {
+    toast.success("User logged in successfully");
+  },
+  onError: (error) => {
+    toast.error(error.response?.data.error?.message ?? "Something went wrong");
+  },
+});
+
+const onSubmit = handleSubmit(({ email, password }) => {
+  mutate({
+    email,
+    password,
   });
 });
 </script>
@@ -33,6 +57,7 @@ const onSubmit = handleSubmit(() => {
   <div
     class="flex flex-col w-full sm:w-sm md:w-md justify-center p-6 gap-4 lg:p-8 shadow-2xl/50 rounded-2xl dark:shadow-orange-500"
   >
+    <span v-if="isPending">Loading...</span>
     <h2 class="text-center text-2xl/9 font-bold tracking-tight">Sign in to your account</h2>
     <form class="flex flex-col gap-8" @submit="onSubmit">
       <div class="flex flex-col gap-6">
@@ -48,7 +73,7 @@ const onSubmit = handleSubmit(() => {
         </FormInput>
       </div>
 
-      <Button type="submit"> Submit </Button>
+      <Button :disabled="isPending" type="submit"> Submit </Button>
     </form>
   </div>
 </template>

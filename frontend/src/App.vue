@@ -8,10 +8,10 @@ import "vue-sonner/style.css";
 </script>
 
 <template>
-  <Toaster />
+  <Toaster richColors position="top-center" />
+
   <SidebarProvider>
     <AppSidebar />
-
     <SidebarInset>
       <AppBar />
       <main class="h-full p-2">

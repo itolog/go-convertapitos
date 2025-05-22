@@ -27,8 +27,8 @@ export interface ApiMeta {
   pages?: number;
 }
 
-export interface ApiResponseData {
-  data?: any;
+export interface ApiResponseData<T> {
+  data?: T;
   meta?: ApiMeta;
   status?: ApiStatusType;
 }
