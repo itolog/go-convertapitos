@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { VueQueryDevtools } from "@tanstack/vue-query-devtools";
 import { useCookies } from "@vueuse/integrations/useCookies";
 import { RouterView } from "vue-router";
 import "vue-sonner/style.css";
@@ -31,4 +32,6 @@ const cookies = useCookies();
       </main>
     </SidebarInset>
   </SidebarProvider>
+
+  <VueQueryDevtools />
 </template>

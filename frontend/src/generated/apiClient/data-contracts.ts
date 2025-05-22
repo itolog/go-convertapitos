@@ -63,6 +63,10 @@ export interface CommonAuthResponse {
   user?: UserUser;
 }
 
+export interface CommonRefreshResponse {
+  accessToken?: string;
+}
+
 export interface UserCreateRequest {
   email: string;
   /** @maxLength 70 */

@@ -78,6 +78,11 @@ definitions:
       user:
         $ref: '#/definitions/user.User'
     type: object
+  common.RefreshResponse:
+    properties:
+      accessToken:
+        type: string
+    type: object
   user.CreateRequest:
     properties:
       email:
@@ -294,7 +299,7 @@ paths:
             - $ref: '#/definitions/api.ResponseData'
             - properties:
                 data:
-                  $ref: '#/definitions/common.AuthResponse'
+                  $ref: '#/definitions/common.RefreshResponse'
               type: object
         "401":
           description: Unauthorized or invalid refresh token

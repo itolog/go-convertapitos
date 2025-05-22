@@ -14,7 +14,7 @@ type IAuthService interface {
 	Login(ctx *fiber.Ctx, payload *LoginRequest) (*common.AuthResponse, error)
 	Register(ctx *fiber.Ctx, payload *RegisterRequest) (*common.AuthResponse, error)
 	Logout(ctx *fiber.Ctx)
-	RefreshToken(ctx *fiber.Ctx, refreshToken string) (*common.AuthResponse, error)
+	RefreshToken(ctx *fiber.Ctx, refreshToken string) (*common.RefreshResponse, error)
 }
 
 type ServiceDeps struct {
@@ -93,7 +93,7 @@ func (service *Service) Logout(ctx *fiber.Ctx) {
 	service.Authorization.SetCookie(ctx, "refreshToken", 0)
 }
 
-func (service *Service) RefreshToken(ctx *fiber.Ctx, refreshToken string) (*common.AuthResponse, error) {
+func (service *Service) RefreshToken(ctx *fiber.Ctx, refreshToken string) (*common.RefreshResponse, error) {
 	verify, err := service.Authorization.VerifyToken(refreshToken)
 	if err != nil {
 		return nil, fiber.NewError(fiber.StatusUnauthorized, err.Error())
@@ -110,8 +110,7 @@ func (service *Service) RefreshToken(ctx *fiber.Ctx, refreshToken string) (*comm
 	}
 
 	existedUser.Password = ""
-	return &common.AuthResponse{
+	return &common.RefreshResponse{
 		AccessToken: accessToken,
-		User:        existedUser,
 	}, nil
 }

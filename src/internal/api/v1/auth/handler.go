@@ -2,6 +2,7 @@ package auth
 
 import (
 	"github.com/gofiber/fiber/v2"
+	"github.com/itolog/go-convertapitos/src/middleware"
 	"github.com/itolog/go-convertapitos/src/pkg/api"
 	"github.com/itolog/go-convertapitos/src/pkg/req"
 )
@@ -22,7 +23,7 @@ func NewHandler(router fiber.Router, deps HandlerDeps) {
 	router.Post("/login", handler.Login)
 	router.Post("/register", handler.Register)
 	router.Post("/logout", handler.Logout)
-	router.Get("/refresh-token", handler.RefreshToken)
+	router.Get("/refresh-token", middleware.Protected(), handler.RefreshToken)
 }
 
 // Login handles user authentication.
@@ -105,7 +106,7 @@ func (h *Handler) Register(ctx *fiber.Ctx) error {
 //	@Tags			Auth
 //	@Accept			json
 //	@Produce		json
-//	@Success		200	{object}	api.ResponseData{data=common.AuthResponse}	"Token refreshed successfully"
+//	@Success		200	{object}	api.ResponseData{data=common.RefreshResponse}	"Token refreshed successfully"
 //	@Failure		401	{object}	api.ResponseError							"Unauthorized or invalid refresh token"
 //	@Router			/auth/refresh-token [get]
 func (h *Handler) RefreshToken(ctx *fiber.Ctx) error {

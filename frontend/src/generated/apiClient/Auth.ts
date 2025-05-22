@@ -16,6 +16,7 @@ import {
   AuthLoginRequest,
   AuthRegisterRequest,
   CommonAuthResponse,
+  CommonRefreshResponse,
 } from "./data-contracts";
 import { ContentType, HttpClient, RequestParams } from "./http-client";
 
@@ -140,7 +141,7 @@ export class Auth<
   refreshTokenList = (params: RequestParams = {}) =>
     this.request<
       ApiResponseData & {
-        data?: CommonAuthResponse;
+        data?: CommonRefreshResponse;
       },
       ApiResponseError
     >({

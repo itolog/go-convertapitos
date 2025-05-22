@@ -8,3 +8,7 @@ type AuthResponse struct {
 	AccessToken *string    `json:"accessToken"`
 	User        *user.User `json:"user"`
 }
+
+type RefreshResponse struct {
+	AccessToken *string `json:"accessToken"`
+}

@@ -255,7 +255,7 @@ const docTemplate = `{
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/common.AuthResponse"
+                                            "$ref": "#/definitions/common.RefreshResponse"
                                         }
                                     }
                                 }
@@ -730,6 +730,14 @@ const docTemplate = `{
                 },
                 "user": {
                     "$ref": "#/definitions/user.User"
+                }
+            }
+        },
+        "common.RefreshResponse": {
+            "type": "object",
+            "properties": {
+                "accessToken": {
+                    "type": "string"
                 }
             }
         },
