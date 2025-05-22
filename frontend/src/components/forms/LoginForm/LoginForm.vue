@@ -20,6 +20,9 @@ import type {
   CommonAuthResponse,
   ValidationErrorFields,
 } from "@/generated/apiClient/data-contracts";
+import { useUserStore } from "@/types/user.ts";
+
+const userStore = useUserStore();
 
 const formSchema = toTypedSchema(
   z.object({
@@ -43,6 +46,11 @@ const { isPending, mutate } = useMutation<
     if (token) {
       localStorage.setItem(ACCESS_TOKEN, token);
     }
+
+    userStore.$patch({
+      user: data.data?.user,
+      isLoggedIn: true,
+    });
 
     toast.success("User logged in successfully");
     router.push({ name: "home" });
