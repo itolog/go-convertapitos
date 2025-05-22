@@ -1,10 +1,8 @@
 import { defineStore } from "pinia";
 import { ref, watchEffect } from "vue";
 
+import { IS_LOGGED_STORAGE_KEY, USER_STORAGE_KEY } from "@/constants";
 import type { User } from "@/types/user";
-
-const USER_KEY = "user";
-const IS_LOGGED_IN_KEY = "isLoggedIn";
 
 export const useUserStore = defineStore("user", () => {
   const user = ref<User>(null);
@@ -18,11 +16,11 @@ export const useUserStore = defineStore("user", () => {
     isLoggedIn.value = logged;
   }
 
-  const storedUser = localStorage.getItem(USER_KEY);
+  const storedUser = localStorage.getItem(USER_STORAGE_KEY);
   if (storedUser) {
     user.value = JSON.parse(storedUser) as User;
   }
-  const storedIsLoggedIn = localStorage.getItem(IS_LOGGED_IN_KEY);
+  const storedIsLoggedIn = localStorage.getItem(IS_LOGGED_STORAGE_KEY);
   if (storedIsLoggedIn) {
     isLoggedIn.value = JSON.parse(storedIsLoggedIn) as boolean;
   }
@@ -30,17 +28,17 @@ export const useUserStore = defineStore("user", () => {
   const $reset = () => {
     user.value = null;
     isLoggedIn.value = false;
-    localStorage.removeItem(USER_KEY);
-    localStorage.removeItem(IS_LOGGED_IN_KEY);
+    localStorage.removeItem(USER_STORAGE_KEY);
+    localStorage.removeItem(IS_LOGGED_STORAGE_KEY);
   };
 
   watchEffect(() => {
     if (user.value) {
-      localStorage.setItem(USER_KEY, JSON.stringify(user.value));
+      localStorage.setItem(USER_STORAGE_KEY, JSON.stringify(user.value));
     }
 
     if (isLoggedIn.value) {
-      localStorage.setItem(IS_LOGGED_IN_KEY, JSON.stringify(isLoggedIn.value));
+      localStorage.setItem(IS_LOGGED_STORAGE_KEY, JSON.stringify(isLoggedIn.value));
     }
   });
 

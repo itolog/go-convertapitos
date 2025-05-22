@@ -40,7 +40,7 @@ const { isPending, mutate } = useMutation<
   AxiosError<ApiResponseError>,
   AuthLoginRequest
 >({
-  mutationFn: (payload) => axios.post("/api/v1/auth/login", payload),
+  mutationFn: async (payload) => await axios.post("/api/v1/auth/login", payload),
   onSuccess: ({ data }) => {
     const token = data.data?.accessToken;
     if (token) {

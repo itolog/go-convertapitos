@@ -32,7 +32,7 @@ const { isMobile } = useSidebar();
 const userStore = useUserStore();
 
 const { isPending, mutate } = useMutation({
-  mutationFn: (payload) => axios.post("/api/v1/auth/logout", payload),
+  mutationFn: async (payload) => await axios.post("/api/v1/auth/logout", payload),
   onSuccess: () => {
     localStorage.removeItem(ACCESS_TOKEN);
     userStore.$reset();
