@@ -18,16 +18,17 @@ import type {
   ApiResponseError,
   AuthLoginRequest,
   CommonAuthResponse,
+  ValidationErrorFields,
 } from "@/generated/apiClient/data-contracts";
 
 const formSchema = toTypedSchema(
   z.object({
-    email: z.string().email().min(1),
-    password: z.string().min(6).max(128),
+    email: z.string().min(1),
+    password: z.string().min(2).max(128),
   }),
 );
 
-const { isFieldDirty, handleSubmit, isSubmitting } = useForm({
+const { isFieldDirty, handleSubmit, isSubmitting, setErrors } = useForm({
   validationSchema: formSchema,
 });
 
@@ -48,6 +49,17 @@ const { isPending, mutate } = useMutation<
   },
   onError: (error) => {
     toast.error(error.response?.data.error?.message ?? "Something went wrong");
+    const fieldsErrors = error.response?.data.error?.fields;
+    if (fieldsErrors && fieldsErrors.length > 0) {
+      const errors: Record<string, string> = {};
+
+      fieldsErrors.forEach((fieldError: ValidationErrorFields) => {
+        if (fieldError.field) {
+          errors[fieldError.field.toLowerCase()] = `${fieldError.tag} ${fieldError.param}`;
+        }
+      });
+      setErrors(errors);
+    }
   },
 });
 
