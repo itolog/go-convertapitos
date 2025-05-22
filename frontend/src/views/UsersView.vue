@@ -3,6 +3,7 @@ import { useQuery } from "@tanstack/vue-query";
 import type { AxiosError, AxiosResponse } from "axios";
 import { watchEffect } from "vue";
 
+import AppTable from "@/components/AppTable/AppTable.vue";
 import { axios } from "@/configs/axiosConfig";
 import type { ApiResponseData, ApiResponseError } from "@/generated/apiClient/data-contracts";
 import type { User } from "@/types/user";
@@ -24,7 +25,7 @@ watchEffect(() => {
 <template>
   <div>
     <span v-if="isLoading">LOADING</span>
-    <div>USer</div>
+    <AppTable />
   </div>
 </template>
 
