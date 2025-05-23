@@ -6,19 +6,11 @@ import router from "@/router";
 
 import { axios } from "@/configs/axiosConfig";
 import { ACCESS_TOKEN } from "@/constants";
-import type {
-  ApiResponseData,
-  ApiResponseError,
-  AuthLoginRequest,
-} from "@/generated/apiClient/data-contracts";
+import type { ApiResponseData, ApiResponseError } from "@/generated/apiClient/data-contracts";
 import { useUserStore } from "@/stores/user/user";
 
 type UserLogout = Partial<
-  MutationOptions<
-    AxiosResponse<ApiResponseData<string>>,
-    AxiosError<ApiResponseError>,
-    AuthLoginRequest
-  >
+  MutationOptions<AxiosResponse<ApiResponseData<string>>, AxiosError<ApiResponseError>>
 >;
 export function useLogout(props?: UserLogout) {
   const userStore = useUserStore(); // Переместить сюда

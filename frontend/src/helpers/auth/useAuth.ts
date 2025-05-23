@@ -10,10 +10,13 @@ import type {
   CommonRefreshResponse,
 } from "@/generated/apiClient/data-contracts";
 import { isLogged } from "@/helpers";
+import { useLogout } from "@/services/api/useLogout";
 
 const fetcher = async () => await axios.get("api/v1/auth/refresh-token");
 
 export function useAuth() {
+  const { mutate, isPending } = useLogout();
+
   const { isLoading, data, error } = useQuery<
     AxiosResponse<ApiResponseData<CommonRefreshResponse>>,
     AxiosError<ApiResponseError>
@@ -25,18 +28,19 @@ export function useAuth() {
   });
 
   const token = data.value?.data?.data?.accessToken;
+  const errorData = error.value?.response?.data.error;
 
   watchEffect(() => {
-    if (error) {
-      //console.log(error.value?.response?.data.error);
-      // TODO: logout user
+    if (errorData?.code === 401) {
+      mutate();
     }
+
     if (token) {
       localStorage.setItem(ACCESS_TOKEN, token);
     }
   });
 
   return {
-    isLoading,
+    isLoading: isLoading || isPending,
   };
 }
