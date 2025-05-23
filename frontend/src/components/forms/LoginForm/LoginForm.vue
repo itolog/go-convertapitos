@@ -1,28 +1,14 @@
 <script setup lang="ts">
-import { useMutation } from "@tanstack/vue-query";
 import { toTypedSchema } from "@vee-validate/zod";
-import type { AxiosError, AxiosResponse } from "axios";
 import { LucideMail, RectangleEllipsis } from "lucide-vue-next";
 import { useForm } from "vee-validate";
 import { toast } from "vue-sonner";
 import * as z from "zod";
 
-import router from "@/router";
-
 import FormInput from "@/components/Inputs/FormInput/FormInput.vue";
 import { Button } from "@/components/ui/button";
-import { axios } from "@/configs/axiosConfig";
-import { ACCESS_TOKEN } from "@/constants";
-import type {
-  ApiResponseData,
-  ApiResponseError,
-  AuthLoginRequest,
-  CommonAuthResponse,
-  ValidationErrorFields,
-} from "@/generated/apiClient/data-contracts";
-import { useUserStore } from "@/stores/user/user";
-
-const userStore = useUserStore();
+import type { ValidationErrorFields } from "@/generated/apiClient/data-contracts";
+import { useLogin } from "@/services/api/useLogin.ts";
 
 const formSchema = toTypedSchema(
   z.object({
@@ -35,26 +21,7 @@ const { isFieldDirty, handleSubmit, isSubmitting, setErrors } = useForm({
   validationSchema: formSchema,
 });
 
-const { isPending, mutate } = useMutation<
-  AxiosResponse<ApiResponseData<CommonAuthResponse>>,
-  AxiosError<ApiResponseError>,
-  AuthLoginRequest
->({
-  mutationFn: async (payload) => await axios.post("/api/v1/auth/login", payload),
-  onSuccess: ({ data }) => {
-    const token = data.data?.accessToken;
-    if (token) {
-      localStorage.setItem(ACCESS_TOKEN, token);
-    }
-
-    userStore.$patch({
-      user: data.data?.user,
-      isLoggedIn: true,
-    });
-
-    toast.success("User logged in successfully");
-    router.push({ name: "home" });
-  },
+const { mutate, isPending } = useLogin({
   onError: (error) => {
     toast.error(error.response?.data.error?.message ?? "Something went wrong");
     const fieldsErrors = error.response?.data.error?.fields;
