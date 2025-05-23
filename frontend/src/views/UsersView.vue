@@ -2,12 +2,13 @@
 import { useQuery } from "@tanstack/vue-query";
 import type { AxiosError, AxiosResponse } from "axios";
 
-import AppTable from "@/components/AppTable/AppTable.vue";
+import UsersTable from "@/components/Tables/UsersTable/UsersTable.vue";
+import TableSkeleton from "@/components/common/loaders/TableSkeleton/TableSkeleton.vue";
 import { axios } from "@/configs/axiosConfig";
 import type { ApiResponseData, ApiResponseError } from "@/generated/apiClient/data-contracts";
 import type { User } from "@/types/user";
 
-const { isLoading, data } = useQuery<
+const { isPending, isLoading, data } = useQuery<
   AxiosResponse<ApiResponseData<User[]>>,
   AxiosError<ApiResponseError>
 >({
@@ -17,9 +18,9 @@ const { isLoading, data } = useQuery<
 </script>
 
 <template>
-  <div>
-    <span v-if="isLoading">LOADING</span>
-    <AppTable v-else :data="data?.data?.data ?? []" />
+  <div class="h-full">
+    <TableSkeleton v-if="isLoading" />
+    <UsersTable v-else :loading="isPending" :data="data?.data?.data ?? []" />
   </div>
 </template>
 

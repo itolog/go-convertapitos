@@ -15,9 +15,16 @@ import {
   getSortedRowModel,
   useVueTable,
 } from "@tanstack/vue-table";
-import { ArrowUpDown, ChevronDown, EllipsisVerticalIcon } from "lucide-vue-next";
-import { h, ref } from "vue";
+import { useTimeAgo } from "@vueuse/core";
+import {
+  ArrowUpDown,
+  ChevronDown,
+  CircleUserRound,
+  EllipsisVerticalIcon,
+} from "lucide-vue-next";
+import { h, ref, toRaw } from "vue";
 
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
@@ -36,16 +43,17 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { valueUpdater } from "@/components/ui/table/utils.ts";
-import type { User } from "@/types/user";
+import type { User } from "@/types/user.ts";
 
 const { data } = defineProps({
   data: {
     type: Array<User>,
     required: true,
   },
+  loading: Boolean,
 });
 
-console.log(data);
+console.log(toRaw(data));
 
 const columns: ColumnDef<User>[] = [
   {
@@ -55,7 +63,8 @@ const columns: ColumnDef<User>[] = [
         modelValue:
           table.getIsAllPageRowsSelected() ||
           (table.getIsSomePageRowsSelected() && "indeterminate"),
-        "onUpdate:modelValue": (value) => table.toggleAllPageRowsSelected(!!value),
+        "onUpdate:modelValue": (value) =>
+          table.toggleAllPageRowsSelected(!!value),
         ariaLabel: "Select all",
       }),
     cell: ({ row }) =>
@@ -68,9 +77,42 @@ const columns: ColumnDef<User>[] = [
     enableHiding: false,
   },
   {
-    accessorKey: "status",
-    header: "Status",
-    cell: ({ row }) => h("div", { class: "capitalize" }, row.getValue("status")),
+    accessorKey: "picture",
+    header: () => h("div", { class: "text-left" }, "Avatar"),
+    cell: ({ row }) => {
+      const pictureUrl = row.getValue("picture");
+
+      return h("div", { class: "max-w-[60px]" }, [
+        h(Avatar, null, {
+          default: () => {
+            return [
+              h(AvatarImage, { src: pictureUrl }),
+              h(AvatarFallback, null, () => h(CircleUserRound)),
+            ];
+          },
+        }),
+      ]);
+    },
+  },
+  {
+    accessorKey: "ID",
+    header: "ID",
+    cell: ({ row }) => h("div", { class: "capitalize" }, row.getValue("ID")),
+  },
+
+  {
+    accessorKey: "name",
+    header: ({ column }) => {
+      return h(
+        Button,
+        {
+          variant: "ghost",
+          onClick: () => column.toggleSorting(column.getIsSorted() === "asc"),
+        },
+        () => ["Name", h(ArrowUpDown, { class: "ml-2 h-4 w-4" })],
+      );
+    },
+    cell: ({ row }) => h("div", { class: "capitalize" }, row.getValue("name")),
   },
   {
     accessorKey: "email",
@@ -87,28 +129,47 @@ const columns: ColumnDef<User>[] = [
     cell: ({ row }) => h("div", { class: "lowercase" }, row.getValue("email")),
   },
   {
-    accessorKey: "amount",
-    header: () => h("div", { class: "text-right" }, "Amount"),
-    cell: ({ row }) => {
-      const amount = Number.parseFloat(row.getValue("amount"));
-
-      // Format the amount as a dollar amount
-      const formatted = new Intl.NumberFormat("en-US", {
-        style: "currency",
-        currency: "USD",
-      }).format(amount);
-
-      return h("div", { class: "text-right font-medium" }, formatted);
+    accessorKey: "CreatedAt",
+    header: ({ column }) => {
+      return h(
+        Button,
+        {
+          variant: "ghost",
+          onClick: () => column.toggleSorting(column.getIsSorted() === "asc"),
+        },
+        () => ["CreatedAt", h(ArrowUpDown, { class: "ml-2 h-4 w-4" })],
+      );
     },
+    cell: ({ row }) =>
+      h("div", { class: "lowercase" }, [
+        useTimeAgo(row.getValue("CreatedAt")).value,
+      ]),
+  },
+  {
+    accessorKey: "UpdatedAt",
+    header: ({ column }) => {
+      return h(
+        Button,
+        {
+          variant: "ghost",
+          onClick: () => column.toggleSorting(column.getIsSorted() === "asc"),
+        },
+        () => ["UpdatedAt", h(ArrowUpDown, { class: "ml-2 h-4 w-4" })],
+      );
+    },
+    cell: ({ row }) =>
+      h("div", { class: "lowercase" }, [
+        useTimeAgo(row.getValue("UpdatedAt")).value,
+      ]),
   },
   {
     id: "actions",
     enableHiding: false,
     cell: ({ row }) => {
-      const payment = row.original;
+      const user = row.original;
 
       return h(EllipsisVerticalIcon, {
-        payment,
+        user,
         onExpand: row.toggleExpanded,
       });
     },
@@ -130,9 +191,12 @@ const table = useVueTable({
   getFilteredRowModel: getFilteredRowModel(),
   getExpandedRowModel: getExpandedRowModel(),
   onSortingChange: (updaterOrValue) => valueUpdater(updaterOrValue, sorting),
-  onColumnFiltersChange: (updaterOrValue) => valueUpdater(updaterOrValue, columnFilters),
-  onColumnVisibilityChange: (updaterOrValue) => valueUpdater(updaterOrValue, columnVisibility),
-  onRowSelectionChange: (updaterOrValue) => valueUpdater(updaterOrValue, rowSelection),
+  onColumnFiltersChange: (updaterOrValue) =>
+    valueUpdater(updaterOrValue, columnFilters),
+  onColumnVisibilityChange: (updaterOrValue) =>
+    valueUpdater(updaterOrValue, columnVisibility),
+  onRowSelectionChange: (updaterOrValue) =>
+    valueUpdater(updaterOrValue, rowSelection),
   onExpandedChange: (updaterOrValue) => valueUpdater(updaterOrValue, expanded),
   state: {
     get sorting() {
@@ -155,8 +219,8 @@ const table = useVueTable({
 </script>
 
 <template>
-  <div class="w-full">
-    <div class="flex items-center py-4">
+  <div class="flex flex-col h-full">
+    <div class="flex items-center gap-4 py-4">
       <Input
         class="max-w-sm"
         placeholder="Filter emails..."
@@ -171,7 +235,9 @@ const table = useVueTable({
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">
           <DropdownMenuCheckboxItem
-            v-for="column in table.getAllColumns().filter((column) => column.getCanHide())"
+            v-for="column in table
+              .getAllColumns()
+              .filter((column) => column.getCanHide())"
             :key="column.id"
             class="capitalize"
             :model-value="column.getIsVisible()"
@@ -186,10 +252,13 @@ const table = useVueTable({
         </DropdownMenuContent>
       </DropdownMenu>
     </div>
-    <div class="rounded-md border">
-      <Table>
+    <div class="rounded-md border flex-1">
+      <Table style="height: 100%">
         <TableHeader>
-          <TableRow v-for="headerGroup in table.getHeaderGroups()" :key="headerGroup.id">
+          <TableRow
+            v-for="headerGroup in table.getHeaderGroups()"
+            :key="headerGroup.id"
+          >
             <TableHead v-for="header in headerGroup.headers" :key="header.id">
               <FlexRender
                 v-if="!header.isPlaceholder"
@@ -204,7 +273,10 @@ const table = useVueTable({
             <template v-for="row in table.getRowModel().rows" :key="row.id">
               <TableRow :data-state="row.getIsSelected() && 'selected'">
                 <TableCell v-for="cell in row.getVisibleCells()" :key="cell.id">
-                  <FlexRender :render="cell.column.columnDef.cell" :props="cell.getContext()" />
+                  <FlexRender
+                    :render="cell.column.columnDef.cell"
+                    :props="cell.getContext()"
+                  />
                 </TableCell>
               </TableRow>
               <TableRow v-if="row.getIsExpanded()">
@@ -215,19 +287,24 @@ const table = useVueTable({
             </template>
           </template>
 
-          <TableRow v-else>
-            <TableCell :colspan="columns.length" class="h-24 text-center"> No results. </TableCell>
+          <TableRow class="hover:bg-background" v-else>
+            <TableCell
+              :colspan="columns.length"
+              class="h-24 text-2xl text-center font-bold"
+            >
+              No results.
+            </TableCell>
           </TableRow>
         </TableBody>
       </Table>
     </div>
 
-    <div class="flex items-center justify-end space-x-2 py-4">
+    <div class="flex items-center justify-end space-x-2 gap-2 py-4">
       <div class="flex-1 text-sm text-muted-foreground">
         {{ table.getFilteredSelectedRowModel().rows.length }} of
         {{ table.getFilteredRowModel().rows.length }} row(s) selected.
       </div>
-      <div class="space-x-2">
+      <div class="flex space-x-2 gap-2">
         <Button
           variant="outline"
           size="sm"
