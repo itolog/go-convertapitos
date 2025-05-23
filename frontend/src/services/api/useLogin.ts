@@ -12,9 +12,7 @@ import type {
   AuthLoginRequest,
   CommonAuthResponse,
 } from "@/generated/apiClient/data-contracts.ts";
-import { useUserStore } from "@/stores/user/user.ts";
-
-const userStore = useUserStore();
+import { useUserStore } from "@/stores/user/user";
 
 type UserLogin = Partial<
   MutationOptions<
@@ -25,6 +23,8 @@ type UserLogin = Partial<
 >;
 
 export function useLogin(props?: UserLogin) {
+  const userStore = useUserStore();
+
   const { isPending, mutate, data } = useMutation({
     mutationFn: async (payload) => await axios.post("/api/v1/auth/login", payload),
     onSuccess: async ({ data }) => {
