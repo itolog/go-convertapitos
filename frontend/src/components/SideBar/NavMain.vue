@@ -2,7 +2,11 @@
 import { ChevronRight, Home, Users } from "lucide-vue-next";
 import { useRoute } from "vue-router";
 
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@/components/ui/collapsible";
 import {
   SidebarGroup,
   SidebarMenu,
@@ -54,15 +58,21 @@ const route = useRoute();
             :is-active="route.path === item.url"
             class="cursor-pointer"
             v-else
+            as-child
             :tooltip="item.title"
           >
-            <component :is="item.icon" v-if="item.icon" />
-            <RouterLink :to="item.url">{{ item.title }} </RouterLink>
+            <RouterLink class="w-full" :to="item.url">
+              <component :is="item.icon" v-if="item.icon" />
+              {{ item.title }}
+            </RouterLink>
           </SidebarMenuButton>
 
           <CollapsibleContent v-if="item.items?.length">
             <SidebarMenuSub>
-              <SidebarMenuSubItem v-for="subItem in item.items" :key="subItem.title">
+              <SidebarMenuSubItem
+                v-for="subItem in item.items"
+                :key="subItem.title"
+              >
                 <SidebarMenuSubButton
                   :is-active="route.path === item.url"
                   class="cursor-pointer"
