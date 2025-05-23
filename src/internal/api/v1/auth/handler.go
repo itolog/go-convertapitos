@@ -23,7 +23,7 @@ func NewHandler(router fiber.Router, deps HandlerDeps) {
 	router.Post("/login", handler.Login)
 	router.Post("/register", handler.Register)
 	router.Post("/logout", handler.Logout)
-	router.Get("/refresh-token", middleware.Protected(), handler.RefreshToken)
+	router.Post("/refresh-token", middleware.Protected(), handler.RefreshToken)
 }
 
 // Login handles user authentication.
@@ -108,7 +108,7 @@ func (h *Handler) Register(ctx *fiber.Ctx) error {
 //	@Produce		json
 //	@Success		200	{object}	api.ResponseData{data=common.RefreshResponse}	"Token refreshed successfully"
 //	@Failure		401	{object}	api.ResponseError							"Unauthorized or invalid refresh token"
-//	@Router			/auth/refresh-token [get]
+//	@Router			/auth/refresh-token [post]
 func (h *Handler) RefreshToken(ctx *fiber.Ctx) error {
 	refreshToken := ctx.Cookies("refreshToken")
 	if refreshToken == "" {

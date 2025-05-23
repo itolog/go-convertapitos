@@ -13,7 +13,7 @@ type UserLogout = Partial<
   MutationOptions<AxiosResponse<ApiResponseData<string>>, AxiosError<ApiResponseError>>
 >;
 export function useLogout(props?: UserLogout) {
-  const userStore = useUserStore(); // Переместить сюда
+  const userStore = useUserStore();
 
   const { isPending, mutate } = useMutation({
     mutationFn: async (payload) => await axios.post("/api/v1/auth/logout", payload),

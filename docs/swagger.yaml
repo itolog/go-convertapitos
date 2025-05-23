@@ -285,7 +285,7 @@ paths:
       tags:
       - Auth
   /auth/refresh-token:
-    get:
+    post:
       consumes:
       - application/json
       description: Refresh access token using refresh token cookie

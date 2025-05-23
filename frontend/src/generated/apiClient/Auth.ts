@@ -134,11 +134,11 @@ export class Auth<
    * @description Refresh access token using refresh token cookie
    *
    * @tags Auth
-   * @name RefreshTokenList
+   * @name RefreshTokenCreate
    * @summary Refresh JWT token
-   * @request GET:/auth/refresh-token
+   * @request POST:/auth/refresh-token
    */
-  refreshTokenList = (params: RequestParams = {}) =>
+  refreshTokenCreate = (params: RequestParams = {}) =>
     this.request<
       ApiResponseData & {
         data?: CommonRefreshResponse;
@@ -146,7 +146,7 @@ export class Auth<
       ApiResponseError
     >({
       path: `/auth/refresh-token`,
-      method: "GET",
+      method: "POST",
       type: ContentType.Json,
       format: "json",
       ...params,

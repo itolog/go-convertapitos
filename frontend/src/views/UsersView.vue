@@ -8,24 +8,24 @@ import { axios } from "@/configs/axiosConfig";
 import type { ApiResponseData, ApiResponseError } from "@/generated/apiClient/data-contracts";
 import type { User } from "@/types/user";
 
-const { isLoading, data } = useQuery<
-  AxiosResponse<ApiResponseData<User[]>>,
-  AxiosError<ApiResponseError>
->({
-  queryKey: ["users"],
-  queryFn: async () => await axios.get("api/v1/user"),
-  retry: false,
-});
-
-watchEffect(() => {
-  console.log(data.value?.data.data);
-});
+// const { isLoading, data } = useQuery<
+//   AxiosResponse<ApiResponseData<User[]>>,
+//   AxiosError<ApiResponseError>
+// >({
+//   queryKey: ["users"],
+//   queryFn: async () => await axios.get("api/v1/user"),
+//   retry: false,
+// });
+//
+// watchEffect(() => {
+//   console.log(data.value?.data.data);
+// });
 </script>
 
 <template>
   <div>
-    <span v-if="isLoading">LOADING</span>
-    <AppTable />
+    <!--    <span v-if="isLoading">LOADING</span>-->
+    <!--    <AppTable :data="data?.data?.data ?? []" />-->
   </div>
 </template>
 
