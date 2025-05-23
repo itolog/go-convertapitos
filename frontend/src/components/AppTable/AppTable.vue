@@ -45,6 +45,8 @@ const { data } = defineProps({
   },
 });
 
+console.log(data);
+
 const columns: ColumnDef<User>[] = [
   {
     id: "select",
