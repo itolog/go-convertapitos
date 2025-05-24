@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import type {
-  ColumnDef,
   ColumnFiltersState,
   ExpandedState,
   SortingState,
@@ -14,15 +13,16 @@ import {
   getPaginationRowModel,
   getSortedRowModel,
   useVueTable,
+  createColumnHelper,
 } from "@tanstack/vue-table";
-import { useTimeAgo } from "@vueuse/core";
+import { useDateFormat } from "@vueuse/core";
 import {
   ArrowUpDown,
   ChevronDown,
   CircleUserRound,
   EllipsisVerticalIcon,
 } from "lucide-vue-next";
-import { h, ref, toRaw } from "vue";
+import { h, ref } from "vue";
 
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
@@ -53,35 +53,35 @@ const { data } = defineProps({
   loading: Boolean,
 });
 
-console.log(toRaw(data));
+const columnHelper = createColumnHelper<User>();
 
-const columns: ColumnDef<User>[] = [
-  {
+const columns = [
+  columnHelper.display({
     id: "select",
-    header: ({ table }) =>
-      h(Checkbox, {
+    header: ({ table }) => {
+      return h(Checkbox, {
         modelValue:
           table.getIsAllPageRowsSelected() ||
           (table.getIsSomePageRowsSelected() && "indeterminate"),
         "onUpdate:modelValue": (value) =>
           table.toggleAllPageRowsSelected(!!value),
         ariaLabel: "Select all",
-      }),
-    cell: ({ row }) =>
-      h(Checkbox, {
+      });
+    },
+    cell: ({ row }) => {
+      return h(Checkbox, {
         modelValue: row.getIsSelected(),
         "onUpdate:modelValue": (value) => row.toggleSelected(!!value),
         ariaLabel: "Select row",
-      }),
+      });
+    },
     enableSorting: false,
     enableHiding: false,
-  },
-  {
-    accessorKey: "picture",
+  }),
+  columnHelper.accessor("picture", {
     header: () => h("div", { class: "text-left" }, "Avatar"),
-    cell: ({ row }) => {
-      const pictureUrl = row.getValue("picture");
-
+    cell: ({ getValue }) => {
+      const pictureUrl = getValue();
       return h("div", { class: "max-w-[60px]" }, [
         h(Avatar, null, {
           default: () => {
@@ -93,15 +93,15 @@ const columns: ColumnDef<User>[] = [
         }),
       ]);
     },
-  },
-  {
-    accessorKey: "ID",
-    header: "ID",
-    cell: ({ row }) => h("div", { class: "capitalize" }, row.getValue("ID")),
-  },
-
-  {
-    accessorKey: "name",
+  }),
+  columnHelper.accessor("id", {
+    header: () => h("div", { class: "text-left" }, "ID"),
+    cell: ({ getValue }) => {
+      const id = getValue();
+      return h("div", { class: "text-left" }, id);
+    },
+  }),
+  columnHelper.accessor("name", {
     header: ({ column }) => {
       return h(
         Button,
@@ -112,10 +112,11 @@ const columns: ColumnDef<User>[] = [
         () => ["Name", h(ArrowUpDown, { class: "ml-2 h-4 w-4" })],
       );
     },
-    cell: ({ row }) => h("div", { class: "capitalize" }, row.getValue("name")),
-  },
-  {
-    accessorKey: "email",
+    cell: ({ row }) => {
+      return h("div", { class: "capitalize" }, row.getValue("name"));
+    },
+  }),
+  columnHelper.accessor("email", {
     header: ({ column }) => {
       return h(
         Button,
@@ -126,10 +127,8 @@ const columns: ColumnDef<User>[] = [
         () => ["Email", h(ArrowUpDown, { class: "ml-2 h-4 w-4" })],
       );
     },
-    cell: ({ row }) => h("div", { class: "lowercase" }, row.getValue("email")),
-  },
-  {
-    accessorKey: "CreatedAt",
+  }),
+  columnHelper.accessor("createdAt", {
     header: ({ column }) => {
       return h(
         Button,
@@ -137,16 +136,16 @@ const columns: ColumnDef<User>[] = [
           variant: "ghost",
           onClick: () => column.toggleSorting(column.getIsSorted() === "asc"),
         },
-        () => ["CreatedAt", h(ArrowUpDown, { class: "ml-2 h-4 w-4" })],
+        () => ["Created At", h(ArrowUpDown, { class: "ml-2 h-4 w-4" })],
       );
     },
-    cell: ({ row }) =>
-      h("div", { class: "lowercase" }, [
-        useTimeAgo(row.getValue("CreatedAt")).value,
-      ]),
-  },
-  {
-    accessorKey: "UpdatedAt",
+    cell: ({ row }) => {
+      return h("div", { class: "lowercase" }, [
+        useDateFormat(row.getValue("createdAt"), "YYYY-MM-DD HH:mm").value,
+      ]);
+    },
+  }),
+  columnHelper.accessor("updatedAt", {
     header: ({ column }) => {
       return h(
         Button,
@@ -154,15 +153,19 @@ const columns: ColumnDef<User>[] = [
           variant: "ghost",
           onClick: () => column.toggleSorting(column.getIsSorted() === "asc"),
         },
-        () => ["UpdatedAt", h(ArrowUpDown, { class: "ml-2 h-4 w-4" })],
+        () => ["Update dAt", h(ArrowUpDown, { class: "ml-2 h-4 w-4" })],
       );
     },
-    cell: ({ row }) =>
-      h("div", { class: "lowercase" }, [
-        useTimeAgo(row.getValue("UpdatedAt")).value,
-      ]),
-  },
-  {
+    cell: ({ row }) => {
+      return h("div", { class: "lowercase" }, [
+        useDateFormat(row.getValue("updatedAt"), "YYYY-MM-DD HH:mm").value,
+      ]);
+    },
+  }),
+  columnHelper.accessor("verifiedEmail", {
+    header: "Verified Email",
+  }),
+  columnHelper.display({
     id: "actions",
     enableHiding: false,
     cell: ({ row }) => {
@@ -173,7 +176,7 @@ const columns: ColumnDef<User>[] = [
         onExpand: row.toggleExpanded,
       });
     },
-  },
+  }),
 ];
 
 const sorting = ref<SortingState>([]);
