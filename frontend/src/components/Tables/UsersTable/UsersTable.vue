@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import type {
   ColumnFiltersState,
+  ColumnPinningState,
   ExpandedState,
   SortingState,
   VisibilityState,
@@ -167,7 +168,7 @@ const columns = [
   }),
   columnHelper.display({
     id: "actions",
-    enableHiding: false,
+    // enableHiding: false,
     cell: ({ row }) => {
       const user = row.original;
 
@@ -179,11 +180,20 @@ const columns = [
   }),
 ];
 
-const sorting = ref<SortingState>([]);
+const sorting = ref<SortingState>([
+  {
+    id: "updatedAt",
+    desc: true,
+  },
+]);
 const columnFilters = ref<ColumnFiltersState>([]);
 const columnVisibility = ref<VisibilityState>({});
 const rowSelection = ref({});
 const expanded = ref<ExpandedState>({});
+const columnPinning = ref<ColumnPinningState>({
+  left: ["select"],
+  right: ["actions"],
+});
 
 const table = useVueTable({
   data,
@@ -193,6 +203,7 @@ const table = useVueTable({
   getSortedRowModel: getSortedRowModel(),
   getFilteredRowModel: getFilteredRowModel(),
   getExpandedRowModel: getExpandedRowModel(),
+  columnResizeMode: "onChange",
   onSortingChange: (updaterOrValue) => valueUpdater(updaterOrValue, sorting),
   onColumnFiltersChange: (updaterOrValue) =>
     valueUpdater(updaterOrValue, columnFilters),
@@ -201,7 +212,12 @@ const table = useVueTable({
   onRowSelectionChange: (updaterOrValue) =>
     valueUpdater(updaterOrValue, rowSelection),
   onExpandedChange: (updaterOrValue) => valueUpdater(updaterOrValue, expanded),
+  onColumnPinningChange: (updaterOrValue) =>
+    valueUpdater(updaterOrValue, columnPinning),
   state: {
+    get columnPinning() {
+      return columnPinning.value;
+    },
     get sorting() {
       return sorting.value;
     },
@@ -262,7 +278,20 @@ const table = useVueTable({
             v-for="headerGroup in table.getHeaderGroups()"
             :key="headerGroup.id"
           >
-            <TableHead v-for="header in headerGroup.headers" :key="header.id">
+            <TableHead
+              v-for="header in headerGroup.headers"
+              :key="header.id"
+              :style="{ width: `${header.getSize()}px` }"
+              :colSpan="header.colSpan"
+              :class="[
+                header.column.getIsPinned() === 'left'
+                  ? 'table-sticky-column table-sticky-left'
+                  : '',
+                header.column.getIsPinned() === 'right'
+                  ? 'table-sticky-column table-sticky-right'
+                  : '',
+              ]"
+            >
               <FlexRender
                 v-if="!header.isPlaceholder"
                 :render="header.column.columnDef.header"
@@ -275,7 +304,18 @@ const table = useVueTable({
           <template v-if="table.getRowModel().rows?.length">
             <template v-for="row in table.getRowModel().rows" :key="row.id">
               <TableRow :data-state="row.getIsSelected() && 'selected'">
-                <TableCell v-for="cell in row.getVisibleCells()" :key="cell.id">
+                <TableCell
+                  v-for="cell in row.getVisibleCells()"
+                  :key="cell.id"
+                  :class="[
+                    cell.column.getIsPinned() === 'left'
+                      ? 'table-sticky-column table-sticky-left'
+                      : '',
+                    cell.column.getIsPinned() === 'right'
+                      ? 'table-sticky-column table-sticky-right'
+                      : '',
+                  ]"
+                >
                   <FlexRender
                     :render="cell.column.columnDef.cell"
                     :props="cell.getContext()"
@@ -328,3 +368,21 @@ const table = useVueTable({
     </div>
   </div>
 </template>
+
+<style>
+.table-sticky-column {
+  position: sticky !important;
+  z-index: 1;
+  background-color: var(--background, #fff);
+}
+
+.table-sticky-left {
+  left: 0;
+  box-shadow: 2px 0 3px -1px rgba(0, 0, 0, 0.1);
+}
+
+.table-sticky-right {
+  right: 0;
+  box-shadow: -2px 0 3px -1px rgba(0, 0, 0, 0.1);
+}
+</style>
