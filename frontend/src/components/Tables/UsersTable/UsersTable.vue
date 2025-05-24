@@ -14,20 +14,12 @@ import {
   getPaginationRowModel,
   getSortedRowModel,
   useVueTable,
-  createColumnHelper,
 } from "@tanstack/vue-table";
-import { useDateFormat } from "@vueuse/core";
-import {
-  ArrowUpDown,
-  ChevronDown,
-  CircleUserRound,
-  EllipsisVerticalIcon,
-} from "lucide-vue-next";
-import { h, ref } from "vue";
+import { ChevronDown, FunnelPlus, FunnelX } from "lucide-vue-next";
+import { ref } from "vue";
 
-import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+import { useColumns } from "@/components/Tables/UsersTable/hooks/useColumns.ts";
 import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
 import {
   DropdownMenu,
   DropdownMenuCheckboxItem,
@@ -46,6 +38,8 @@ import {
 import { valueUpdater } from "@/components/ui/table/utils.ts";
 import type { User } from "@/types/user.ts";
 
+const showFilters = ref(false);
+
 const { data } = defineProps({
   data: {
     type: Array<User>,
@@ -54,131 +48,7 @@ const { data } = defineProps({
   loading: Boolean,
 });
 
-const columnHelper = createColumnHelper<User>();
-
-const columns = [
-  columnHelper.display({
-    id: "select",
-    header: ({ table }) => {
-      return h(Checkbox, {
-        modelValue:
-          table.getIsAllPageRowsSelected() ||
-          (table.getIsSomePageRowsSelected() && "indeterminate"),
-        "onUpdate:modelValue": (value) =>
-          table.toggleAllPageRowsSelected(!!value),
-        ariaLabel: "Select all",
-      });
-    },
-    cell: ({ row }) => {
-      return h(Checkbox, {
-        modelValue: row.getIsSelected(),
-        "onUpdate:modelValue": (value) => row.toggleSelected(!!value),
-        ariaLabel: "Select row",
-      });
-    },
-    enableSorting: false,
-    enableHiding: false,
-  }),
-  columnHelper.accessor("picture", {
-    header: () => h("div", { class: "text-left" }, "Avatar"),
-    cell: ({ getValue }) => {
-      const pictureUrl = getValue();
-      return h("div", { class: "max-w-[60px]" }, [
-        h(Avatar, null, {
-          default: () => {
-            return [
-              h(AvatarImage, { src: pictureUrl }),
-              h(AvatarFallback, null, () => h(CircleUserRound)),
-            ];
-          },
-        }),
-      ]);
-    },
-  }),
-  columnHelper.accessor("id", {
-    header: () => h("div", { class: "text-left" }, "ID"),
-    cell: ({ getValue }) => {
-      const id = getValue();
-      return h("div", { class: "text-left" }, id);
-    },
-  }),
-  columnHelper.accessor("name", {
-    header: ({ column }) => {
-      return h(
-        Button,
-        {
-          variant: "ghost",
-          onClick: () => column.toggleSorting(column.getIsSorted() === "asc"),
-        },
-        () => ["Name", h(ArrowUpDown, { class: "ml-2 h-4 w-4" })],
-      );
-    },
-    cell: ({ row }) => {
-      return h("div", { class: "capitalize" }, row.getValue("name"));
-    },
-  }),
-  columnHelper.accessor("email", {
-    header: ({ column }) => {
-      return h(
-        Button,
-        {
-          variant: "ghost",
-          onClick: () => column.toggleSorting(column.getIsSorted() === "asc"),
-        },
-        () => ["Email", h(ArrowUpDown, { class: "ml-2 h-4 w-4" })],
-      );
-    },
-  }),
-  columnHelper.accessor("createdAt", {
-    header: ({ column }) => {
-      return h(
-        Button,
-        {
-          variant: "ghost",
-          onClick: () => column.toggleSorting(column.getIsSorted() === "asc"),
-        },
-        () => ["Created At", h(ArrowUpDown, { class: "ml-2 h-4 w-4" })],
-      );
-    },
-    cell: ({ row }) => {
-      return h("div", { class: "lowercase" }, [
-        useDateFormat(row.getValue("createdAt"), "YYYY-MM-DD HH:mm").value,
-      ]);
-    },
-  }),
-  columnHelper.accessor("updatedAt", {
-    header: ({ column }) => {
-      return h(
-        Button,
-        {
-          variant: "ghost",
-          onClick: () => column.toggleSorting(column.getIsSorted() === "asc"),
-        },
-        () => ["Update dAt", h(ArrowUpDown, { class: "ml-2 h-4 w-4" })],
-      );
-    },
-    cell: ({ row }) => {
-      return h("div", { class: "lowercase" }, [
-        useDateFormat(row.getValue("updatedAt"), "YYYY-MM-DD HH:mm").value,
-      ]);
-    },
-  }),
-  columnHelper.accessor("verifiedEmail", {
-    header: "Verified Email",
-  }),
-  columnHelper.display({
-    id: "actions",
-    // enableHiding: false,
-    cell: ({ row }) => {
-      const user = row.original;
-
-      return h(EllipsisVerticalIcon, {
-        user,
-        onExpand: row.toggleExpanded,
-      });
-    },
-  }),
-];
+const columns = useColumns();
 
 const sorting = ref<SortingState>([
   {
@@ -240,12 +110,67 @@ const table = useVueTable({
 <template>
   <div class="flex flex-col h-full">
     <div class="flex items-center gap-4 py-4">
-      <Input
-        class="max-w-sm"
-        placeholder="Filter emails..."
-        :model-value="table.getColumn('email')?.getFilterValue() as string"
-        @update:model-value="table.getColumn('email')?.setFilterValue($event)"
-      />
+      <!--      <div-->
+      <!--        v-for="column in table-->
+      <!--          .getAllColumns()-->
+      <!--          .filter((col) => col.getCanFilter())"-->
+      <!--        :key="column.id"-->
+      <!--        class="space-y-1"-->
+      <!--      >-->
+      <!--        <div class="text-sm font-medium">-->
+      <!--          {{ column.id.charAt(0).toUpperCase() + column.id.slice(1) }}-->
+      <!--        </div>-->
+      <!--        <template v-if="column.id === 'email'">-->
+      <!--          <Input-->
+      <!--            class="max-w-sm"-->
+      <!--            placeholder="Filter emails..."-->
+      <!--            :model-value="column.getFilterValue() as string"-->
+      <!--            @update:model-value="column.setFilterValue($event)"-->
+      <!--          />-->
+      <!--        </template>-->
+      <!--        <template v-else-if="column.id === 'verifiedEmail'">-->
+      <!--          <select-->
+      <!--            class="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"-->
+      <!--            :value="column.getFilterValue() as string"-->
+      <!--            @change="-->
+      <!--              (e: Event) => {-->
+      <!--                column.setFilterValue(e.target.value);-->
+      <!--              }-->
+      <!--            "-->
+      <!--          >-->
+      <!--            <option value="">Все</option>-->
+      <!--            <option value="true">Да</option>-->
+      <!--            <option value="false">Нет</option>-->
+      <!--          </select>-->
+      <!--        </template>-->
+      <!--        <template v-else>-->
+      <!--          <Input-->
+      <!--            class="max-w-sm"-->
+      <!--            :placeholder="`Поиск по ${column.id}...`"-->
+      <!--            :model-value="column.getFilterValue() as string"-->
+      <!--            @update:model-value="column.setFilterValue($event)"-->
+      <!--          />-->
+      <!--        </template>-->
+      <!--      </div>-->
+
+      <!--      <Button-->
+      <!--        variant="outline"-->
+      <!--        size="sm"-->
+      <!--        @click="-->
+      <!--          () => {-->
+      <!--            table.resetColumnFilters();-->
+      <!--          }-->
+      <!--        "-->
+      <!--        v-if="table.getState().columnFilters.length > 0"-->
+      <!--      >-->
+      <!--        Сбросить фильтры-->
+      <!--      </Button>-->
+      <!--      <Input-->
+      <!--        class="max-w-sm"-->
+      <!--        placeholder="Filter emails..."-->
+      <!--        :model-value="table.getColumn('email')?.getFilterValue() as string"-->
+      <!--        @update:model-value="table.getColumn('email')?.setFilterValue($event)"-->
+      <!--      />-->
       <DropdownMenu>
         <DropdownMenuTrigger as-child>
           <Button variant="outline" class="ml-auto">
@@ -270,7 +195,20 @@ const table = useVueTable({
           </DropdownMenuCheckboxItem>
         </DropdownMenuContent>
       </DropdownMenu>
+      <Button
+        variant="outline"
+        class="h-9"
+        @click="
+          () => {
+            showFilters = !showFilters;
+          }
+        "
+      >
+        <FunnelPlus v-if="!showFilters" />
+        <FunnelX v-else />
+      </Button>
     </div>
+
     <div class="rounded-md border flex-1">
       <Table style="height: 100%">
         <TableHeader>
@@ -292,11 +230,30 @@ const table = useVueTable({
                   : '',
               ]"
             >
-              <FlexRender
-                v-if="!header.isPlaceholder"
-                :render="header.column.columnDef.header"
-                :props="header.getContext()"
-              />
+              <div class="flex h-full flex-col items-start">
+                <FlexRender
+                  v-if="!header.isPlaceholder"
+                  :render="header.column.columnDef.header"
+                  :props="header.getContext()"
+                />
+                <Input
+                  v-if="
+                    table.getColumn(header.id)?.getCanFilter() && showFilters
+                  "
+                  style="margin-bottom: 8px;}"
+                  :placeholder="`Filter ${table.getColumn(header.id)?.id}`"
+                  :model-value="
+                    table
+                      .getColumn(table.getColumn(header.id)?.id ?? '')
+                      ?.getFilterValue() as string
+                  "
+                  @update:model-value="
+                    table
+                      .getColumn(table.getColumn(header.id)?.id ?? '')
+                      ?.setFilterValue($event)
+                  "
+                />
+              </div>
             </TableHead>
           </TableRow>
         </TableHeader>
