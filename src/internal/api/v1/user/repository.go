@@ -38,7 +38,7 @@ func (repo *Repository) Count() *int64 {
 
 func (repo *Repository) FindAll(limit int, offset int, orderBy string, order string) ([]User, error) {
 	var users []User
-	fmt.Println(fmt.Sprintf("%s %s", orderBy, order))
+
 	res := repo.Database.DB.
 		Table(tableName).
 		Omit("password").

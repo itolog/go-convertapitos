@@ -66,7 +66,7 @@ func (h *Handler) GetAllUsers(ctx *fiber.Ctx) error {
 		return fiber.NewError(fiber.StatusBadRequest, "page must be greater than 0")
 	}
 
-	desc := ctx.QueryBool("desc", false)
+	desc := ctx.QueryBool("desc", true)
 	orderBy := ctx.Query("order_by", "updated_at")
 
 	offset := (page - 1) * limit
