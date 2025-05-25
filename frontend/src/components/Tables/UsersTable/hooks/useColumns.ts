@@ -21,8 +21,11 @@ const headerSortColumn = (column: Column<User>, name?: string) => {
     Button,
     {
       variant: "ghost",
-      class: "w-full justify-between items-center",
+      class: "w-full justify-between px-2 items-center",
       size: "icon",
+      style: {
+        width: `${column.getSize()}px`,
+      },
       onClick: () => column.toggleSorting(column.getIsSorted() === "asc"),
     },
     () => [
@@ -35,14 +38,26 @@ const headerSortColumn = (column: Column<User>, name?: string) => {
 const headerColumn = (column: Column<User>, name?: string) => {
   return h(
     "div",
-    { class: "flex items-center capitalize h-9" },
+    {
+      class: "flex items-center capitalize h-9",
+      style: {
+        width: `${column.getSize()}px`,
+      },
+    },
     name ?? column.id,
   );
 };
 
 const textCell = ({ getValue }: CellContext<User, string | undefined>) => {
   const id = getValue();
-  return h("div", { class: "text-left" }, id);
+
+  return h(
+    "div",
+    {
+      class: `text-left overflow-hidden whitespace-nowrap text-ellipsis}`,
+    },
+    id,
+  );
 };
 
 const dataCell = ({ getValue }: CellContext<User, string | undefined>) => {
@@ -56,10 +71,15 @@ export const useColumns = () => {
   return [
     columnHelper.display({
       id: "select",
-      header: ({ table }) => {
+      header: ({ table, column }) => {
         return h(
           "div",
-          { class: "flex items-center justify-center h-9" },
+          {
+            class: "flex items-center justify-center h-9",
+            style: {
+              width: `${column.getSize()}px`,
+            },
+          },
           h(Checkbox, {
             modelValue:
               table.getIsAllPageRowsSelected() ||
@@ -70,10 +90,15 @@ export const useColumns = () => {
           }),
         );
       },
-      cell: ({ row }) => {
+      cell: ({ row, column }) => {
         return h(
           "div",
-          { class: " " },
+          {
+            class: "flex items-center justify-center",
+            style: {
+              width: `${column.getSize()}px`,
+            },
+          },
           h(Checkbox, {
             modelValue: row.getIsSelected(),
             "onUpdate:modelValue": (value) => row.toggleSelected(!!value),
@@ -83,7 +108,10 @@ export const useColumns = () => {
       },
       enableSorting: false,
       enableHiding: false,
-      size: 15,
+      enableResizing: false,
+      size: 30,
+      minSize: 25,
+      maxSize: 35,
     }),
     columnHelper.accessor("picture", {
       header: ({ column }) => headerColumn(column),
@@ -102,12 +130,13 @@ export const useColumns = () => {
           }),
         ]);
       },
-      size: 30,
+      size: 35,
       enableColumnFilter: false,
     }),
     columnHelper.accessor("id", {
       header: ({ column }) => headerSortColumn(column, "ID"),
       cell: textCell,
+      size: 300,
     }),
     columnHelper.accessor("name", {
       header: ({ column }) => headerSortColumn(column),
@@ -138,8 +167,10 @@ export const useColumns = () => {
           onExpand: row.toggleExpanded,
         });
       },
-      size: 25,
-      maxSize: 30,
+      size: 40,
+      minSize: 40,
+      maxSize: 60,
+      enableResizing: false,
       enableHiding: false,
     }),
   ];

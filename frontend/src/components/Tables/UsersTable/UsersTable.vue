@@ -8,7 +8,13 @@ import {
   getSortedRowModel,
   useVueTable,
 } from "@tanstack/vue-table";
-import { ChevronDown, FunnelPlus, FunnelX } from "lucide-vue-next";
+import {
+  ChevronDown,
+  FunnelPlus,
+  FunnelX,
+  SquareX,
+  Delete,
+} from "lucide-vue-next";
 import { ref, watch } from "vue";
 
 import { useColumns } from "@/components/Tables/UsersTable/hooks/useColumns.ts";
@@ -73,6 +79,10 @@ const table = useVueTable({
   onExpandedChange: (updaterOrValue) => valueUpdater(updaterOrValue, expanded),
   onColumnPinningChange: (updaterOrValue) =>
     valueUpdater(updaterOrValue, columnPinning),
+  defaultColumn: {
+    size: 180,
+    minSize: 25,
+  },
   state: {
     get columnPinning() {
       return columnPinning.value;
@@ -111,67 +121,6 @@ watch(
 <template>
   <div class="flex flex-col h-full">
     <div class="flex items-center gap-4 py-4">
-      <!--      <div-->
-      <!--        v-for="column in table-->
-      <!--          .getAllColumns()-->
-      <!--          .filter((col) => col.getCanFilter())"-->
-      <!--        :key="column.id"-->
-      <!--        class="space-y-1"-->
-      <!--      >-->
-      <!--        <div class="text-sm font-medium">-->
-      <!--          {{ column.id.charAt(0).toUpperCase() + column.id.slice(1) }}-->
-      <!--        </div>-->
-      <!--        <template v-if="column.id === 'email'">-->
-      <!--          <Input-->
-      <!--            class="max-w-sm"-->
-      <!--            placeholder="Filter emails..."-->
-      <!--            :model-value="column.getFilterValue() as string"-->
-      <!--            @update:model-value="column.setFilterValue($event)"-->
-      <!--          />-->
-      <!--        </template>-->
-      <!--        <template v-else-if="column.id === 'verifiedEmail'">-->
-      <!--          <select-->
-      <!--            class="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"-->
-      <!--            :value="column.getFilterValue() as string"-->
-      <!--            @change="-->
-      <!--              (e: Event) => {-->
-      <!--                column.setFilterValue(e.target.value);-->
-      <!--              }-->
-      <!--            "-->
-      <!--          >-->
-      <!--            <option value="">Все</option>-->
-      <!--            <option value="true">Да</option>-->
-      <!--            <option value="false">Нет</option>-->
-      <!--          </select>-->
-      <!--        </template>-->
-      <!--        <template v-else>-->
-      <!--          <Input-->
-      <!--            class="max-w-sm"-->
-      <!--            :placeholder="`Поиск по ${column.id}...`"-->
-      <!--            :model-value="column.getFilterValue() as string"-->
-      <!--            @update:model-value="column.setFilterValue($event)"-->
-      <!--          />-->
-      <!--        </template>-->
-      <!--      </div>-->
-
-      <!--      <Button-->
-      <!--        variant="outline"-->
-      <!--        size="sm"-->
-      <!--        @click="-->
-      <!--          () => {-->
-      <!--            table.resetColumnFilters();-->
-      <!--          }-->
-      <!--        "-->
-      <!--        v-if="table.getState().columnFilters.length > 0"-->
-      <!--      >-->
-      <!--        Сбросить фильтры-->
-      <!--      </Button>-->
-      <!--      <Input-->
-      <!--        class="max-w-sm"-->
-      <!--        placeholder="Filter emails..."-->
-      <!--        :model-value="table.getColumn('email')?.getFilterValue() as string"-->
-      <!--        @update:model-value="table.getColumn('email')?.setFilterValue($event)"-->
-      <!--      />-->
       <DropdownMenu>
         <DropdownMenuTrigger as-child>
           <Button variant="outline" class="ml-auto">
@@ -208,6 +157,19 @@ watch(
         <FunnelPlus v-if="!showFilters" />
         <FunnelX v-else />
       </Button>
+
+      <Button
+        variant="outline"
+        class="h-9"
+        @click="
+          () => {
+            table.resetColumnFilters();
+          }
+        "
+        v-if="table.getState().columnFilters.length > 0"
+      >
+        <Delete />
+      </Button>
     </div>
 
     <div class="rounded-md border flex-1">
@@ -231,29 +193,54 @@ watch(
                   : '',
               ]"
             >
-              <div class="flex h-full flex-col items-start">
+              <div class="flex h-full flex-col gap-1 items-start">
                 <FlexRender
                   v-if="!header.isPlaceholder"
                   :render="header.column.columnDef.header"
                   :props="header.getContext()"
                 />
-                <Input
+                <div
+                  class="flex relative items-center"
+                  style="margin-bottom: 8px;}"
                   v-if="
                     table.getColumn(header.id)?.getCanFilter() && showFilters
                   "
-                  style="margin-bottom: 8px;}"
-                  :placeholder="`Filter ${table.getColumn(header.id)?.id}`"
-                  :model-value="
-                    table
-                      .getColumn(table.getColumn(header.id)?.id ?? '')
-                      ?.getFilterValue() as string
-                  "
-                  @update:model-value="
-                    table
-                      .getColumn(table.getColumn(header.id)?.id ?? '')
-                      ?.setFilterValue($event)
-                  "
-                />
+                >
+                  <Input
+                    :placeholder="`Filter ${table.getColumn(header.id)?.id}`"
+                    class="pr-8"
+                    :style="`width: ${header.getSize()}px`"
+                    :model-value="
+                      table
+                        .getColumn(table.getColumn(header.id)?.id ?? '')
+                        ?.getFilterValue() as string
+                    "
+                    @update:model-value="
+                      table
+                        .getColumn(table.getColumn(header.id)?.id ?? '')
+                        ?.setFilterValue($event)
+                    "
+                  />
+                  <Button
+                    size="icon"
+                    variant="link"
+                    class="absolute right-0 z-1 size-8"
+                    :disabled="
+                      !table
+                        .getColumn(table.getColumn(header.id)?.id ?? '')
+                        ?.getFilterValue()
+                    "
+                    @click="
+                      () => {
+                        table
+                          .getColumn(table.getColumn(header.id)?.id ?? '')
+                          ?.setFilterValue('');
+                      }
+                    "
+                  >
+                    <SquareX />
+                  </Button>
+                </div>
               </div>
             </TableHead>
           </TableRow>
