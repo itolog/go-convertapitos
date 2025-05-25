@@ -16,9 +16,10 @@ import {
   Delete,
   UserPlus,
 } from "lucide-vue-next";
-import { ref, watch } from "vue";
+import { type PropType, ref, watch } from "vue";
 import { useRouter } from "vue-router";
 
+import TablePagination from "@/components/Tables/TablePagination/TablePagination.vue";
 import { useColumns } from "@/components/Tables/UsersTable/hooks/useColumns.ts";
 import { useTableConfig } from "@/components/Tables/UsersTable/hooks/useTableConfig.ts";
 import { Button } from "@/components/ui/button";
@@ -29,6 +30,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
+import { Skeleton } from "@/components/ui/skeleton";
 import {
   Table,
   TableBody,
@@ -39,19 +41,28 @@ import {
 } from "@/components/ui/table";
 import { valueUpdater } from "@/components/ui/table/utils.ts";
 import { HIDDEN_COLUMNS, TABLES_CONFIG, USERS_TABLE } from "@/constants";
+import type { ApiMeta } from "@/generated/apiClient/data-contracts";
+import { cn } from "@/lib/utils.ts";
+import { useTableStore } from "@/stores/table/table.ts";
 import type { TablesState } from "@/types/tables.ts";
 import type { User } from "@/types/user.ts";
 
+const tableStore = useTableStore();
 const router = useRouter();
 
 const showFilters = ref(false);
 
-const props = defineProps({
+const { data, isFetching, meta, isLoading } = defineProps({
   data: {
     type: Array<User>,
     required: true,
   },
-  loading: Boolean,
+  meta: {
+    type: Object as PropType<ApiMeta>,
+    required: true,
+  },
+  isLoading: Boolean,
+  isFetching: Boolean,
 });
 
 const columns = useColumns();
@@ -66,7 +77,7 @@ const {
 
 const table = useVueTable({
   get data() {
-    return props.data;
+    return data;
   },
   columns,
   getCoreRowModel: getCoreRowModel(),
@@ -112,9 +123,9 @@ const table = useVueTable({
 });
 
 watch(
-  () => props.data,
+  () => data,
   () => {
-    table.options.data = props.data;
+    table.options.data = data;
   },
   { deep: true },
 );
@@ -279,9 +290,24 @@ const handleAddUser = () => {
           </TableRow>
         </TableHeader>
         <TableBody>
-          <template v-if="table.getRowModel().rows?.length">
+          <template v-if="isLoading">
+            <TableRow v-for="item in tableStore.itemsPerPage" :key="item">
+              <TableCell class="h-[49px] w-full" :colspan="columns.length">
+                <Skeleton class="h-full w-full" />
+              </TableCell>
+            </TableRow>
+          </template>
+
+          <template v-else-if="table.getRowModel().rows?.length && !isLoading">
             <template v-for="row in table.getRowModel().rows" :key="row.id">
-              <TableRow :data-state="row.getIsSelected() && 'selected'">
+              <TableRow
+                :class="
+                  cn({
+                    'animate-pulse text-gray-400': isFetching,
+                  })
+                "
+                :data-state="row.getIsSelected() && 'selected'"
+              >
                 <TableCell
                   v-for="cell in row.getVisibleCells()"
                   :key="cell.id"
@@ -321,28 +347,7 @@ const handleAddUser = () => {
     </div>
 
     <div class="flex items-center justify-end space-x-2 gap-2 py-4">
-      <div class="flex-1 text-sm text-muted-foreground">
-        {{ table.getFilteredSelectedRowModel().rows.length }} of
-        {{ table.getFilteredRowModel().rows.length }} row(s) selected.
-      </div>
-      <div class="flex space-x-2 gap-2">
-        <Button
-          variant="outline"
-          size="sm"
-          :disabled="!table.getCanPreviousPage()"
-          @click="table.previousPage()"
-        >
-          Previous
-        </Button>
-        <Button
-          variant="outline"
-          size="sm"
-          :disabled="!table.getCanNextPage()"
-          @click="table.nextPage()"
-        >
-          Next
-        </Button>
-      </div>
+      <TablePagination :total="meta.items" />
     </div>
   </div>
 </template>
