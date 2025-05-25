@@ -1,11 +1,4 @@
 <script setup lang="ts">
-import type {
-  ColumnFiltersState,
-  ColumnPinningState,
-  ExpandedState,
-  SortingState,
-  VisibilityState,
-} from "@tanstack/vue-table";
 import {
   FlexRender,
   getCoreRowModel,
@@ -16,9 +9,10 @@ import {
   useVueTable,
 } from "@tanstack/vue-table";
 import { ChevronDown, FunnelPlus, FunnelX } from "lucide-vue-next";
-import { ref } from "vue";
+import { ref, watch } from "vue";
 
 import { useColumns } from "@/components/Tables/UsersTable/hooks/useColumns.ts";
+import { useTableConfig } from "@/components/Tables/UsersTable/hooks/useTableConfig.ts";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -36,6 +30,8 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { valueUpdater } from "@/components/ui/table/utils.ts";
+import { HIDDEN_COLUMNS, TABLES_CONFIG, USERS_TABLE } from "@/constants";
+import type { TablesState } from "@/types/tables.ts";
 import type { User } from "@/types/user.ts";
 
 const showFilters = ref(false);
@@ -49,21 +45,14 @@ const { data } = defineProps({
 });
 
 const columns = useColumns();
-
-const sorting = ref<SortingState>([
-  {
-    id: "updatedAt",
-    desc: true,
-  },
-]);
-const columnFilters = ref<ColumnFiltersState>([]);
-const columnVisibility = ref<VisibilityState>({});
-const rowSelection = ref({});
-const expanded = ref<ExpandedState>({});
-const columnPinning = ref<ColumnPinningState>({
-  left: ["select"],
-  right: ["actions"],
-});
+const {
+  columnPinning,
+  sorting,
+  columnFilters,
+  columnVisibility,
+  rowSelection,
+  expanded,
+} = useTableConfig();
 
 const table = useVueTable({
   data,
@@ -105,6 +94,18 @@ const table = useVueTable({
     },
   },
 });
+
+watch(
+  () => table.getState().columnVisibility,
+  () => {
+    const data: TablesState = {
+      [USERS_TABLE]: {
+        [HIDDEN_COLUMNS]: table.getState().columnVisibility,
+      },
+    };
+    localStorage.setItem(TABLES_CONFIG, JSON.stringify(data));
+  },
+);
 </script>
 
 <template>
@@ -183,7 +184,7 @@ const table = useVueTable({
               .getAllColumns()
               .filter((column) => column.getCanHide())"
             :key="column.id"
-            class="capitalize"
+            class="capitalize cursor-pointer"
             :model-value="column.getIsVisible()"
             @update:model-value="
               (value) => {

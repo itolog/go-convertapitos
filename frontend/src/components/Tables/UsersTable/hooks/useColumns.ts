@@ -139,6 +139,8 @@ export const useColumns = () => {
         });
       },
       size: 25,
+      maxSize: 30,
+      enableHiding: false,
     }),
   ];
 };
