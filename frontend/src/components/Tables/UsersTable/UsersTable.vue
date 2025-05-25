@@ -193,20 +193,26 @@ watch(
                   : '',
               ]"
             >
-              <div class="flex h-full flex-col gap-1 items-start">
+              <div
+                class="flex h-full relative flex-col py-1 gap-1 items-center"
+              >
                 <FlexRender
                   v-if="!header.isPlaceholder"
                   :render="header.column.columnDef.header"
                   :props="header.getContext()"
                 />
                 <div
-                  class="flex relative items-center"
-                  style="margin-bottom: 8px;}"
+                  class="flex absolute top-1 z-1 items-center bg-background"
                   v-if="
                     table.getColumn(header.id)?.getCanFilter() && showFilters
                   "
                 >
                   <Input
+                    :name="
+                      table
+                        .getColumn(table.getColumn(header.id)?.id ?? '')
+                        ?.getFilterValue()
+                    "
                     :placeholder="`Filter ${table.getColumn(header.id)?.id}`"
                     class="pr-8"
                     :style="`width: ${header.getSize()}px`"
