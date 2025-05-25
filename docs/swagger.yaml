@@ -153,37 +153,6 @@ info:
   title: ConvertApiTos API
   version: 1.0.0
 paths:
-  /auth/Register:
-    post:
-      consumes:
-      - application/json
-      description: Register a new user with email and password
-      parameters:
-      - description: User registration data
-        in: body
-        name: payload
-        required: true
-        schema:
-          $ref: '#/definitions/auth.RegisterRequest'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: Successfully registered
-          schema:
-            allOf:
-            - $ref: '#/definitions/api.ResponseData'
-            - properties:
-                data:
-                  $ref: '#/definitions/common.AuthResponse'
-              type: object
-        "400":
-          description: Invalid request or registration error
-          schema:
-            $ref: '#/definitions/api.ResponseError'
-      summary: User registration
-      tags:
-      - Auth
   /auth/google:
     get:
       description: Redirects the user to the Google OAuth consent page.
@@ -306,6 +275,37 @@ paths:
           schema:
             $ref: '#/definitions/api.ResponseError'
       summary: Refresh JWT token
+      tags:
+      - Auth
+  /auth/register:
+    post:
+      consumes:
+      - application/json
+      description: Register a new user with email and password
+      parameters:
+      - description: User registration data
+        in: body
+        name: payload
+        required: true
+        schema:
+          $ref: '#/definitions/auth.RegisterRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successfully registered
+          schema:
+            allOf:
+            - $ref: '#/definitions/api.ResponseData'
+            - properties:
+                data:
+                  $ref: '#/definitions/common.AuthResponse'
+              type: object
+        "400":
+          description: Invalid request or registration error
+          schema:
+            $ref: '#/definitions/api.ResponseError'
+      summary: User registration
       tags:
       - Auth
   /user:

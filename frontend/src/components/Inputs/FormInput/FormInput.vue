@@ -1,6 +1,12 @@
 <script setup lang="ts">
+import {
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { cn } from "@/lib/utils";
 
 defineProps({
@@ -25,10 +31,14 @@ defineProps({
 </script>
 
 <template>
-  <FormField v-slot="{ componentField }" :name="name" :validate-on-blur="!isFieldDirty">
+  <FormField
+    v-slot="{ componentField }"
+    :name="name"
+    :validate-on-blur="!isFieldDirty"
+  >
     <FormItem class="relative">
       <FormLabel class="capitalize">{{ label ? label : name }}</FormLabel>
-      <div class="relative w-full max-w-sm items-center">
+      <div class="relative w-full items-center">
         <FormControl>
           <Input
             :class="cn({ 'pl-10': $slots.icon })"

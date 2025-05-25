@@ -1,30 +1,21 @@
 <script setup lang="ts">
-import { toTypedSchema } from "@vee-validate/zod";
-import { LucideMail, RectangleEllipsis } from "lucide-vue-next";
+import { LucideMail, RectangleEllipsis, UserPen } from "lucide-vue-next";
 import { useForm } from "vee-validate";
-import { useRouter } from "vue-router";
 import { toast } from "vue-sonner";
-import * as z from "zod";
+
+import router from "@/router";
 
 import FormInput from "@/components/Inputs/FormInput/FormInput.vue";
+import formSchema from "@/components/forms/RegisterUserForm/schema";
 import { Button } from "@/components/ui/button";
-import type { ValidationErrorFields } from "@/generated/apiClient/data-contracts";
-import { useLogin } from "@/services/api/useLogin.ts";
-
-const router = useRouter();
-
-const formSchema = toTypedSchema(
-  z.object({
-    email: z.string().min(1),
-    password: z.string().min(6).max(128),
-  }),
-);
+import type { ValidationErrorFields } from "@/generated/apiClient/data-contracts.ts";
+import { userUserRegister } from "@/services/api/userRegister.ts";
 
 const { isFieldDirty, handleSubmit, isSubmitting, setErrors } = useForm({
   validationSchema: formSchema,
 });
 
-const { mutateAsync, isPending } = useLogin({
+const { mutateAsync, isPending } = userUserRegister({
   onError: (error) => {
     toast.error(error.response?.data.error?.message ?? "Something went wrong");
     const fieldsErrors = error.response?.data.error?.fields;
@@ -42,13 +33,14 @@ const { mutateAsync, isPending } = useLogin({
   },
 });
 
-const onSubmit = handleSubmit(async ({ email, password }) => {
+const onSubmit = handleSubmit(async ({ email, password, name }) => {
   await mutateAsync({
     email,
     password,
+    name,
   });
 
-  await router.push({ name: "home" });
+  await router.push({ name: "users" });
 });
 </script>
 
@@ -57,10 +49,15 @@ const onSubmit = handleSubmit(async ({ email, password }) => {
     class="flex flex-col w-full sm:w-sm md:w-md justify-center p-6 gap-4 lg:p-8 shadow-xl/50 rounded-2xl dark:shadow-orange-500"
   >
     <h2 class="text-center text-2xl/9 font-bold tracking-tight">
-      Sign in to your account
+      User Registration
     </h2>
     <form class="flex flex-col gap-8" @submit="onSubmit">
-      <div class="flex flex-col gap-6">
+      <div class="grid grid-cols-1 gap-6">
+        <FormInput class="w-full" name="name" :is-field-dirty="isFieldDirty">
+          <template v-slot:icon>
+            <UserPen />
+          </template>
+        </FormInput>
         <FormInput name="email" :is-field-dirty="isFieldDirty">
           <template v-slot:icon>
             <LucideMail />

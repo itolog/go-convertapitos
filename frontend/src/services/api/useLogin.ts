@@ -2,8 +2,6 @@ import { type MutationOptions, useMutation } from "@tanstack/vue-query";
 import type { AxiosError, AxiosResponse } from "axios";
 import { toast } from "vue-sonner";
 
-import router from "@/router";
-
 import { axios } from "@/configs/axiosConfig.ts";
 import { ACCESS_TOKEN } from "@/constants";
 import type {
@@ -25,8 +23,9 @@ type UserLogin = Partial<
 export function useLogin(props?: UserLogin) {
   const userStore = useUserStore();
 
-  const { isPending, mutate, data } = useMutation({
-    mutationFn: async (payload) => await axios.post("/api/v1/auth/login", payload),
+  const { isPending, mutateAsync, data } = useMutation({
+    mutationFn: async (payload) =>
+      await axios.post("/api/v1/auth/login", payload),
     onSuccess: async ({ data }) => {
       const token = data.data?.accessToken;
       if (token) {
@@ -39,14 +38,13 @@ export function useLogin(props?: UserLogin) {
       });
 
       toast.success("User logged in successfully");
-      await router.push({ name: "home" });
     },
     ...props,
   });
 
   return {
     isPending,
-    mutate,
+    mutateAsync,
     data,
   };
 }

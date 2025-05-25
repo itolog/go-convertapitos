@@ -24,28 +24,6 @@ export class Auth<
   SecurityDataType = unknown,
 > extends HttpClient<SecurityDataType> {
   /**
-   * @description Register a new user with email and password
-   *
-   * @tags Auth
-   * @name RegisterCreate
-   * @summary User registration
-   * @request POST:/auth/Register
-   */
-  registerCreate = (payload: AuthRegisterRequest, params: RequestParams = {}) =>
-    this.request<
-      ApiResponseData & {
-        data?: CommonAuthResponse;
-      },
-      ApiResponseError
-    >({
-      path: `/auth/Register`,
-      method: "POST",
-      body: payload,
-      type: ContentType.Json,
-      format: "json",
-      ...params,
-    });
-  /**
    * @description Redirects the user to the Google OAuth consent page.
    *
    * @tags Auth Google
@@ -147,6 +125,28 @@ export class Auth<
     >({
       path: `/auth/refresh-token`,
       method: "POST",
+      type: ContentType.Json,
+      format: "json",
+      ...params,
+    });
+  /**
+   * @description Register a new user with email and password
+   *
+   * @tags Auth
+   * @name RegisterCreate
+   * @summary User registration
+   * @request POST:/auth/register
+   */
+  registerCreate = (payload: AuthRegisterRequest, params: RequestParams = {}) =>
+    this.request<
+      ApiResponseData & {
+        data?: CommonAuthResponse;
+      },
+      ApiResponseError
+    >({
+      path: `/auth/register`,
+      method: "POST",
+      body: payload,
       type: ContentType.Json,
       format: "json",
       ...params,

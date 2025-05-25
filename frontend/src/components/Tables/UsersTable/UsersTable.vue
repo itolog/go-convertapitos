@@ -14,8 +14,10 @@ import {
   FunnelX,
   SquareX,
   Delete,
+  UserPlus,
 } from "lucide-vue-next";
 import { ref, watch } from "vue";
+import { useRouter } from "vue-router";
 
 import { useColumns } from "@/components/Tables/UsersTable/hooks/useColumns.ts";
 import { useTableConfig } from "@/components/Tables/UsersTable/hooks/useTableConfig.ts";
@@ -40,9 +42,11 @@ import { HIDDEN_COLUMNS, TABLES_CONFIG, USERS_TABLE } from "@/constants";
 import type { TablesState } from "@/types/tables.ts";
 import type { User } from "@/types/user.ts";
 
+const router = useRouter();
+
 const showFilters = ref(false);
 
-const { data } = defineProps({
+const props = defineProps({
   data: {
     type: Array<User>,
     required: true,
@@ -61,7 +65,9 @@ const {
 } = useTableConfig();
 
 const table = useVueTable({
-  data,
+  get data() {
+    return props.data;
+  },
   columns,
   getCoreRowModel: getCoreRowModel(),
   getPaginationRowModel: getPaginationRowModel(),
@@ -106,6 +112,14 @@ const table = useVueTable({
 });
 
 watch(
+  () => props.data,
+  () => {
+    table.options.data = props.data;
+  },
+  { deep: true },
+);
+
+watch(
   () => table.getState().columnVisibility,
   () => {
     const data: TablesState = {
@@ -116,60 +130,73 @@ watch(
     localStorage.setItem(TABLES_CONFIG, JSON.stringify(data));
   },
 );
+
+const handleAddUser = () => {
+  router.push({ name: "addUser" });
+};
 </script>
 
 <template>
   <div class="flex flex-col h-full">
-    <div class="flex items-center gap-4 py-4">
-      <DropdownMenu>
-        <DropdownMenuTrigger as-child>
-          <Button variant="outline" class="ml-auto">
-            Columns <ChevronDown class="ml-2 h-4 w-4" />
-          </Button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent align="end">
-          <DropdownMenuCheckboxItem
-            v-for="column in table
-              .getAllColumns()
-              .filter((column) => column.getCanHide())"
-            :key="column.id"
-            class="capitalize cursor-pointer"
-            :model-value="column.getIsVisible()"
-            @update:model-value="
-              (value) => {
-                column.toggleVisibility(!!value);
-              }
-            "
-          >
-            {{ column.id }}
-          </DropdownMenuCheckboxItem>
-        </DropdownMenuContent>
-      </DropdownMenu>
-      <Button
-        variant="outline"
-        class="h-9"
-        @click="
-          () => {
-            showFilters = !showFilters;
-          }
-        "
-      >
-        <FunnelPlus v-if="!showFilters" />
-        <FunnelX v-else />
-      </Button>
+    <div class="flex items-center justify-between gap-4 py-4">
+      <!--   FILTERS   -->
+      <div class="flex items-center gap-4">
+        <DropdownMenu>
+          <DropdownMenuTrigger as-child>
+            <Button variant="outline" class="ml-auto">
+              Columns <ChevronDown class="ml-2 h-4 w-4" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end">
+            <DropdownMenuCheckboxItem
+              v-for="column in table
+                .getAllColumns()
+                .filter((column) => column.getCanHide())"
+              :key="column.id"
+              class="capitalize cursor-pointer"
+              :model-value="column.getIsVisible()"
+              @update:model-value="
+                (value) => {
+                  column.toggleVisibility(!!value);
+                }
+              "
+            >
+              {{ column.id }}
+            </DropdownMenuCheckboxItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+        <Button
+          variant="outline"
+          size="icon"
+          @click="
+            () => {
+              showFilters = !showFilters;
+            }
+          "
+        >
+          <FunnelPlus v-if="!showFilters" />
+          <FunnelX v-else />
+        </Button>
 
-      <Button
-        variant="outline"
-        class="h-9"
-        @click="
-          () => {
-            table.resetColumnFilters();
-          }
-        "
-        v-if="table.getState().columnFilters.length > 0"
-      >
-        <Delete />
-      </Button>
+        <Button
+          variant="outline"
+          size="icon"
+          @click="
+            () => {
+              table.resetColumnFilters();
+            }
+          "
+          v-if="table.getState().columnFilters.length > 0"
+        >
+          <Delete />
+        </Button>
+      </div>
+      <!--   ACTIONS   -->
+      <div>
+        <Button size="icon" @click="handleAddUser">
+          <UserPlus />
+        </Button>
+      </div>
     </div>
 
     <div class="rounded-md border flex-1">

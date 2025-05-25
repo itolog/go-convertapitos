@@ -72,7 +72,7 @@ func (h *Handler) Login(ctx *fiber.Ctx) error {
 //	@Param			payload	body		RegisterRequest						true	"User registration data"
 //	@Success		200		{object}	api.ResponseData{data=common.AuthResponse}	"Successfully registered"
 //	@Failure		400		{object}	api.ResponseError					"Invalid request or registration error"
-//	@Router			/auth/Register [post]
+//	@Router			/auth/register [post]
 func (h *Handler) Register(ctx *fiber.Ctx) error {
 	payload, err := req.DecodeBody[RegisterRequest](ctx)
 	if err != nil {
