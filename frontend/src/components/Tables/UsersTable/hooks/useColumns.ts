@@ -103,6 +103,7 @@ export const useColumns = () => {
             },
           },
           h(Checkbox, {
+            disabled: !row.getCanSelect(),
             modelValue: row.getIsSelected(),
             "onUpdate:modelValue": (value) => row.toggleSelected(!!value),
             ariaLabel: "Select row",

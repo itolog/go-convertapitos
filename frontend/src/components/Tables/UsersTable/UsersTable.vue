@@ -7,29 +7,16 @@ import {
   getSortedRowModel,
   useVueTable,
 } from "@tanstack/vue-table";
-import {
-  ChevronDown,
-  FunnelPlus,
-  FunnelX,
-  SquareX,
-  Delete,
-  UserPlus,
-} from "lucide-vue-next";
+import { SquareX } from "lucide-vue-next";
 import { type PropType, ref, watch } from "vue";
-import { useRouter } from "vue-router";
 
+import UserTableHeader from "@/components/Tables/UsersTable/components/UserTableHeader/UserTableHeader.vue";
 import { useColumns } from "@/components/Tables/UsersTable/hooks/useColumns.ts";
 import { useTableConfig } from "@/components/Tables/UsersTable/hooks/useTableConfig.ts";
 import TableItemsInfo from "@/components/Tables/components/TableItemsInfo/TableItemsInfo.vue";
 import TablePagination from "@/components/Tables/components/TablePagination/TablePagination.vue";
 import TablePerPageSelect from "@/components/Tables/components/TablePerPageSelect/TablePerPageSelect.vue";
 import { Button } from "@/components/ui/button";
-import {
-  DropdownMenu,
-  DropdownMenuCheckboxItem,
-  DropdownMenuContent,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
@@ -45,13 +32,13 @@ import { HIDDEN_COLUMNS, TABLES_CONFIG, USERS_TABLE } from "@/constants";
 import type { ApiMeta } from "@/generated/apiClient/data-contracts";
 import { cn } from "@/lib/utils.ts";
 import { useTableStore } from "@/stores/table/table.ts";
+import { useUserStore } from "@/stores/user/user.ts";
 import type { TablesState } from "@/types/tables.ts";
 import type { User } from "@/types/user.ts";
 
-const tableStore = useTableStore();
-const router = useRouter();
-
 const showFilters = ref(false);
+const { user: loggedUser } = useUserStore();
+const tableStore = useTableStore();
 
 const { data, isFetching, meta, isLoading } = defineProps({
   data: {
@@ -96,6 +83,8 @@ const table = useVueTable({
   onExpandedChange: (updaterOrValue) => valueUpdater(updaterOrValue, expanded),
   onColumnPinningChange: (updaterOrValue) =>
     valueUpdater(updaterOrValue, columnPinning),
+  getRowId: (row) => row?.id ?? "",
+  enableRowSelection: (row) => row.original?.id !== loggedUser?.id,
   defaultColumn: {
     size: 180,
     minSize: 25,
@@ -143,73 +132,14 @@ watch(
   },
 );
 
-const handleAddUser = () => {
-  router.push({ name: "addUser" });
+const handleShowFilters = (value: boolean) => {
+  showFilters.value = value;
 };
 </script>
 
 <template>
   <div class="flex flex-col h-full">
-    <div class="flex items-center justify-between gap-4 py-4">
-      <!--   FILTERS   -->
-      <div class="flex items-center gap-4">
-        <DropdownMenu>
-          <DropdownMenuTrigger as-child>
-            <Button variant="outline" class="ml-auto">
-              Columns <ChevronDown class="ml-2 h-4 w-4" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <DropdownMenuCheckboxItem
-              v-for="column in table
-                .getAllColumns()
-                .filter((column) => column.getCanHide())"
-              :key="column.id"
-              class="capitalize cursor-pointer"
-              :model-value="column.getIsVisible()"
-              @update:model-value="
-                (value) => {
-                  column.toggleVisibility(!!value);
-                }
-              "
-            >
-              {{ column.id }}
-            </DropdownMenuCheckboxItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-        <Button
-          variant="outline"
-          size="icon"
-          @click="
-            () => {
-              showFilters = !showFilters;
-            }
-          "
-        >
-          <FunnelPlus v-if="!showFilters" />
-          <FunnelX v-else />
-        </Button>
-
-        <Button
-          variant="outline"
-          size="icon"
-          @click="
-            () => {
-              table.resetColumnFilters();
-            }
-          "
-          v-if="table.getState().columnFilters.length > 0"
-        >
-          <Delete />
-        </Button>
-      </div>
-      <!--   ACTIONS   -->
-      <div>
-        <Button size="icon" @click="handleAddUser">
-          <UserPlus />
-        </Button>
-      </div>
-    </div>
+    <UserTableHeader @update:showFilters="handleShowFilters" :table="table" />
 
     <div class="rounded-md border flex-1">
       <Table style="height: 100%">
@@ -360,7 +290,7 @@ const handleAddUser = () => {
   </div>
 </template>
 
-<style>
+<style scoped>
 .table-sticky-column {
   position: sticky !important;
   z-index: 1;
