@@ -4,13 +4,10 @@ import {
   createColumnHelper,
 } from "@tanstack/vue-table";
 import { useDateFormat } from "@vueuse/core";
-import {
-  ArrowUpDown,
-  CircleUserRound,
-  EllipsisVerticalIcon,
-} from "lucide-vue-next";
+import { ArrowUpDown, CircleUserRound } from "lucide-vue-next";
 import { h } from "vue";
 
+import TableCelAction from "@/components/Tables/UsersTable/components/TableCelAction/TableCelAction.vue";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -48,13 +45,19 @@ const headerColumn = (column: Column<User>, name?: string) => {
   );
 };
 
-const textCell = ({ getValue }: CellContext<User, string | undefined>) => {
+const textCell = ({
+  getValue,
+  column,
+}: CellContext<User, string | undefined>) => {
   const id = getValue();
 
   return h(
     "div",
     {
-      class: `text-left overflow-hidden whitespace-nowrap text-ellipsis}`,
+      class: `text-left break-all whitespace-normal line-clamp-2`,
+      style: {
+        width: `${column.getSize()}px`,
+      },
     },
     id,
   );
@@ -144,6 +147,7 @@ export const useColumns = () => {
     }),
     columnHelper.accessor("email", {
       header: ({ column }) => headerSortColumn(column),
+      cell: textCell,
     }),
     columnHelper.accessor("createdAt", {
       header: ({ column }) => headerSortColumn(column),
@@ -161,8 +165,7 @@ export const useColumns = () => {
       cell: ({ row }) => {
         const user = row.original;
 
-        return h(EllipsisVerticalIcon, {
-          class: "cursor-pointer",
+        return h(TableCelAction, {
           user,
           onExpand: row.toggleExpanded,
         });

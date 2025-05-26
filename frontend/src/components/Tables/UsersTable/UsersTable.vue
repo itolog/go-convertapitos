@@ -99,6 +99,7 @@ const table = useVueTable({
   defaultColumn: {
     size: 180,
     minSize: 25,
+    maxSize: 300,
   },
   state: {
     get columnPinning() {
