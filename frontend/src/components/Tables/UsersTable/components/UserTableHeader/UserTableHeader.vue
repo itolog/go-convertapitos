@@ -39,8 +39,6 @@ const handleFilters = () => {
 const handleAddUser = () => {
   router.push({ name: "addUser" });
 };
-
-console.log(Object.entries(table?.getState().rowSelection));
 </script>
 
 <template>
