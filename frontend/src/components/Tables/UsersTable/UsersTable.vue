@@ -4,7 +4,6 @@ import {
   getCoreRowModel,
   getExpandedRowModel,
   getFilteredRowModel,
-  getPaginationRowModel,
   getSortedRowModel,
   useVueTable,
 } from "@tanstack/vue-table";
@@ -19,9 +18,11 @@ import {
 import { type PropType, ref, watch } from "vue";
 import { useRouter } from "vue-router";
 
-import TablePagination from "@/components/Tables/TablePagination/TablePagination.vue";
 import { useColumns } from "@/components/Tables/UsersTable/hooks/useColumns.ts";
 import { useTableConfig } from "@/components/Tables/UsersTable/hooks/useTableConfig.ts";
+import TableItemsInfo from "@/components/Tables/components/TableItemsInfo/TableItemsInfo.vue";
+import TablePagination from "@/components/Tables/components/TablePagination/TablePagination.vue";
+import TablePerPageSelect from "@/components/Tables/components/TablePerPageSelect/TablePerPageSelect.vue";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -81,7 +82,6 @@ const table = useVueTable({
   },
   columns,
   getCoreRowModel: getCoreRowModel(),
-  getPaginationRowModel: getPaginationRowModel(),
   getSortedRowModel: getSortedRowModel(),
   getFilteredRowModel: getFilteredRowModel(),
   getExpandedRowModel: getExpandedRowModel(),
@@ -346,7 +346,14 @@ const handleAddUser = () => {
       </Table>
     </div>
 
-    <div class="flex items-center justify-end space-x-2 gap-2 py-4">
+    <div
+      class="flex flex-col md:flex-row items-center justify-between space-x-2 gap-4 py-4"
+    >
+      <div class="flex items-center gap-2">
+        <TableItemsInfo :meta="meta" />
+        <TablePerPageSelect />
+      </div>
+
       <TablePagination :total="meta.items" />
     </div>
   </div>

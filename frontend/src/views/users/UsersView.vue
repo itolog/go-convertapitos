@@ -15,14 +15,17 @@ import type { User } from "@/types/user";
 
 const tableStore = useTableStore();
 
-const { page } = storeToRefs(tableStore);
+const { page, itemsPerPage } = storeToRefs(tableStore);
 
 const { isLoading, isFetching, data } = useQuery<
   AxiosResponse<ApiResponseData<User[]>>,
   AxiosError<ApiResponseError>
 >({
-  queryKey: ["users", page],
-  queryFn: async () => await axios.get(`api/v1/user?page=${page.value}`),
+  queryKey: ["users", page, itemsPerPage],
+  queryFn: async () =>
+    await axios.get(
+      `api/v1/user?page=${page.value}&limit=${itemsPerPage.value}`,
+    ),
 });
 
 onUnmounted(() => {
