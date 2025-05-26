@@ -14,7 +14,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Separator } from "@/components/ui/separator";
-import { useDeleteUser } from "@/services/api/useDleteUser.ts";
+import { useDeleteUser } from "@/services/api/useDeleteUser.ts";
 import type { User } from "@/types/user";
 
 const isOpen = ref(false);

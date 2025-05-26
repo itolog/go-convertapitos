@@ -1,6 +1,9 @@
 import pluginQuery from "@tanstack/eslint-plugin-query";
 import skipFormatting from "@vue/eslint-config-prettier/skip-formatting";
-import { defineConfigWithVueTs, vueTsConfigs } from "@vue/eslint-config-typescript";
+import {
+  defineConfigWithVueTs,
+  vueTsConfigs,
+} from "@vue/eslint-config-typescript";
 import pluginOxlint from "eslint-plugin-oxlint";
 import pluginVue from "eslint-plugin-vue";
 import { globalIgnores } from "eslint/config";
@@ -16,7 +19,13 @@ export default defineConfigWithVueTs(
     files: ["**/*.{ts,mts,tsx,vue}"],
   },
 
-  globalIgnores(["**/dist/**", "**/dist-ssr/**", "**/coverage/**", "**/src/components/ui/**"]),
+  globalIgnores([
+    "**/dist/**",
+    "**/dist-ssr/**",
+    "**/coverage/**",
+    "**/src/components/ui/**",
+    "**/src/generated/**",
+  ]),
 
   pluginVue.configs["flat/essential"],
   vueTsConfigs.recommended,

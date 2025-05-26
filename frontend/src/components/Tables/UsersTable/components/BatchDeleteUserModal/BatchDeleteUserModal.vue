@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { RowSelectionState } from "@tanstack/vue-table";
-import { UserX } from "lucide-vue-next";
+import { UserX, Loader2 } from "lucide-vue-next";
 import { type PropType, ref } from "vue";
 
 import DeletionWarning from "@/components/Tables/UsersTable/components/DeletionWarning/DeletionWarning.vue";
@@ -15,9 +15,11 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Separator } from "@/components/ui/separator";
+import { useBatchDeleteUsers } from "@/services/api/useBatchDeleteUsers.ts";
+
+const { mutateAsync, isPending } = useBatchDeleteUsers();
 
 const isOpen = ref(false);
-
 const { users } = defineProps({
   users: {
     type: Object as PropType<RowSelectionState>,
@@ -29,11 +31,15 @@ function stopPropagation(event: Event) {
   event.stopPropagation();
 }
 
-const emits = defineEmits(["closeModal"]);
+const emits = defineEmits(["deleteSuccess"]);
 
 async function saveAndClose() {
+  await mutateAsync({
+    ids: Object.keys(users),
+  });
+
   isOpen.value = false;
-  emits("closeModal");
+  emits("deleteSuccess");
 }
 </script>
 
@@ -51,12 +57,12 @@ async function saveAndClose() {
         <DialogTitle>Delete Profiles</DialogTitle>
         <DialogDescription class="overflow-hidden">
           <ul class="flex flex-col gap-2 overflow-hidden">
-            <li v-for="(value, key) in users" :key="key">
+            <li v-for="value in Object.keys(users)" :key="value">
               <div class="flex gap-2">
                 <span class="font-bold min-w-[20px]">ID:</span>
-                <span class="line-clamp-3 whitespace-normal wrap-break-word">{{
-                  key
-                }}</span>
+                <span class="line-clamp-3 whitespace-normal wrap-break-word">
+                  {{ value }}
+                </span>
               </div>
             </li>
           </ul>
@@ -67,8 +73,13 @@ async function saveAndClose() {
       </div>
       <Separator />
       <DialogFooter class="p-6 pt-0">
-        <Button type="submit" variant="destructive" @click="saveAndClose">
-          <!--          <Loader2 v-if="isPending" class="w-4 h-4 mr-2 animate-spin" />-->
+        <Button
+          :disabled="isPending"
+          type="submit"
+          variant="destructive"
+          @click="saveAndClose"
+        >
+          <Loader2 v-if="isPending" class="w-4 h-4 mr-2 animate-spin" />
           Delete
         </Button>
       </DialogFooter>

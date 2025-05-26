@@ -275,7 +275,7 @@ func (h *Handler) DeleteByIds(ctx *fiber.Ctx) error {
 	}
 
 	return ctx.Status(fiber.StatusOK).JSON(api.Response{
-		Data:   fmt.Sprintf("Users with ids %s deleted", " payload.Ids"),
+		Data:   fmt.Sprintf("Users with ids %s deleted", payload.Ids),
 		Status: api.StatusSuccess,
 	})
 }

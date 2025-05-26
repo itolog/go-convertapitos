@@ -39,6 +39,10 @@ const handleFilters = () => {
 const handleAddUser = () => {
   router.push({ name: "addUser" });
 };
+
+const handleDeleteSuccess = () => {
+  table?.resetRowSelection();
+};
 </script>
 
 <template>
@@ -86,6 +90,7 @@ const handleAddUser = () => {
     <!--   ACTIONS   -->
     <div class="flex flex-nowrap w-fit gap-2">
       <BatchDeleteUserModal
+        @delete-success="handleDeleteSuccess"
         v-if="Object.entries(table?.getState().rowSelection).length"
         :users="table?.getState().rowSelection"
       />
