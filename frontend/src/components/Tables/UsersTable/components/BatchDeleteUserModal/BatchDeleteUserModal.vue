@@ -14,6 +14,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import { Separator } from "@/components/ui/separator";
 
 const isOpen = ref(false);
 
@@ -64,6 +65,7 @@ async function saveAndClose() {
       <div class="grid gap-4 py-2 overflow-y-auto px-6">
         <DeletionWarning />
       </div>
+      <Separator />
       <DialogFooter class="p-6 pt-0">
         <Button type="submit" variant="destructive" @click="saveAndClose">
           <!--          <Loader2 v-if="isPending" class="w-4 h-4 mr-2 animate-spin" />-->

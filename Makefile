@@ -1,6 +1,6 @@
 BINARY=convertapitos
-CMD_DIR=./src/cmd
-SWAGGER_FILE ?=./src/internal/router/router.go
+CMD_DIR=./backend/cmd
+SWAGGER_FILE ?=./backend/internal/router/router.go
 COMOSE_DEV_FILE=compose.dev.yaml
 
 # DEVELOPMENT
@@ -62,11 +62,11 @@ docker-down:
 # DATABASE
 .PHONY: migrations-auto
 migrations-auto:
-	APP_ENV="development" go run ./src/migrations
+	APP_ENV="development" go run ./backend/migrations
 
 .PHONY: migrations-auto
 migrations-auto-prod:
-	APP_ENV="production" go run ./src/migrations
+	APP_ENV="production" go run ./backend/migrations
 
 # SWAGGER
 .PHONY: swagger-init

@@ -10,7 +10,7 @@ RUN go mod download
 COPY . .
 
 # Building the application
-RUN CGO_ENABLED=0 go build -o /app/server ./src/cmd/
+RUN CGO_ENABLED=0 go build -o /app/server ./backend/cmd/
 
 # Final stage
 FROM alpine:latest

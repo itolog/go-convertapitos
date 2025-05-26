@@ -13,6 +13,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import { Separator } from "@/components/ui/separator";
 import { useDeleteUser } from "@/services/api/useDleteUser.ts";
 import type { User } from "@/types/user";
 
@@ -82,6 +83,7 @@ async function saveAndClose() {
       <div class="grid gap-4 py-2 overflow-y-auto px-6">
         <DeletionWarning />
       </div>
+      <Separator />
       <DialogFooter class="p-6 pt-0">
         <Button
           :disabled="isPending"
