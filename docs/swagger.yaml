@@ -83,6 +83,16 @@ definitions:
       accessToken:
         type: string
     type: object
+  user.BatchDeleteRequest:
+    properties:
+      ids:
+        items:
+          type: string
+        minItems: 1
+        type: array
+    required:
+    - ids
+    type: object
   user.CreateRequest:
     properties:
       email:
@@ -515,6 +525,37 @@ paths:
           schema:
             $ref: '#/definitions/api.ResponseError'
       summary: Get user by email
+      tags:
+      - User
+  /user/by_ids:
+    delete:
+      consumes:
+      - application/json
+      description: Deletes multiple users by their IDs
+      parameters:
+      - description: List of user IDs to delete
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/user.BatchDeleteRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success message with deleted user IDs
+          schema:
+            allOf:
+            - $ref: '#/definitions/api.ResponseData'
+            - properties:
+                data:
+                  type: string
+              type: object
+        "400":
+          description: Bad request error
+          schema:
+            $ref: '#/definitions/api.ResponseError'
+      summary: Delete multiple users by IDs
       tags:
       - User
 swagger: "2.0"

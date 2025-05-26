@@ -33,9 +33,9 @@ func NewHandler(router fiber.Router, deps HandlerDeps) {
 //	@Tags			Auth
 //	@Accept			json
 //	@Produce		json
-//	@Param			payload	body		LoginRequest						true	"User credentials"
+//	@Param			payload	body		LoginRequest								true	"User credentials"
 //	@Success		200		{object}	api.ResponseData{data=common.AuthResponse}	"Successfully authenticated"
-//	@Failure		400		{object}	api.ResponseError					"Invalid request or credentials"
+//	@Failure		400		{object}	api.ResponseError							"Invalid request or credentials"
 //	@Router			/auth/login [post]
 func (h *Handler) Login(ctx *fiber.Ctx) error {
 	payload, err := req.DecodeBody[LoginRequest](ctx)
@@ -69,9 +69,9 @@ func (h *Handler) Login(ctx *fiber.Ctx) error {
 //	@Tags			Auth
 //	@Accept			json
 //	@Produce		json
-//	@Param			payload	body		RegisterRequest						true	"User registration data"
+//	@Param			payload	body		RegisterRequest								true	"User registration data"
 //	@Success		200		{object}	api.ResponseData{data=common.AuthResponse}	"Successfully registered"
-//	@Failure		400		{object}	api.ResponseError					"Invalid request or registration error"
+//	@Failure		400		{object}	api.ResponseError							"Invalid request or registration error"
 //	@Router			/auth/register [post]
 func (h *Handler) Register(ctx *fiber.Ctx) error {
 	payload, err := req.DecodeBody[RegisterRequest](ctx)
@@ -107,7 +107,7 @@ func (h *Handler) Register(ctx *fiber.Ctx) error {
 //	@Accept			json
 //	@Produce		json
 //	@Success		200	{object}	api.ResponseData{data=common.RefreshResponse}	"Token refreshed successfully"
-//	@Failure		401	{object}	api.ResponseError							"Unauthorized or invalid refresh token"
+//	@Failure		401	{object}	api.ResponseError								"Unauthorized or invalid refresh token"
 //	@Router			/auth/refresh-token [post]
 func (h *Handler) RefreshToken(ctx *fiber.Ctx) error {
 	refreshToken := ctx.Cookies("refreshToken")

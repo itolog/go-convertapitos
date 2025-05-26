@@ -14,6 +14,7 @@ type IRepository interface {
 	Create(user *User) (*User, error)
 	Update(user *User) (*User, error)
 	Delete(id string) error
+	BatchDelete(ids *[]string) error
 }
 
 type Repository struct {
@@ -98,6 +99,14 @@ func (repo *Repository) Update(user *User) (*User, error) {
 
 func (repo *Repository) Delete(id string) error {
 	res := repo.Database.DB.Where("id = ?", id).Delete(&User{})
+	if res.Error != nil {
+		return res.Error
+	}
+	return nil
+}
+
+func (repo *Repository) BatchDelete(ids *[]string) error {
+	res := repo.Database.DB.Where("ID IN (?)", *ids).Delete(&User{})
 	if res.Error != nil {
 		return res.Error
 	}

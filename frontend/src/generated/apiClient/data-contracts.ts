@@ -27,8 +27,8 @@ export interface ApiMeta {
   pages?: number;
 }
 
-export interface ApiResponseData<T> {
-  data?: T;
+export interface ApiResponseData {
+  data?: any;
   meta?: ApiMeta;
   status?: ApiStatusType;
 }
@@ -65,6 +65,11 @@ export interface CommonAuthResponse {
 
 export interface CommonRefreshResponse {
   accessToken?: string;
+}
+
+export interface UserBatchDeleteRequest {
+  /** @minItems 1 */
+  ids: string[];
 }
 
 export interface UserCreateRequest {

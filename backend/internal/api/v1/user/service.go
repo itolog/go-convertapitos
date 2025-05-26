@@ -13,6 +13,7 @@ type IUserService interface {
 	Create(user User) (*User, error)
 	Update(id string, payload *UpdateRequest) (*User, error)
 	Delete(id string) error
+	BatchDelete(ids *[]string) error
 }
 
 type Service struct {
@@ -102,6 +103,15 @@ func (service *Service) Delete(id string) error {
 	}
 
 	err = service.UserRepository.Delete(id)
+	if err != nil {
+		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
+	}
+
+	return nil
+}
+
+func (service *Service) BatchDelete(ids *[]string) error {
+	err := service.UserRepository.BatchDelete(ids)
 	if err != nil {
 		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 	}

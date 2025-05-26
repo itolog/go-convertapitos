@@ -24,19 +24,20 @@ type Handler struct {
 }
 
 func NewHandler(app fiber.Router, deps HandlerDeps) {
-	router := app.Group("/user")
+	router := app.Group("/user", middleware.Protected())
 
 	handler := Handler{
 		Config:       deps.Config,
 		UserServices: deps.UserServices,
 	}
 
-	router.Get("/", middleware.Protected(), handler.GetAllUsers)
-	router.Get("/:id", middleware.Protected(), handler.GetUserById)
-	router.Get("/by_email/:email", middleware.Protected(), handler.GetUserByEmail)
-	router.Post("/", middleware.Protected(), handler.CreateUser)
-	router.Patch("/:id", middleware.Protected(), handler.UpdateUser)
-	router.Delete("/:id", middleware.Protected(), handler.DeleteUser)
+	router.Get("/", handler.GetAllUsers)
+	router.Get("/:id", handler.GetUserById)
+	router.Get("/by_email/:email", handler.GetUserByEmail)
+	router.Post("/", handler.CreateUser)
+	router.Patch("/:id", handler.UpdateUser)
+	router.Delete("/by_ids", handler.DeleteByIds)
+	router.Delete("/:id", handler.DeleteUser)
 }
 
 // GetAllUsers godoc
@@ -230,7 +231,7 @@ func (h *Handler) UpdateUser(ctx *fiber.Ctx) error {
 //	@Router			/user/{id} [delete]
 func (h *Handler) DeleteUser(ctx *fiber.Ctx) error {
 	id := ctx.Params("id")
-
+	fmt.Println("DEL")
 	err := h.UserServices.Delete(id)
 	if err != nil {
 		statusCode := api.GetErrorCode(err)
@@ -239,6 +240,42 @@ func (h *Handler) DeleteUser(ctx *fiber.Ctx) error {
 
 	return ctx.Status(fiber.StatusOK).JSON(api.Response{
 		Data:   fmt.Sprintf("User with id %s deleted", id),
+		Status: api.StatusSuccess,
+	})
+}
+
+// DeleteByIds godoc
+//
+//	@Summary		Delete multiple users by IDs
+//	@Description	Deletes multiple users by their IDs
+//	@Tags			User
+//	@Accept			json
+//	@Produce		json
+//	@Param			request	body		BatchDeleteRequest				true	"List of user IDs to delete"
+//	@Success		200		{object}	api.ResponseData{data=string}	"Success message with deleted user IDs"
+//	@Failure		400		{object}	api.ResponseError				"Bad request error"
+//	@Router			/user/by_ids [delete]
+func (h *Handler) DeleteByIds(ctx *fiber.Ctx) error {
+	payload, err := req.DecodeBody[BatchDeleteRequest](ctx)
+	if err != nil {
+		return err
+	}
+	validateError, valid := req.ValidateBody(payload)
+	if !valid {
+		return ctx.Status(fiber.StatusBadRequest).JSON(api.Response{
+			Error:  validateError,
+			Status: api.StatusError,
+		})
+	}
+
+	err = h.UserServices.BatchDelete(&payload.Ids)
+	if err != nil {
+		statusCode := api.GetErrorCode(err)
+		return fiber.NewError(statusCode, err.Error())
+	}
+
+	return ctx.Status(fiber.StatusOK).JSON(api.Response{
+		Data:   fmt.Sprintf("Users with ids %s deleted", " payload.Ids"),
 		Status: api.StatusSuccess,
 	})
 }

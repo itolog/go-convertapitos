@@ -14,6 +14,7 @@ import {
   ApiMeta,
   ApiResponseData,
   ApiResponseError,
+  UserBatchDeleteRequest,
   UserCreateRequest,
   UserUpdateRequest,
   UserUser,
@@ -112,6 +113,28 @@ export class User<
     >({
       path: `/user/by_email/${email}`,
       method: "GET",
+      type: ContentType.Json,
+      format: "json",
+      ...params,
+    });
+  /**
+   * @description Deletes multiple users by their IDs
+   *
+   * @tags User
+   * @name ByIdsDelete
+   * @summary Delete multiple users by IDs
+   * @request DELETE:/user/by_ids
+   */
+  byIdsDelete = (request: UserBatchDeleteRequest, params: RequestParams = {}) =>
+    this.request<
+      ApiResponseData & {
+        data?: string;
+      },
+      ApiResponseError
+    >({
+      path: `/user/by_ids`,
+      method: "DELETE",
+      body: request,
       type: ContentType.Json,
       format: "json",
       ...params,

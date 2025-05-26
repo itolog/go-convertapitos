@@ -20,3 +20,7 @@ type FindAllResponse struct {
 	Users []User
 	Count *int64
 }
+
+type BatchDeleteRequest struct {
+	Ids []string `json:"ids" validate:"required,min=1,dive,uuid"`
+}
