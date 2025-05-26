@@ -153,14 +153,14 @@ const handleShowFilters = (value: boolean) => {
               :key="header.id"
               :style="{ width: `${header.getSize()}px` }"
               :colSpan="header.colSpan"
-              :class="[
-                header.column.getIsPinned() === 'left'
-                  ? 'table-sticky-column table-sticky-left'
-                  : '',
-                header.column.getIsPinned() === 'right'
-                  ? 'table-sticky-column table-sticky-right'
-                  : '',
-              ]"
+              :class="
+                cn({
+                  'table-sticky-column table-sticky-left':
+                    header.column.getIsPinned() === 'left',
+                  'table-sticky-column table-sticky-right':
+                    header.column.getIsPinned() === 'right',
+                })
+              "
             >
               <div
                 class="flex h-full relative flex-col py-1 gap-1 items-center"

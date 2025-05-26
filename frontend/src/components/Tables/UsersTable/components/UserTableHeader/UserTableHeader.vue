@@ -10,6 +10,7 @@ import {
 import { type PropType, ref } from "vue";
 import { useRouter } from "vue-router";
 
+import BatchDeleteUserModal from "@/components/Tables/UsersTable/components/BatchDeleteUserModal/BatchDeleteUserModal.vue";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -38,6 +39,8 @@ const handleFilters = () => {
 const handleAddUser = () => {
   router.push({ name: "addUser" });
 };
+
+console.log(Object.entries(table?.getState().rowSelection));
 </script>
 
 <template>
@@ -83,7 +86,12 @@ const handleAddUser = () => {
       </Button>
     </div>
     <!--   ACTIONS   -->
-    <div>
+    <div class="flex flex-nowrap w-fit gap-2">
+      <BatchDeleteUserModal
+        v-if="Object.entries(table?.getState().rowSelection).length"
+        :users="table?.getState().rowSelection"
+      />
+
       <Button size="icon" @click="handleAddUser">
         <UserPlus />
       </Button>
