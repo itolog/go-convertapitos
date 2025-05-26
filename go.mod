@@ -7,7 +7,7 @@ require (
 	github.com/goccy/go-json v0.10.5
 	github.com/gofiber/contrib/fiberzerolog v1.0.3
 	github.com/gofiber/contrib/jwt v1.1.2
-	github.com/gofiber/fiber/v2 v2.52.6
+	github.com/gofiber/fiber/v2 v2.52.8
 	github.com/gofiber/swagger v1.1.1
 	github.com/golang-jwt/jwt/v5 v5.2.2
 	github.com/google/uuid v1.6.0
@@ -17,7 +17,7 @@ require (
 	golang.org/x/crypto v0.38.0
 	golang.org/x/oauth2 v0.30.0
 	gorm.io/driver/postgres v1.5.11
-	gorm.io/gorm v1.26.1
+	gorm.io/gorm v1.30.0
 )
 
 require (
