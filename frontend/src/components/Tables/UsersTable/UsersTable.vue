@@ -73,6 +73,8 @@ const table = useVueTable({
   getFilteredRowModel: getFilteredRowModel(),
   getExpandedRowModel: getExpandedRowModel(),
   columnResizeMode: "onChange",
+  manualPagination: true,
+  pageCount: meta.pages,
   onSortingChange: (updaterOrValue) => valueUpdater(updaterOrValue, sorting),
   onColumnFiltersChange: (updaterOrValue) =>
     valueUpdater(updaterOrValue, columnFilters),

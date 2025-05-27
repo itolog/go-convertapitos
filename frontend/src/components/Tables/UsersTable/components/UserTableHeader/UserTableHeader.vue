@@ -33,7 +33,7 @@ const router = useRouter();
 
 const handleFilters = () => {
   showFilters.value = !showFilters.value;
-  emits("update:showFilters", !showFilters.value);
+  emits("update:showFilters", showFilters.value);
 };
 
 const handleAddUser = () => {
