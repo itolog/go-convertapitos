@@ -9,7 +9,7 @@ import FormInput from "@/components/Inputs/FormInput/FormInput.vue";
 import formSchema from "@/components/forms/RegisterUserForm/schema";
 import { Button } from "@/components/ui/button";
 import type { ValidationErrorFields } from "@/generated/apiClient/data-contracts.ts";
-import { userUserRegister } from "@/services/api/userRegister.ts";
+import { userUserRegister } from "@/services/api/auth/userRegister.ts";
 
 const { isFieldDirty, handleSubmit, isSubmitting, setErrors } = useForm({
   validationSchema: formSchema,

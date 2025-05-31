@@ -6,10 +6,11 @@ import { useRouter } from "vue-router";
 import { toast } from "vue-sonner";
 import * as z from "zod";
 
+import GoogleIcon from "@/assets/icons/google.svg";
 import FormInput from "@/components/Inputs/FormInput/FormInput.vue";
 import { Button } from "@/components/ui/button";
 import type { ValidationErrorFields } from "@/generated/apiClient/data-contracts";
-import { useLogin } from "@/services/api/useLogin.ts";
+import { useLogin } from "@/services/api/auth/useLogin.ts";
 
 const router = useRouter();
 
@@ -77,6 +78,15 @@ const onSubmit = handleSubmit(async ({ email, password }) => {
         >Submit</Button
       >
     </form>
+
+    <div class="flex flex-col gap-2">
+      <h2 class="text-center font-bold">or login with</h2>
+      <div>
+        <a class="flex size-8" href="http://localhost:3000/api/v1/auth/google">
+          <GoogleIcon />
+        </a>
+      </div>
+    </div>
   </div>
 </template>
 

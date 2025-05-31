@@ -4,19 +4,26 @@ import { toast } from "vue-sonner";
 
 import router from "@/router";
 
-import { axios } from "@/configs/axiosConfig";
+import { axios } from "@/configs/axiosConfig.ts";
 import { ACCESS_TOKEN } from "@/constants";
-import type { ApiResponseData, ApiResponseError } from "@/generated/apiClient/data-contracts";
-import { useUserStore } from "@/stores/user/user";
+import type {
+  ApiResponseData,
+  ApiResponseError,
+} from "@/generated/apiClient/data-contracts.ts";
+import { useUserStore } from "@/stores/user/user.ts";
 
 type UserLogout = Partial<
-  MutationOptions<AxiosResponse<ApiResponseData<string>>, AxiosError<ApiResponseError>>
+  MutationOptions<
+    AxiosResponse<ApiResponseData<string>>,
+    AxiosError<ApiResponseError>
+  >
 >;
 export function useLogout(props?: UserLogout) {
   const userStore = useUserStore();
 
   const { isPending, mutate } = useMutation({
-    mutationFn: async (payload) => await axios.post("/api/v1/auth/logout", payload),
+    mutationFn: async (payload) =>
+      await axios.post("/api/v1/auth/logout", payload),
     onSuccess: async () => {
       localStorage.removeItem(ACCESS_TOKEN);
       userStore.$reset();
@@ -25,7 +32,9 @@ export function useLogout(props?: UserLogout) {
       await router.push({ name: "home" });
     },
     onError: (error: AxiosError<ApiResponseError>) => {
-      toast.error(error.response?.data.error?.message ?? "Something went wrong");
+      toast.error(
+        error.response?.data.error?.message ?? "Something went wrong",
+      );
     },
     ...props,
   });

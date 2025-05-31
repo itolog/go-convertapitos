@@ -6,13 +6,13 @@ import {
 import type { AxiosError, AxiosResponse } from "axios";
 import { toast } from "vue-sonner";
 
-import { axios } from "@/configs/axiosConfig";
+import { axios } from "@/configs/axiosConfig.ts";
 import type {
   ApiResponseData,
   ApiResponseError,
   CommonAuthResponse,
   AuthRegisterRequest,
-} from "@/generated/apiClient/data-contracts";
+} from "@/generated/apiClient/data-contracts.ts";
 
 type UserRegister = Partial<
   MutationOptions<

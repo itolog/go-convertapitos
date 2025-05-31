@@ -49,7 +49,7 @@ func (service *Service) Callback(ctx *fiber.Ctx, token *oauth2.Token) (*common.A
 
 	existedUser, _ := service.UserService.FindByEmail(userInfo.Email)
 	if existedUser != nil {
-		return nil, fiber.NewError(fiber.StatusBadRequest, api.ErrUserAlreadyExist)
+		return nil, fiber.NewError(fiber.StatusConflict, api.ErrUserAlreadyExist)
 	}
 
 	createdUser, err := service.UserService.Create(user.User{

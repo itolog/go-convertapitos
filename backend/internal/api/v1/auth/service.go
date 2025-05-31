@@ -60,7 +60,7 @@ func (service *Service) Login(ctx *fiber.Ctx, payload *LoginRequest) (*common.Au
 func (service *Service) Register(ctx *fiber.Ctx, payload *RegisterRequest) (*common.AuthResponse, error) {
 	existedUser, _ := service.UserService.FindByEmail(payload.Email)
 	if existedUser != nil {
-		return nil, fiber.NewError(fiber.StatusBadRequest, api.ErrUserAlreadyExist)
+		return nil, fiber.NewError(fiber.StatusConflict, api.ErrUserAlreadyExist)
 	}
 
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(payload.Password), bcrypt.DefaultCost)

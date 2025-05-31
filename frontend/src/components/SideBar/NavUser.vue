@@ -1,5 +1,12 @@
 <script setup lang="ts">
-import { BadgeCheck, Bell, ChevronsUpDown, CreditCard, LogIn, LogOut } from "lucide-vue-next";
+import {
+  BadgeCheck,
+  Bell,
+  ChevronsUpDown,
+  CreditCard,
+  LogIn,
+  LogOut,
+} from "lucide-vue-next";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
@@ -18,7 +25,7 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from "@/components/ui/sidebar";
-import { useLogout } from "@/services/api/useLogout.ts";
+import { useLogout } from "@/services/api/auth/useLogout.ts";
 import { useUserStore } from "@/stores/user/user";
 
 const userStore = useUserStore();
@@ -37,11 +44,16 @@ const { isMobile } = useSidebar();
             class="cursor-pointer data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
           >
             <Avatar class="h-8 w-8 rounded-lg">
-              <AvatarImage :src="userStore.user?.picture ?? ''" :alt="userStore.user?.name ?? ''" />
+              <AvatarImage
+                :src="userStore.user?.picture ?? ''"
+                :alt="userStore.user?.name ?? ''"
+              />
               <AvatarFallback class="rounded-lg"> AN </AvatarFallback>
             </Avatar>
             <div class="grid flex-1 text-left text-sm leading-tight">
-              <span class="truncate font-semibold">{{ userStore.user?.name }}</span>
+              <span class="truncate font-semibold">{{
+                userStore.user?.name
+              }}</span>
               <span class="truncate text-xs">{{ userStore.user?.email }}</span>
             </div>
             <ChevronsUpDown class="ml-auto size-4" />
@@ -56,12 +68,19 @@ const { isMobile } = useSidebar();
           <DropdownMenuLabel class="p-0 font-normal">
             <div class="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
               <Avatar class="h-8 w-8 rounded-lg">
-                <AvatarImage :src="userStore.user?.picture ?? ''" :alt="userStore.user?.name" />
+                <AvatarImage
+                  :src="userStore.user?.picture ?? ''"
+                  :alt="userStore.user?.name"
+                />
                 <AvatarFallback class="rounded-lg">AN</AvatarFallback>
               </Avatar>
               <div class="grid flex-1 text-left text-sm leading-tight">
-                <span class="truncate font-semibold">{{ userStore.user?.name }}</span>
-                <span class="truncate text-xs">{{ userStore.user?.email }}</span>
+                <span class="truncate font-semibold">{{
+                  userStore.user?.name
+                }}</span>
+                <span class="truncate text-xs">{{
+                  userStore.user?.email
+                }}</span>
               </div>
             </div>
           </DropdownMenuLabel>

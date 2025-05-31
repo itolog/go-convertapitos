@@ -10,7 +10,7 @@ import type {
   CommonRefreshResponse,
 } from "@/generated/apiClient/data-contracts";
 import { isLogged } from "@/helpers";
-import { useLogout } from "@/services/api/useLogout";
+import { useLogout } from "@/services/api/auth/useLogout.ts";
 
 const fetcher = async () => await axios.post("api/v1/auth/refresh-token");
 

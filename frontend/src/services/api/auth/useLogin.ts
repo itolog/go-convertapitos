@@ -10,7 +10,7 @@ import type {
   AuthLoginRequest,
   CommonAuthResponse,
 } from "@/generated/apiClient/data-contracts.ts";
-import { useUserStore } from "@/stores/user/user";
+import { useUserStore } from "@/stores/user/user.ts";
 
 type UserLogin = Partial<
   MutationOptions<

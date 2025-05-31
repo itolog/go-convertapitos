@@ -15,7 +15,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Separator } from "@/components/ui/separator";
-import { useBatchDeleteUsers } from "@/services/api/useBatchDeleteUsers.ts";
+import { useBatchDeleteUsers } from "@/services/api/users/useBatchDeleteUsers.ts";
 
 const { mutateAsync, isPending } = useBatchDeleteUsers();
 
