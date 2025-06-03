@@ -39,21 +39,15 @@ func (auth *Authorization) SetAuth(ctx *fiber.Ctx, email string) (*string, error
 }
 
 func (auth *Authorization) SetCookie(ctx *fiber.Ctx, token string, expires time.Duration) {
-	sameSite := "lax"
-	if environments.IsDev() {
-		sameSite = "none"
-	}
-
-	cookie := new(fiber.Cookie)
-	cookie.Name = CookieKey
-	cookie.Value = token
-	cookie.HTTPOnly = true
-	cookie.Expires = time.Now().Add(expires)
-	cookie.SameSite = sameSite
-	cookie.Domain = environments.GetEnv("COOKIE_DOMAIN")
-	cookie.Secure = !environments.IsDev()
-
-	ctx.Cookie(cookie)
+	ctx.Cookie(&fiber.Cookie{
+		Name:     CookieKey,
+		Value:    token,
+		Expires:  time.Now().Add(expires),
+		HTTPOnly: true,
+		SameSite: "Lax",
+		Domain:   environments.GetEnv("COOKIE_DOMAIN"),
+		Secure:   !environments.IsDev(),
+	})
 }
 
 func (auth *Authorization) VerifyToken(refreshToken string) (*jwt.UserClaims, error) {
