@@ -5,25 +5,35 @@ import (
 	"github.com/itolog/go-convertapitos/backend/middleware"
 	"github.com/itolog/go-convertapitos/backend/pkg/api"
 	"github.com/itolog/go-convertapitos/backend/pkg/req"
+	"github.com/rs/zerolog"
+	"github.com/shareed2k/goth_fiber"
 )
 
 type HandlerDeps struct {
-	AuthService IAuthService
+	AuthService  IAuthService
+	CustomLogger *zerolog.Logger
 }
 
 type Handler struct {
-	AuthService IAuthService
+	AuthService  IAuthService
+	CustomLogger *zerolog.Logger
 }
 
 func NewHandler(router fiber.Router, deps HandlerDeps) {
 	handler := &Handler{
-		AuthService: deps.AuthService,
+		AuthService:  deps.AuthService,
+		CustomLogger: deps.CustomLogger,
 	}
+
+	setupOAuthProviders()
 
 	router.Post("/login", handler.Login)
 	router.Post("/register", handler.Register)
 	router.Post("/logout", handler.Logout)
 	router.Post("/refresh-token", middleware.Protected(), handler.RefreshToken)
+
+	router.Get("/:provider", handler.OAuthLogin)
+	router.Get("/:provider/callback", handler.OAuthCallback)
 }
 
 // Login handles user authentication.
@@ -128,7 +138,6 @@ func (h *Handler) RefreshToken(ctx *fiber.Ctx) error {
 
 // Logout godoc
 //
-//	@Summary		Logout u
 //	@Summary		Logout user
 //	@Description	Performs logout by invalidating user's authentication (such as token or session)
 //	@Tags			Auth
@@ -142,6 +151,42 @@ func (h *Handler) Logout(ctx *fiber.Ctx) error {
 
 	return ctx.Status(fiber.StatusOK).JSON(api.Response{
 		Data:   "User logged out.",
+		Status: api.StatusSuccess,
+	})
+}
+
+// OAuthLogin initiates OAuth authorization
+//
+//	@Summary		OAuth login
+//	@Description	Start OAuth authentication with provider (google, github, ...)
+//	@Tags			Auth
+//	@Param			provider	path		string	true	"OAuth provider (google, github, ...)"
+//	@Success		302			{object}	nil		"Redirect to OAuth provider"
+//	@Failure		400			{object}	api.ResponseError
+//	@Router			/auth/{provider} [get]
+func (h *Handler) OAuthLogin(ctx *fiber.Ctx) error {
+	return goth_fiber.BeginAuthHandler(ctx)
+}
+
+// OAuthCallback handles OAuth callback from provider
+//
+//	@Summary		OAuth callback
+//	@Description	Handle OAuth callback and complete authentication
+//	@Tags			Auth
+//	@Param			provider	path		string										true	"OAuth provider (google, github, ...)"
+//	@Param			code		query		string										true	"Authorization code from provider"
+//	@Success		200			{object}	api.ResponseData{data=common.AuthResponse}	"Successfully authenticated"
+//	@Failure		400			{object}	api.ResponseError							"Authentication failed"
+//	@Router			/auth/{provider}/callback [get]
+func (h *Handler) OAuthCallback(ctx *fiber.Ctx) error {
+	user, err := goth_fiber.CompleteUserAuth(ctx)
+	if err != nil {
+		h.CustomLogger.Error().Err(err).Msg("Error completing user auth")
+		return fiber.NewError(fiber.StatusBadRequest, err.Error())
+	}
+
+	return ctx.JSON(api.Response{
+		Data:   user,
 		Status: api.StatusSuccess,
 	})
 }

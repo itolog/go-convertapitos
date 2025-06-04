@@ -163,6 +163,56 @@ info:
   title: ConvertApiTos API
   version: 1.0.0
 paths:
+  /auth/{provider}:
+    get:
+      description: Start OAuth authentication with provider (google, github, ...)
+      parameters:
+      - description: OAuth provider (google, github, ...)
+        in: path
+        name: provider
+        required: true
+        type: string
+      responses:
+        "302":
+          description: Redirect to OAuth provider
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/api.ResponseError'
+      summary: OAuth login
+      tags:
+      - Auth
+  /auth/{provider}/callback:
+    get:
+      description: Handle OAuth callback and complete authentication
+      parameters:
+      - description: OAuth provider (google, github, ...)
+        in: path
+        name: provider
+        required: true
+        type: string
+      - description: Authorization code from provider
+        in: query
+        name: code
+        required: true
+        type: string
+      responses:
+        "200":
+          description: Successfully authenticated
+          schema:
+            allOf:
+            - $ref: '#/definitions/api.ResponseData'
+            - properties:
+                data:
+                  $ref: '#/definitions/common.AuthResponse'
+              type: object
+        "400":
+          description: Authentication failed
+          schema:
+            $ref: '#/definitions/api.ResponseError'
+      summary: OAuth callback
+      tags:
+      - Auth
   /auth/google:
     get:
       description: Redirects the user to the Google OAuth consent page.
