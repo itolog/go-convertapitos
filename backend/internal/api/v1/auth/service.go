@@ -126,6 +126,15 @@ func (service *Service) RefreshToken(ctx *fiber.Ctx, refreshToken string) (*comm
 	}
 
 	existedUser.Password = ""
+
+	err = service.SaveUser(ctx, common.AuthResponse{
+		AccessToken: accessToken,
+		User:        existedUser,
+	})
+	if err != nil {
+		return nil, fiber.NewError(fiber.StatusInternalServerError, err.Error())
+	}
+
 	return &common.RefreshResponse{
 		AccessToken: accessToken,
 	}, nil
@@ -169,8 +178,17 @@ func (service *Service) OAuthCallback(ctx *fiber.Ctx, userInfo goth.User) (*comm
 	}, nil
 }
 
-func (service *Service) SaveUser(ctx *fiber.Ctx, user common.AuthResponse) error {
-	userDataJSON, err := json.Marshal(user)
+func (service *Service) SaveUser(ctx *fiber.Ctx, userData common.AuthResponse) error {
+	authData := common.StoredUser{
+		AccessToken: userData.AccessToken,
+		User: &common.UserInfo{
+			Name:    userData.User.Name,
+			Email:   userData.User.Email,
+			Picture: userData.User.Picture,
+		},
+	}
+
+	userDataJSON, err := json.Marshal(authData)
 	if err != nil {
 		return err
 	}

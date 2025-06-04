@@ -2,7 +2,11 @@ import { useCookies } from "@vueuse/integrations/useCookies";
 import { defineStore } from "pinia";
 import { ref, watchEffect } from "vue";
 
-import { IS_LOGGED_STORAGE_KEY, USER_STORAGE_KEY } from "@/constants";
+import {
+  ACCESS_TOKEN,
+  IS_LOGGED_STORAGE_KEY,
+  USER_STORAGE_KEY,
+} from "@/constants";
 import type { User, UserAuth } from "@/types/user";
 
 export const useUserStore = defineStore("user", () => {
@@ -21,7 +25,10 @@ export const useUserStore = defineStore("user", () => {
   const storedUser = cookies.get(USER_STORAGE_KEY) as UserAuth;
   if (storedUser) {
     user.value = storedUser.user;
+    isLoggedIn.value = true;
+    localStorage.setItem(ACCESS_TOKEN, storedUser.accessToken);
   }
+
   const storedIsLoggedIn = localStorage.getItem(IS_LOGGED_STORAGE_KEY);
   if (storedIsLoggedIn) {
     isLoggedIn.value = JSON.parse(storedIsLoggedIn) as boolean;
@@ -30,15 +37,10 @@ export const useUserStore = defineStore("user", () => {
   const $reset = () => {
     user.value = null;
     isLoggedIn.value = false;
-    localStorage.removeItem(USER_STORAGE_KEY);
     localStorage.removeItem(IS_LOGGED_STORAGE_KEY);
   };
 
   watchEffect(() => {
-    if (user.value) {
-      localStorage.setItem(USER_STORAGE_KEY, JSON.stringify(user.value));
-    }
-
     if (isLoggedIn.value) {
       localStorage.setItem(
         IS_LOGGED_STORAGE_KEY,

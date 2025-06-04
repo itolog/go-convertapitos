@@ -3,7 +3,6 @@ import type { AxiosError, AxiosResponse } from "axios";
 import { onMounted } from "vue";
 
 import { axios } from "@/configs/axiosConfig";
-import { ACCESS_TOKEN } from "@/constants";
 import type {
   ApiResponseData,
   ApiResponseError,
@@ -26,12 +25,6 @@ export function useAuth() {
       const errorCode = e.response?.data.error?.code;
       if (errorCode === 401) {
         mutate();
-      }
-    },
-    onSuccess: (response) => {
-      const token = response?.data?.data?.accessToken;
-      if (token) {
-        localStorage.setItem(ACCESS_TOKEN, token);
       }
     },
   });

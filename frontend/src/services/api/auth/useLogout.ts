@@ -5,7 +5,6 @@ import { toast } from "vue-sonner";
 import router from "@/router";
 
 import { axios } from "@/configs/axiosConfig.ts";
-import { ACCESS_TOKEN } from "@/constants";
 import type {
   ApiResponseData,
   ApiResponseError,
@@ -25,7 +24,6 @@ export function useLogout(props?: UserLogout) {
     mutationFn: async (payload) =>
       await axios.post("/api/v1/auth/logout", payload),
     onSuccess: async () => {
-      localStorage.removeItem(ACCESS_TOKEN);
       userStore.$reset();
 
       toast.success("User logged out successfully. Redirecting to home page.");
