@@ -2,18 +2,17 @@
 import { toTypedSchema } from "@vee-validate/zod";
 import { LucideMail, RectangleEllipsis } from "lucide-vue-next";
 import { useForm } from "vee-validate";
-import { ref } from "vue";
 import { useRouter } from "vue-router";
 import { toast } from "vue-sonner";
 import * as z from "zod";
 
-import GoogleIcon from "@/assets/icons/google.svg";
 import FormInput from "@/components/Inputs/FormInput/FormInput.vue";
 import { Button } from "@/components/ui/button";
 import type { ValidationErrorFields } from "@/generated/apiClient/data-contracts";
 import { useLogin } from "@/services/api/auth/useLogin.ts";
+import { icons, providers } from "@/views/Auth/data";
 
-const baseUrl = ref<string>(import.meta.env.VITE_API_URL);
+const baseUrl = import.meta.env.VITE_API_URL;
 const router = useRouter();
 
 const formSchema = toTypedSchema(
@@ -83,9 +82,14 @@ const onSubmit = handleSubmit(async ({ email, password }) => {
 
     <div class="flex flex-col gap-2">
       <h2 class="text-center font-bold">or login with</h2>
-      <div>
-        <a class="flex size-8" :href="`${baseUrl}/api/v1/auth/google`">
-          <GoogleIcon />
+      <div class="flex gap-2">
+        <a
+          v-for="provider of providers"
+          class="flex size-8"
+          :key="provider"
+          :href="`${baseUrl}/api/v1/auth/${provider}`"
+        >
+          <component :is="icons[provider]" />
         </a>
       </div>
     </div>
