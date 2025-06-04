@@ -8,7 +8,7 @@ import {
   LogOut,
 } from "lucide-vue-next";
 
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import UserAvatar from "@/components/common/ui/UserAvatar/UserAvatar.vue";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -43,13 +43,8 @@ const { isMobile } = useSidebar();
             size="lg"
             class="cursor-pointer data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
           >
-            <Avatar class="h-8 w-8 rounded-lg">
-              <AvatarImage
-                :src="userStore.user?.picture ?? ''"
-                :alt="userStore.user?.name ?? ''"
-              />
-              <AvatarFallback class="rounded-lg"> AN </AvatarFallback>
-            </Avatar>
+            <UserAvatar :user="userStore.user" />
+
             <div class="grid flex-1 text-left text-sm leading-tight">
               <span class="truncate font-semibold">{{
                 userStore.user?.name
@@ -67,13 +62,7 @@ const { isMobile } = useSidebar();
         >
           <DropdownMenuLabel class="p-0 font-normal">
             <div class="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
-              <Avatar class="h-8 w-8 rounded-lg">
-                <AvatarImage
-                  :src="userStore.user?.picture ?? ''"
-                  :alt="userStore.user?.name"
-                />
-                <AvatarFallback class="rounded-lg">AN</AvatarFallback>
-              </Avatar>
+              <UserAvatar :user="userStore.user" />
               <div class="grid flex-1 text-left text-sm leading-tight">
                 <span class="truncate font-semibold">{{
                   userStore.user?.name

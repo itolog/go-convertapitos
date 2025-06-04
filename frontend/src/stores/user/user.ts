@@ -22,13 +22,6 @@ export const useUserStore = defineStore("user", () => {
     isLoggedIn.value = logged;
   }
 
-  const storedUser = cookies.get(USER_STORAGE_KEY) as UserAuth;
-  if (storedUser) {
-    user.value = storedUser.user;
-    isLoggedIn.value = true;
-    localStorage.setItem(ACCESS_TOKEN, storedUser.accessToken);
-  }
-
   const storedIsLoggedIn = localStorage.getItem(IS_LOGGED_STORAGE_KEY);
   if (storedIsLoggedIn) {
     isLoggedIn.value = JSON.parse(storedIsLoggedIn) as boolean;
@@ -41,6 +34,13 @@ export const useUserStore = defineStore("user", () => {
   };
 
   watchEffect(() => {
+    const storedUser = cookies.get(USER_STORAGE_KEY) as UserAuth;
+    if (storedUser) {
+      user.value = storedUser.user;
+      isLoggedIn.value = true;
+      localStorage.setItem(ACCESS_TOKEN, storedUser.accessToken);
+    }
+
     if (isLoggedIn.value) {
       localStorage.setItem(
         IS_LOGGED_STORAGE_KEY,

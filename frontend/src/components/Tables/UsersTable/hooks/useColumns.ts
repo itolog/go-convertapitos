@@ -4,11 +4,11 @@ import {
   createColumnHelper,
 } from "@tanstack/vue-table";
 import { useDateFormat } from "@vueuse/core";
-import { ArrowUpDown, CircleUserRound } from "lucide-vue-next";
+import { ArrowUpDown } from "lucide-vue-next";
 import { h } from "vue";
 
 import TableCelAction from "@/components/Tables/UsersTable/components/TableCelAction/TableCelAction.vue";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import UserAvatar from "@/components/common/ui/UserAvatar/UserAvatar.vue";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import type { User } from "@/types/user";
@@ -119,19 +119,9 @@ export const useColumns = () => {
     }),
     columnHelper.accessor("picture", {
       header: ({ column }) => headerColumn(column),
-      cell: ({ getValue }) => {
-        const pictureUrl = getValue();
+      cell: ({ row }) => {
         return h("div", { class: "flex justify-center items-center" }, [
-          h(Avatar, null, {
-            default: () => {
-              return [
-                // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-                // @ts-expect-error
-                h(AvatarImage, { src: pictureUrl }),
-                h(AvatarFallback, null, () => h(CircleUserRound)),
-              ];
-            },
-          }),
+          h(UserAvatar, { user: row.original, class: "size-7" }),
         ]);
       },
       size: 35,
