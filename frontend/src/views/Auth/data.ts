@@ -1,12 +1,16 @@
-import { h, type VNode } from "vue";
+import { h } from "vue";
 
 import GitIcon from "@/assets/icons/git.svg";
 import GoogleIcon from "@/assets/icons/google.svg";
+import type { SocialLink } from "@/views/Auth/types.ts";
 
-export const providers = ["google", "github"] as const;
-export type IconsKey = (typeof providers)[number];
-
-export const icons: Record<IconsKey, VNode> = {
-  google: h(GoogleIcon),
-  github: h(GitIcon),
-};
+export const socialLinks: SocialLink[] = [
+  {
+    name: "google",
+    icon: h(GoogleIcon),
+  },
+  {
+    name: "github",
+    icon: h(GitIcon),
+  },
+];

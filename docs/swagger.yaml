@@ -213,50 +213,6 @@ paths:
       summary: OAuth callback
       tags:
       - Auth
-  /auth/google:
-    get:
-      description: Redirects the user to the Google OAuth consent page.
-      produces:
-      - application/json
-      responses:
-        "302":
-          description: Redirect to Google login
-          schema:
-            type: string
-      summary: Google Auth Login
-      tags:
-      - Auth Google
-  /auth/google/callback:
-    get:
-      consumes:
-      - application/json
-      description: Handles OAuth callback and authenticates/creates user account using
-        Google data.
-      parameters:
-      - description: OAuth authorization code from Google
-        in: query
-        name: code
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OAuth success, token and user info
-          schema:
-            allOf:
-            - $ref: '#/definitions/api.ResponseData'
-            - properties:
-                data:
-                  $ref: '#/definitions/common.AuthResponse'
-              type: object
-        "400":
-          description: Failed to authenticate
-          schema:
-            $ref: '#/definitions/api.ResponseError'
-      summary: Google Auth Callback
-      tags:
-      - Auth Google
   /auth/login:
     post:
       consumes:

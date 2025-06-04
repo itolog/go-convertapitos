@@ -10,9 +10,10 @@ import FormInput from "@/components/Inputs/FormInput/FormInput.vue";
 import { Button } from "@/components/ui/button";
 import type { ValidationErrorFields } from "@/generated/apiClient/data-contracts";
 import { useLogin } from "@/services/api/auth/useLogin.ts";
-import { icons, providers } from "@/views/Auth/data";
+import { socialLinks } from "@/views/Auth/data";
 
 const baseUrl = import.meta.env.VITE_API_URL;
+const originUrl = window.location.origin;
 const router = useRouter();
 
 const formSchema = toTypedSchema(
@@ -84,12 +85,12 @@ const onSubmit = handleSubmit(async ({ email, password }) => {
       <h2 class="text-center font-bold">or login with</h2>
       <div class="flex gap-2">
         <a
-          v-for="provider of providers"
+          v-for="link of socialLinks"
           class="flex size-8"
-          :key="provider"
-          :href="`${baseUrl}/api/v1/auth/${provider}`"
+          :key="link.name"
+          :href="`${baseUrl}/api/v1/auth/${link.name}/?redirect_to=${originUrl}/users`"
         >
-          <component :is="icons[provider]" />
+          <component :is="link.icon" />
         </a>
       </div>
     </div>

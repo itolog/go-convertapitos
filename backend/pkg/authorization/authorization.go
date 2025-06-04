@@ -3,10 +3,10 @@ package authorization
 import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/session"
+	"time"
 
 	"github.com/itolog/go-convertapitos/backend/pkg/environments"
 	"github.com/itolog/go-convertapitos/backend/pkg/jwt"
-	"time"
 )
 
 type Authorization struct {
@@ -14,7 +14,7 @@ type Authorization struct {
 	cookieStore *session.Store
 }
 
-const CookieKey = "refreshToken"
+const CookieTokenKey = "refreshToken"
 
 func NewAuthorization() (*Authorization, error) {
 	jwtService, err := jwt.NewJWT()
@@ -33,17 +33,22 @@ func (auth *Authorization) SetAuth(ctx *fiber.Ctx, email string) (*string, error
 		return nil, err
 	}
 
-	auth.SetCookie(ctx, tokens.RefreshToken, auth.JWT.RefreshTokenExpires)
+	auth.SetCookie(ctx, CookiePayload{
+		Name:     CookieTokenKey,
+		Value:    tokens.RefreshToken,
+		Expires:  auth.JWT.RefreshTokenExpires,
+		HTTPOnly: true,
+	})
 
 	return &tokens.AccessToken, nil
 }
 
-func (auth *Authorization) SetCookie(ctx *fiber.Ctx, token string, expires time.Duration) {
+func (auth *Authorization) SetCookie(ctx *fiber.Ctx, payload CookiePayload) {
 	ctx.Cookie(&fiber.Cookie{
-		Name:     CookieKey,
-		Value:    token,
-		Expires:  time.Now().Add(expires),
-		HTTPOnly: true,
+		Name:     payload.Name,
+		Value:    payload.Value,
+		Expires:  time.Now().Add(payload.Expires),
+		HTTPOnly: payload.HTTPOnly,
 		SameSite: "Lax",
 		Domain:   environments.GetEnv("COOKIE_DOMAIN"),
 		Secure:   !environments.IsDev(),

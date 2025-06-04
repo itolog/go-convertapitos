@@ -1,12 +1,14 @@
+import { useCookies } from "@vueuse/integrations/useCookies";
 import { defineStore } from "pinia";
 import { ref, watchEffect } from "vue";
 
 import { IS_LOGGED_STORAGE_KEY, USER_STORAGE_KEY } from "@/constants";
-import type { User } from "@/types/user";
+import type { User, UserAuth } from "@/types/user";
 
 export const useUserStore = defineStore("user", () => {
   const user = ref<User>(null);
   const isLoggedIn = ref(false);
+  const cookies = useCookies();
 
   function setUser(newUser: User) {
     user.value = newUser;
@@ -16,9 +18,9 @@ export const useUserStore = defineStore("user", () => {
     isLoggedIn.value = logged;
   }
 
-  const storedUser = localStorage.getItem(USER_STORAGE_KEY);
+  const storedUser = cookies.get(USER_STORAGE_KEY) as UserAuth;
   if (storedUser) {
-    user.value = JSON.parse(storedUser) as User;
+    user.value = storedUser.user;
   }
   const storedIsLoggedIn = localStorage.getItem(IS_LOGGED_STORAGE_KEY);
   if (storedIsLoggedIn) {
@@ -38,7 +40,10 @@ export const useUserStore = defineStore("user", () => {
     }
 
     if (isLoggedIn.value) {
-      localStorage.setItem(IS_LOGGED_STORAGE_KEY, JSON.stringify(isLoggedIn.value));
+      localStorage.setItem(
+        IS_LOGGED_STORAGE_KEY,
+        JSON.stringify(isLoggedIn.value),
+      );
     }
   });
 

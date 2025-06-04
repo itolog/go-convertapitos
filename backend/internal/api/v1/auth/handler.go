@@ -4,10 +4,13 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/itolog/go-convertapitos/backend/middleware"
 	"github.com/itolog/go-convertapitos/backend/pkg/api"
+	"github.com/itolog/go-convertapitos/backend/pkg/environments"
 	"github.com/itolog/go-convertapitos/backend/pkg/req"
 	"github.com/rs/zerolog"
 	"github.com/shareed2k/goth_fiber"
 )
+
+const RedirectKey = "redirect_to"
 
 type HandlerDeps struct {
 	AuthService  IAuthService
@@ -47,26 +50,26 @@ func NewHandler(router fiber.Router, deps HandlerDeps) {
 //	@Success		200		{object}	api.ResponseData{data=common.AuthResponse}	"Successfully authenticated"
 //	@Failure		400		{object}	api.ResponseError							"Invalid request or credentials"
 //	@Router			/auth/login [post]
-func (h *Handler) Login(ctx *fiber.Ctx) error {
-	payload, err := req.DecodeBody[LoginRequest](ctx)
+func (h *Handler) Login(c *fiber.Ctx) error {
+	payload, err := req.DecodeBody[LoginRequest](c)
 	if err != nil {
 		return err
 	}
 
 	validateError, valid := req.ValidateBody(payload)
 	if !valid {
-		return ctx.Status(fiber.StatusBadRequest).JSON(api.Response{
+		return c.Status(fiber.StatusBadRequest).JSON(api.Response{
 			Error:  validateError,
 			Status: api.StatusError,
 		})
 	}
 
-	userInfo, err := h.AuthService.Login(ctx, payload)
+	userInfo, err := h.AuthService.Login(c, payload)
 	if err != nil {
 		return fiber.NewError(fiber.StatusBadRequest, err.Error())
 	}
 
-	return ctx.Status(fiber.StatusOK).JSON(api.Response{
+	return c.Status(fiber.StatusOK).JSON(api.Response{
 		Data:   userInfo,
 		Status: api.StatusSuccess,
 	})
@@ -83,27 +86,27 @@ func (h *Handler) Login(ctx *fiber.Ctx) error {
 //	@Success		200		{object}	api.ResponseData{data=common.AuthResponse}	"Successfully registered"
 //	@Failure		400		{object}	api.ResponseError							"Invalid request or registration error"
 //	@Router			/auth/register [post]
-func (h *Handler) Register(ctx *fiber.Ctx) error {
-	payload, err := req.DecodeBody[RegisterRequest](ctx)
+func (h *Handler) Register(c *fiber.Ctx) error {
+	payload, err := req.DecodeBody[RegisterRequest](c)
 	if err != nil {
 		return err
 	}
 
 	validateError, valid := req.ValidateBody(payload)
 	if !valid {
-		return ctx.Status(fiber.StatusBadRequest).JSON(api.Response{
+		return c.Status(fiber.StatusBadRequest).JSON(api.Response{
 			Error:  validateError,
 			Status: api.StatusError,
 		})
 	}
 
-	data, err := h.AuthService.Register(ctx, payload)
+	data, err := h.AuthService.Register(payload)
 	if err != nil {
 		statusCode := api.GetErrorCode(err)
 		return fiber.NewError(statusCode, err.Error())
 	}
 
-	return ctx.Status(fiber.StatusOK).JSON(api.Response{
+	return c.Status(fiber.StatusOK).JSON(api.Response{
 		Data:   data,
 		Status: api.StatusSuccess,
 	})
@@ -119,18 +122,18 @@ func (h *Handler) Register(ctx *fiber.Ctx) error {
 //	@Success		200	{object}	api.ResponseData{data=common.RefreshResponse}	"Token refreshed successfully"
 //	@Failure		401	{object}	api.ResponseError								"Unauthorized or invalid refresh token"
 //	@Router			/auth/refresh-token [post]
-func (h *Handler) RefreshToken(ctx *fiber.Ctx) error {
-	refreshToken := ctx.Cookies("refreshToken")
+func (h *Handler) RefreshToken(c *fiber.Ctx) error {
+	refreshToken := c.Cookies("refreshToken")
 	if refreshToken == "" {
 		return fiber.NewError(fiber.StatusUnauthorized, api.ErrUnauthorized)
 	}
 
-	user, err := h.AuthService.RefreshToken(ctx, refreshToken)
+	user, err := h.AuthService.RefreshToken(c, refreshToken)
 	if err != nil {
 		return err
 	}
 
-	return ctx.Status(fiber.StatusOK).JSON(api.Response{
+	return c.Status(fiber.StatusOK).JSON(api.Response{
 		Data:   user,
 		Status: api.StatusSuccess,
 	})
@@ -146,10 +149,10 @@ func (h *Handler) RefreshToken(ctx *fiber.Ctx) error {
 //	@Success		200	{object}	api.ResponseData{data=string}	"Logout successful"
 //	@Failure		401	{object}	api.ResponseError				"Unauthorized"
 //	@Router			/auth/logout [post]
-func (h *Handler) Logout(ctx *fiber.Ctx) error {
-	h.AuthService.Logout(ctx)
+func (h *Handler) Logout(c *fiber.Ctx) error {
+	h.AuthService.Logout(c)
 
-	return ctx.Status(fiber.StatusOK).JSON(api.Response{
+	return c.Status(fiber.StatusOK).JSON(api.Response{
 		Data:   "User logged out.",
 		Status: api.StatusSuccess,
 	})
@@ -164,8 +167,21 @@ func (h *Handler) Logout(ctx *fiber.Ctx) error {
 //	@Success		302			{object}	nil		"Redirect to OAuth provider"
 //	@Failure		400			{object}	api.ResponseError
 //	@Router			/auth/{provider} [get]
-func (h *Handler) OAuthLogin(ctx *fiber.Ctx) error {
-	return goth_fiber.BeginAuthHandler(ctx)
+func (h *Handler) OAuthLogin(c *fiber.Ctx) error {
+	redirectTo := c.Query(RedirectKey)
+
+	if redirectTo != "" {
+		c.Cookie(&fiber.Cookie{
+			Name:     RedirectKey,
+			Value:    redirectTo,
+			HTTPOnly: true,
+			Secure:   !environments.IsDev(),
+			SameSite: "Lax",
+			MaxAge:   300,
+		})
+	}
+
+	return goth_fiber.BeginAuthHandler(c)
 }
 
 // OAuthCallback handles OAuth callback from provider
@@ -178,15 +194,30 @@ func (h *Handler) OAuthLogin(ctx *fiber.Ctx) error {
 //	@Success		200			{object}	api.ResponseData{data=common.AuthResponse}	"Successfully authenticated"
 //	@Failure		400			{object}	api.ResponseError							"Authentication failed"
 //	@Router			/auth/{provider}/callback [get]
-func (h *Handler) OAuthCallback(ctx *fiber.Ctx) error {
-	user, err := goth_fiber.CompleteUserAuth(ctx)
+func (h *Handler) OAuthCallback(c *fiber.Ctx) error {
+	user, err := goth_fiber.CompleteUserAuth(c)
 	if err != nil {
 		h.CustomLogger.Error().Err(err).Msg("Error completing user auth")
 		return fiber.NewError(fiber.StatusBadRequest, err.Error())
 	}
 
-	return ctx.JSON(api.Response{
-		Data:   user,
-		Status: api.StatusSuccess,
+	_, err = h.AuthService.OAuthCallback(c, user)
+	if err != nil {
+		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
+	}
+
+	redirectTo := c.Cookies(RedirectKey)
+	if redirectTo == "" {
+		redirectTo = "/"
+	}
+
+	c.Cookie(&fiber.Cookie{
+		Name:     RedirectKey,
+		Value:    "",
+		HTTPOnly: true,
+		MaxAge:   -1,
 	})
+
+	return c.Redirect(redirectTo)
+
 }

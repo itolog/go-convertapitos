@@ -1,20 +1,24 @@
 package auth
 
 import (
+	"encoding/json"
 	"github.com/gofiber/fiber/v2"
 	"github.com/itolog/go-convertapitos/backend/common"
 	"github.com/itolog/go-convertapitos/backend/internal/api/v1/user"
 	"github.com/itolog/go-convertapitos/backend/pkg/api"
 	"github.com/itolog/go-convertapitos/backend/pkg/authorization"
-
+	"github.com/markbates/goth"
 	"golang.org/x/crypto/bcrypt"
 )
 
+const UserStoreKey = "user"
+
 type IAuthService interface {
 	Login(ctx *fiber.Ctx, payload *LoginRequest) (*common.AuthResponse, error)
-	Register(ctx *fiber.Ctx, payload *RegisterRequest) (*common.AuthResponse, error)
+	Register(payload *RegisterRequest) (*common.AuthResponse, error)
 	Logout(ctx *fiber.Ctx)
 	RefreshToken(ctx *fiber.Ctx, refreshToken string) (*common.RefreshResponse, error)
+	OAuthCallback(ctx *fiber.Ctx, userInfo goth.User) (*common.AuthResponse, error)
 }
 
 type ServiceDeps struct {
@@ -51,13 +55,21 @@ func (service *Service) Login(ctx *fiber.Ctx, payload *LoginRequest) (*common.Au
 		return nil, err
 	}
 
+	err = service.SaveUser(ctx, common.AuthResponse{
+		AccessToken: accessToken,
+		User:        existedUser,
+	})
+	if err != nil {
+		return nil, fiber.NewError(fiber.StatusInternalServerError, err.Error())
+	}
+
 	return &common.AuthResponse{
 		AccessToken: accessToken,
 		User:        existedUser,
 	}, nil
 }
 
-func (service *Service) Register(ctx *fiber.Ctx, payload *RegisterRequest) (*common.AuthResponse, error) {
+func (service *Service) Register(payload *RegisterRequest) (*common.AuthResponse, error) {
 	existedUser, _ := service.UserService.FindByEmail(payload.Email)
 	if existedUser != nil {
 		return nil, fiber.NewError(fiber.StatusConflict, api.ErrUserAlreadyExist)
@@ -77,20 +89,24 @@ func (service *Service) Register(ctx *fiber.Ctx, payload *RegisterRequest) (*com
 		return nil, err
 	}
 
-	accessToken, err := service.Authorization.SetAuth(ctx, payload.Email)
-	if err != nil {
-		return nil, fiber.NewError(fiber.StatusInternalServerError, err.Error())
-	}
-
 	created.Password = ""
 	return &common.AuthResponse{
-		AccessToken: accessToken,
-		User:        created,
+		User: created,
 	}, nil
 }
 
 func (service *Service) Logout(ctx *fiber.Ctx) {
-	service.Authorization.SetCookie(ctx, "refreshToken", 0)
+	service.Authorization.SetCookie(ctx, authorization.CookiePayload{
+		Name:    authorization.CookieTokenKey,
+		Value:   "",
+		Expires: 0,
+	})
+
+	service.Authorization.SetCookie(ctx, authorization.CookiePayload{
+		Name:    UserStoreKey,
+		Value:   "",
+		Expires: 0,
+	})
 }
 
 func (service *Service) RefreshToken(ctx *fiber.Ctx, refreshToken string) (*common.RefreshResponse, error) {
@@ -113,4 +129,58 @@ func (service *Service) RefreshToken(ctx *fiber.Ctx, refreshToken string) (*comm
 	return &common.RefreshResponse{
 		AccessToken: accessToken,
 	}, nil
+}
+
+func (service *Service) OAuthCallback(ctx *fiber.Ctx, userInfo goth.User) (*common.AuthResponse, error) {
+	var userData *user.User
+
+	existedUser, _ := service.UserService.FindByEmail(userInfo.Email)
+	if existedUser != nil {
+		userData = existedUser
+	} else {
+		createdUser, err := service.UserService.Create(user.User{
+			Name:    userInfo.Name,
+			Email:   userInfo.Email,
+			Picture: userInfo.AvatarURL,
+		})
+		if err != nil {
+			return nil, err
+		}
+
+		userData = createdUser
+	}
+
+	accessToken, err := service.Authorization.SetAuth(ctx, userInfo.Email)
+	if err != nil {
+		return nil, fiber.NewError(fiber.StatusInternalServerError, err.Error())
+	}
+
+	err = service.SaveUser(ctx, common.AuthResponse{
+		AccessToken: accessToken,
+		User:        userData,
+	})
+	if err != nil {
+		return nil, fiber.NewError(fiber.StatusInternalServerError, err.Error())
+	}
+
+	return &common.AuthResponse{
+		AccessToken: accessToken,
+		User:        userData,
+	}, nil
+}
+
+func (service *Service) SaveUser(ctx *fiber.Ctx, user common.AuthResponse) error {
+	userDataJSON, err := json.Marshal(user)
+	if err != nil {
+		return err
+	}
+
+	service.Authorization.SetCookie(ctx, authorization.CookiePayload{
+		Name:     UserStoreKey,
+		Value:    string(userDataJSON),
+		Expires:  service.Authorization.JWT.RefreshTokenExpires,
+		HTTPOnly: false,
+	})
+
+	return nil
 }
