@@ -29,7 +29,7 @@ const { isLoading, isFetching, data } = useQuery<
 });
 
 onUnmounted(() => {
-  tableStore.$reset();
+  tableStore.setPage(1);
 });
 </script>
 

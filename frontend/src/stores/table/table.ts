@@ -1,5 +1,5 @@
 import { defineStore } from "pinia";
-import { ref, watchEffect } from "vue";
+import { ref } from "vue";
 
 import { TABLE_PER_PAGE, TABLES_CONFIG, USERS_TABLE } from "@/constants";
 import type { TablesState } from "@/types/tables.ts";
@@ -37,10 +37,6 @@ export const useTableStore = defineStore("table", () => {
     page.value = 1;
     itemsPerPage.value = 10;
   };
-
-  watchEffect(() => {
-
-  })
 
   return {
     page,
