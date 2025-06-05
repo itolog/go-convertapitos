@@ -3,6 +3,7 @@
 .env.development
 .env.production
 .env.*.local
+.env.test
 
 # compiled output
 bin
@@ -24,3 +25,4 @@ tmp
 
 /postgres-data/
 /node_modules/
+

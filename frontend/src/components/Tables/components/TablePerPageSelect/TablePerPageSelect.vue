@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import type { AcceptableValue } from "reka-ui";
+
 import { options } from "@/components/Tables/components/TablePerPageSelect/data";
 import {
   Select,
@@ -12,8 +14,8 @@ import { useTableStore } from "@/stores/table/table";
 
 const tableStore = useTableStore();
 
-const handleUpdate = (value: number) => {
-  tableStore.setItemsPerPage(value);
+const handleUpdate = (value: AcceptableValue) => {
+  tableStore.setItemsPerPage(Number(value));
 };
 </script>
 

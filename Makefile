@@ -64,9 +64,18 @@ docker-down:
 migrations-auto:
 	APP_ENV="development" go run ./backend/migrations
 
-.PHONY: migrations-auto
+.PHONY: migrations-auto-prod
 migrations-auto-prod:
 	APP_ENV="production" go run ./backend/migrations
+
+# DOCKER MIGRATIONS
+.PHONY: docker-migrations-prod
+docker-migrations-prod:
+	docker compose exec server sh -c "APP_ENV=production /app/migrate"
+
+.PHONY: docker-migrations-dev
+docker-migrations-dev:
+	docker compose -f ${COMOSE_DEV_FILE} exec backend sh -c "APP_ENV=development go run ./backend/migrations"
 
 # SWAGGER
 .PHONY: swagger-init
