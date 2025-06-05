@@ -88,7 +88,9 @@ func (repo *Repository) Create(user *User) (*User, error) {
 }
 
 func (repo *Repository) Update(user *User) (*User, error) {
-	res := repo.Database.DB.Clauses(clause.Returning{}).Updates(user).Omit("password")
+	res := repo.Database.DB.Clauses(clause.Returning{}).
+		Select("name", "email", "verified_email", "picture").
+		Updates(user).Omit("password")
 
 	if res.Error != nil {
 		return nil, res.Error
