@@ -14,6 +14,8 @@ type IUserService interface {
 	Update(id string, payload *UpdateRequest) (*User, error)
 	Delete(id string) error
 	BatchDelete(ids *[]string) error
+	CreateOrUpdateAccount(userID uuid.UUID, account Account) error
+	FindByProviderAccount(provider, providerID string) (*User, error)
 }
 
 type Service struct {
@@ -86,6 +88,8 @@ func (service *Service) Update(id string, payload *UpdateRequest) (*User, error)
 		VerifiedEmail: payload.VerifiedEmail,
 		Picture:       payload.Picture,
 		Password:      payload.Password,
+		Role:          payload.Role,
+		AuthMethod:    payload.AuthMethod,
 	})
 
 	if err != nil {
@@ -117,4 +121,21 @@ func (service *Service) BatchDelete(ids *[]string) error {
 	}
 
 	return nil
+}
+
+func (service *Service) CreateOrUpdateAccount(userID uuid.UUID, account Account) error {
+	account.UserID = userID
+	err := service.UserRepository.CreateOrUpdateAccount(&account)
+	if err != nil {
+		return fiber.NewError(fiber.StatusBadRequest, err.Error())
+	}
+	return nil
+}
+
+func (service *Service) FindByProviderAccount(provider, providerID string) (*User, error) {
+	user, err := service.UserRepository.FindByProviderAccount(provider, providerID)
+	if err != nil {
+		return nil, fiber.NewError(fiber.StatusBadRequest, err.Error())
+	}
+	return user, nil
 }

@@ -8,6 +8,7 @@ import (
 	"github.com/itolog/go-convertapitos/backend/pkg/api"
 	"github.com/itolog/go-convertapitos/backend/pkg/authorization"
 	"github.com/markbates/goth"
+	"github.com/rs/zerolog"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -24,16 +25,19 @@ type IAuthService interface {
 type ServiceDeps struct {
 	UserService   user.IUserService
 	Authorization *authorization.Authorization
+	CustomLogger  *zerolog.Logger
 }
 type Service struct {
 	UserService   user.IUserService
 	Authorization *authorization.Authorization
+	CustomLogger  *zerolog.Logger
 }
 
 func NewService(deps ServiceDeps) *Service {
 	return &Service{
 		UserService:   deps.UserService,
 		Authorization: deps.Authorization,
+		CustomLogger:  deps.CustomLogger,
 	}
 }
 
@@ -141,16 +145,55 @@ func (service *Service) RefreshToken(ctx *fiber.Ctx, refreshToken string) (*comm
 }
 
 func (service *Service) OAuthCallback(ctx *fiber.Ctx, userInfo goth.User) (*common.AuthResponse, error) {
-	var userData *user.User
+	userData := new(user.User)
 
 	existedUser, _ := service.UserService.FindByEmail(userInfo.Email)
 	if existedUser != nil {
-		userData = existedUser
+		updatedUser, err := service.UserService.Update(existedUser.ID.String(), &user.UpdateRequest{
+			Name:          userInfo.Name,
+			Email:         userInfo.Email,
+			VerifiedEmail: true,
+			Picture:       userInfo.AvatarURL,
+			AuthMethod:    user.AuthMethod(userInfo.Provider),
+		})
+		if err != nil {
+			return nil, err
+		}
+
+		userData = updatedUser
+
+		// Renew or create an account for this provider
+		err = service.UserService.CreateOrUpdateAccount(userData.ID, user.Account{
+			Provider:     userInfo.Provider,
+			ProviderID:   userInfo.UserID,
+			AccessToken:  userInfo.AccessToken,
+			RefreshToken: userInfo.RefreshToken,
+			ExpiresAt:    userInfo.ExpiresAt,
+			UserID:       userData.ID,
+		})
+		if err != nil {
+			return nil, err
+		}
 	} else {
 		createdUser, err := service.UserService.Create(user.User{
-			Name:    userInfo.Name,
-			Email:   userInfo.Email,
-			Picture: userInfo.AvatarURL,
+			Name:          userInfo.Name,
+			Email:         userInfo.Email,
+			Picture:       userInfo.AvatarURL,
+			VerifiedEmail: true,
+			AuthMethod:    user.AuthMethod(userInfo.Provider),
+		})
+		if err != nil {
+			return nil, err
+		}
+
+		// Creating an account for the provider
+		err = service.UserService.CreateOrUpdateAccount(createdUser.ID, user.Account{
+			Provider:     userInfo.Provider,
+			ProviderID:   userInfo.UserID,
+			AccessToken:  userInfo.AccessToken,
+			RefreshToken: userInfo.RefreshToken,
+			ExpiresAt:    userInfo.ExpiresAt,
+			UserID:       createdUser.ID,
 		})
 		if err != nil {
 			return nil, err

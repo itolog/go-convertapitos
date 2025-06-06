@@ -86,7 +86,7 @@ const table = useVueTable({
   onColumnPinningChange: (updaterOrValue) =>
     valueUpdater(updaterOrValue, columnPinning),
   getRowId: (row) => row?.id ?? "",
-  enableRowSelection: (row) => row.original?.id !== loggedUser?.id,
+  enableRowSelection: (row) => row.original?.email !== loggedUser?.email,
   defaultColumn: {
     size: 180,
     minSize: 25,

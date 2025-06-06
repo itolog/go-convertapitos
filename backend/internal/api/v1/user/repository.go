@@ -1,8 +1,10 @@
 package user
 
 import (
+	"errors"
 	"fmt"
 	"github.com/itolog/go-convertapitos/backend/pkg/db"
+	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
 )
 
@@ -15,6 +17,8 @@ type IRepository interface {
 	Update(user *User) (*User, error)
 	Delete(id string) error
 	BatchDelete(ids *[]string) error
+	CreateOrUpdateAccount(account *Account) error
+	FindByProviderAccount(provider, providerID string) (*User, error)
 }
 
 type Repository struct {
@@ -42,6 +46,7 @@ func (repo *Repository) FindAll(limit int, offset int, orderBy string, order str
 
 	res := repo.Database.DB.
 		Table(tableName).
+		Preload(clause.Associations).
 		Omit("password").
 		Order(fmt.Sprintf("%s %s", orderBy, order)).
 		Limit(limit).
@@ -89,7 +94,7 @@ func (repo *Repository) Create(user *User) (*User, error) {
 
 func (repo *Repository) Update(user *User) (*User, error) {
 	res := repo.Database.DB.Clauses(clause.Returning{}).
-		Select("name", "email", "verified_email", "picture").
+		Select("*").
 		Updates(user).Omit("password")
 
 	if res.Error != nil {
@@ -113,4 +118,44 @@ func (repo *Repository) BatchDelete(ids *[]string) error {
 		return res.Error
 	}
 	return nil
+}
+
+// CreateOrUpdateAccount Creates or updates an account
+func (repo *Repository) CreateOrUpdateAccount(account *Account) error {
+	existingAccount := new(Account)
+
+	// searching for an existing account
+	result := repo.Database.DB.Where("provider = ? AND provider_id = ?", account.Provider, account.ProviderID).First(&existingAccount)
+
+	if errors.Is(result.Error, gorm.ErrRecordNotFound) {
+		// create a new account
+		if err := repo.Database.DB.Create(account).Error; err != nil {
+			return err
+		}
+	} else if result.Error != nil {
+		return result.Error
+	} else {
+		// update the existing
+		existingAccount.AccessToken = account.AccessToken
+		existingAccount.RefreshToken = account.RefreshToken
+		existingAccount.ExpiresAt = account.ExpiresAt
+		if err := repo.Database.DB.Save(&existingAccount).Error; err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+// FindByProviderAccount Finds the user by provider account
+func (repo *Repository) FindByProviderAccount(provider, providerID string) (*User, error) {
+	var account Account
+	if err := repo.Database.DB.Where("provider = ? AND provider_id = ?", provider, providerID).First(&account).Error; err != nil {
+		return nil, err
+	}
+
+	var user User
+	if err := repo.Database.DB.Where("id = ?", account.UserID).First(&user).Error; err != nil {
+		return nil, err
+	}
+	return &user, nil
 }

@@ -25,6 +25,7 @@ func NewAuthHandler(app fiber.Router, deps Deps) {
 	authService := NewService(ServiceDeps{
 		UserService:   deps.UserService,
 		Authorization: authorizationService,
+		CustomLogger:  deps.CustomLogger,
 	})
 	NewHandler(router, HandlerDeps{
 		AuthService:  authService,

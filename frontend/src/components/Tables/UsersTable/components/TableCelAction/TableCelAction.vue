@@ -62,7 +62,7 @@ const closeDropdown = () => {
         </Button>
       </DropdownMenuItem>
       <DropdownMenuItem
-        :disabled="loggedUser?.id === user?.id"
+        :disabled="loggedUser?.email === user?.email"
         class="cursor-pointer"
       >
         <DeleteUserModal :user="user" @closeDropdown="closeDropdown" />

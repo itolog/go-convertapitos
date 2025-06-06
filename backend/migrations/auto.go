@@ -21,7 +21,7 @@ func main() {
 		panic(err)
 	}
 
-	err = db.AutoMigrate(&user.User{})
+	err = db.AutoMigrate(&user.User{}, &user.Account{})
 	if err != nil {
 		panic(err)
 	}
