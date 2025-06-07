@@ -15,7 +15,7 @@ type User struct {
 	Picture       string     `json:"picture"`
 	Role          RoleType   `json:"role" gorm:"default:regular"`
 	AuthMethod    AuthMethod `json:"authMethod"`
-	Accounts      []Account  `json:"account" gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
+	Accounts      []Account  `json:"accounts" gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
 }
 
 type Account struct {

@@ -151,6 +151,9 @@ export const useColumns = () => {
     columnHelper.accessor("verifiedEmail", {
       header: ({ column }) => headerColumn(column, "Verified Email"),
     }),
+    columnHelper.accessor("role", {
+      header: ({ column }) => headerColumn(column, "Role"),
+    }),
     columnHelper.display({
       id: "actions",
       cell: ({ row }) => {

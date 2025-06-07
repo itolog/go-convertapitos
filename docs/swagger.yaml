@@ -83,6 +83,37 @@ definitions:
       accessToken:
         type: string
     type: object
+  user.Account:
+    properties:
+      accessToken:
+        type: string
+      createdAt:
+        type: string
+      expiresAt:
+        type: string
+      id:
+        type: string
+      provider:
+        type: string
+      providerId:
+        type: string
+      refreshToken:
+        type: string
+      updatedAt:
+        type: string
+      userID:
+        type: string
+    type: object
+  user.AuthMethod:
+    enum:
+    - credentials
+    - google
+    - github
+    type: string
+    x-enum-varnames:
+    - Credentials
+    - Google
+    - Github
   user.BatchDeleteRequest:
     properties:
       ids:
@@ -113,8 +144,20 @@ definitions:
     - name
     - password
     type: object
+  user.RoleType:
+    enum:
+    - regular
+    - admin
+    - superUser
+    type: string
+    x-enum-varnames:
+    - Regular
+    - Admin
+    - SuperUser
   user.UpdateRequest:
     properties:
+      authMethod:
+        $ref: '#/definitions/user.AuthMethod'
       email:
         type: string
       name:
@@ -126,11 +169,19 @@ definitions:
         type: string
       picture:
         type: string
+      role:
+        $ref: '#/definitions/user.RoleType'
       verifiedEmail:
         type: boolean
     type: object
   user.User:
     properties:
+      accounts:
+        items:
+          $ref: '#/definitions/user.Account'
+        type: array
+      authMethod:
+        $ref: '#/definitions/user.AuthMethod'
       createdAt:
         type: string
       email:
@@ -143,6 +194,8 @@ definitions:
         type: string
       picture:
         type: string
+      role:
+        $ref: '#/definitions/user.RoleType'
       updatedAt:
         type: string
       verifiedEmail:

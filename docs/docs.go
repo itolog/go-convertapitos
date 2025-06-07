@@ -803,6 +803,51 @@ const docTemplate = `{
                 }
             }
         },
+        "user.Account": {
+            "type": "object",
+            "properties": {
+                "accessToken": {
+                    "type": "string"
+                },
+                "createdAt": {
+                    "type": "string"
+                },
+                "expiresAt": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "provider": {
+                    "type": "string"
+                },
+                "providerId": {
+                    "type": "string"
+                },
+                "refreshToken": {
+                    "type": "string"
+                },
+                "updatedAt": {
+                    "type": "string"
+                },
+                "userID": {
+                    "type": "string"
+                }
+            }
+        },
+        "user.AuthMethod": {
+            "type": "string",
+            "enum": [
+                "credentials",
+                "google",
+                "github"
+            ],
+            "x-enum-varnames": [
+                "Credentials",
+                "Google",
+                "Github"
+            ]
+        },
         "user.BatchDeleteRequest": {
             "type": "object",
             "required": [
@@ -846,9 +891,25 @@ const docTemplate = `{
                 }
             }
         },
+        "user.RoleType": {
+            "type": "string",
+            "enum": [
+                "regular",
+                "admin",
+                "superUser"
+            ],
+            "x-enum-varnames": [
+                "Regular",
+                "Admin",
+                "SuperUser"
+            ]
+        },
         "user.UpdateRequest": {
             "type": "object",
             "properties": {
+                "authMethod": {
+                    "$ref": "#/definitions/user.AuthMethod"
+                },
                 "email": {
                     "type": "string"
                 },
@@ -864,6 +925,9 @@ const docTemplate = `{
                 "picture": {
                     "type": "string"
                 },
+                "role": {
+                    "$ref": "#/definitions/user.RoleType"
+                },
                 "verifiedEmail": {
                     "type": "boolean"
                 }
@@ -872,6 +936,15 @@ const docTemplate = `{
         "user.User": {
             "type": "object",
             "properties": {
+                "accounts": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/user.Account"
+                    }
+                },
+                "authMethod": {
+                    "$ref": "#/definitions/user.AuthMethod"
+                },
                 "createdAt": {
                     "type": "string"
                 },
@@ -889,6 +962,9 @@ const docTemplate = `{
                 },
                 "picture": {
                     "type": "string"
+                },
+                "role": {
+                    "$ref": "#/definitions/user.RoleType"
                 },
                 "updatedAt": {
                     "type": "string"

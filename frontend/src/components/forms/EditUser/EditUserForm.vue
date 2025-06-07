@@ -7,24 +7,16 @@ import { toast } from "vue-sonner";
 
 import FormInput from "@/components/Inputs/FormInput/FormInput.vue";
 import FormSelect from "@/components/forms/EditUser/components/FormSelect/FormSelect.vue";
-import type { SelectOption } from "@/components/forms/EditUser/components/FormSelect/types.ts";
+import {
+  rolesOptions,
+  selectOptions,
+} from "@/components/forms/EditUser/data.ts";
 import { formSchema } from "@/components/forms/EditUser/formSchema";
 import { Button } from "@/components/ui/button";
 import { editUser } from "@/services/api/users/editUser.ts";
 import { useGetUser } from "@/services/api/users/useGetUser";
 
 const router = useRouter();
-
-const selectOptions: SelectOption[] = [
-  {
-    label: "True",
-    value: true,
-  },
-  {
-    label: "False",
-    value: false,
-  },
-];
 
 const { id } = defineProps({
   id: {
@@ -43,6 +35,7 @@ const { isFieldDirty, handleSubmit, isSubmitting, setValues } = useForm({
     name: "",
     email: "",
     verifiedEmail: false,
+    role: "regular",
   },
 });
 
@@ -56,6 +49,7 @@ watchEffect(() => {
       name: data.value.name,
       email: data.value.email,
       verifiedEmail: data.value.verifiedEmail,
+      role: data.value.role,
     });
   }
 });
@@ -86,11 +80,15 @@ const onSubmit = handleSubmit(async (values) => {
           </template>
         </FormInput>
 
-        <FormSelect
-          label="Verified Email"
-          :options="selectOptions"
-          name="verifiedEmail"
-        />
+        <div class="grid grid-cols-2 gap-4">
+          <FormSelect
+            label="Verified Email"
+            :options="selectOptions"
+            name="verifiedEmail"
+          />
+
+          <FormSelect label="Role" :options="rolesOptions" name="role" />
+        </div>
       </div>
 
       <Button

@@ -96,6 +96,7 @@ export interface UserUpdateRequest {
   password?: string;
   picture?: string;
   verifiedEmail?: boolean;
+  role?: string;
 }
 
 export interface UserUser {
@@ -107,6 +108,7 @@ export interface UserUser {
   picture?: string;
   updatedAt?: string;
   verifiedEmail?: boolean;
+  role?: string;
 }
 
 export interface ValidationErrorFields {
