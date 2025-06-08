@@ -13,3 +13,8 @@ type UpdateRequest struct {
 	Name        string       `json:"name" validate:"required,max=70" example:"manager"`
 	Permissions []Permission `json:"permissions" validate:"required,min=1,dive"`
 }
+
+type FindAllResponse struct {
+	Items []Role
+	Count *int64
+}

@@ -2,11 +2,10 @@ package role
 
 import (
 	"github.com/gofiber/fiber/v2"
-	"github.com/itolog/go-convertapitos/backend/common"
 )
 
 type IRoleService interface {
-	FindAll(limit int, offset int, orderBy string, desc bool) (*common.FindAllResponse[Role], error)
+	FindAll(limit int, offset int, orderBy string, desc bool) (*FindAllResponse, error)
 	FindById(id string) (*Role, error)
 	Create(user Role) (*Role, error)
 	//Update(id string, payload *Role) (*Role, error)
@@ -24,7 +23,7 @@ func NewService(repository *Repository) *Service {
 	}
 }
 
-func (service *Service) FindAll(limit int, offset int, orderBy string, desc bool) (*common.FindAllResponse[Role], error) {
+func (service *Service) FindAll(limit int, offset int, orderBy string, desc bool) (*FindAllResponse, error) {
 	count := service.RoleRepository.Count()
 
 	order := "asc"
@@ -36,7 +35,7 @@ func (service *Service) FindAll(limit int, offset int, orderBy string, desc bool
 		return nil, fiber.NewError(fiber.StatusBadRequest, err.Error())
 	}
 
-	return &common.FindAllResponse[Role]{
+	return &FindAllResponse{
 		Items: roles,
 		Count: count,
 	}, nil
