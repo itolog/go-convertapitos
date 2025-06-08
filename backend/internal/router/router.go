@@ -3,6 +3,7 @@ package router
 import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/swagger"
+	"github.com/itolog/go-convertapitos/backend/internal/api/v1/role"
 	_ "github.com/itolog/go-convertapitos/docs"
 	"github.com/rs/zerolog"
 
@@ -32,8 +33,10 @@ func New(app fiber.Router, deps Deps) {
 	apiV1 := app.Group("api/v1")
 	// Repositories
 	userRepository := user.NewRepository(deps.Database)
+	roleRepository := role.NewRepository(deps.Database)
 	// Services
 	userService := user.NewService(userRepository)
+	roleService := role.NewService(roleRepository)
 	// Handlers
 	home.NewHandler(app)
 
@@ -51,4 +54,6 @@ func New(app fiber.Router, deps Deps) {
 		CustomLogger: deps.CustomLogger,
 	})
 	user.NewHandler(apiV1, user.HandlerDeps{Config: deps.Config, UserServices: userService})
+
+	role.NewHandler(apiV1, role.HandlerDeps{Config: deps.Config, RoleServices: roleService})
 }

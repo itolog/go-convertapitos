@@ -1,6 +1,7 @@
 package main
 
 import (
+	"github.com/itolog/go-convertapitos/backend/internal/api/v1/role"
 	"github.com/itolog/go-convertapitos/backend/internal/api/v1/user"
 	"github.com/itolog/go-convertapitos/backend/pkg/environments"
 	"gorm.io/driver/postgres"
@@ -21,7 +22,7 @@ func main() {
 		panic(err)
 	}
 
-	err = db.AutoMigrate(&user.User{}, &user.Account{})
+	err = db.AutoMigrate(&user.User{}, &user.Account{}, &role.Role{})
 	if err != nil {
 		panic(err)
 	}

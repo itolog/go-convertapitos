@@ -12,7 +12,9 @@ type Db struct {
 }
 
 func NewDb(conf *configs.Config) *Db {
-	db, err := gorm.Open(postgres.Open(conf.Db.Dsn), &gorm.Config{})
+	db, err := gorm.Open(postgres.Open(conf.Db.Dsn), &gorm.Config{
+		SkipDefaultTransaction: true,
+	})
 	if err != nil {
 		log.Error().Msg("Error while connecting to database")
 	}

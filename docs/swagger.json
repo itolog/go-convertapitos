@@ -274,6 +274,196 @@
                 }
             }
         },
+        "/role": {
+            "get": {
+                "description": "Returns a list of all users with pagination and sorting options",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Role"
+                ],
+                "summary": "Get all roles",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "default": 10,
+                        "description": "Number of records per page",
+                        "name": "limit",
+                        "in": "query"
+                    },
+                    {
+                        "minimum": 1,
+                        "type": "integer",
+                        "default": 1,
+                        "description": "Page number",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "default": "updated_at",
+                        "description": "Field to order by",
+                        "name": "order_by",
+                        "in": "query"
+                    },
+                    {
+                        "type": "boolean",
+                        "default": false,
+                        "description": "Sort in descending order",
+                        "name": "desc",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful response with list of roles and metadata",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/api.ResponseData"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/definitions/role.Role"
+                                            }
+                                        },
+                                        "meta": {
+                                            "$ref": "#/definitions/api.Meta"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request error",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/api.ResponseError"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "Creates a new user with provided data",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Role"
+                ],
+                "summary": "Create new user",
+                "parameters": [
+                    {
+                        "description": "Role data",
+                        "name": "role",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/role.CreateRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Successfully created user",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/api.ResponseData"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/role.Role"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request error",
+                        "schema": {
+                            "$ref": "#/definitions/api.ResponseError"
+                        }
+                    }
+                }
+            }
+        },
+        "/role/{id}": {
+            "get": {
+                "description": "Returns user data by ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Role"
+                ],
+                "summary": "Get user by ID",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Role ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful response with role data",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/api.ResponseData"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/role.Role"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request error",
+                        "schema": {
+                            "$ref": "#/definitions/api.ResponseError"
+                        }
+                    }
+                }
+            }
+        },
         "/user": {
             "get": {
                 "description": "Returns a list of all users with pagination and sorting options",
@@ -792,6 +982,83 @@
             "type": "object",
             "properties": {
                 "accessToken": {
+                    "type": "string"
+                }
+            }
+        },
+        "role.CreateRequest": {
+            "description": "Request payload for creating a new role",
+            "type": "object",
+            "required": [
+                "name",
+                "permissions"
+            ],
+            "properties": {
+                "name": {
+                    "type": "string",
+                    "maxLength": 70,
+                    "example": "manager"
+                },
+                "permissions": {
+                    "type": "array",
+                    "minItems": 1,
+                    "items": {
+                        "$ref": "#/definitions/role.Permission"
+                    }
+                }
+            }
+        },
+        "role.Permission": {
+            "description": "Permission object with CRUD operations for a specific entity",
+            "type": "object",
+            "required": [
+                "entity"
+            ],
+            "properties": {
+                "create": {
+                    "type": "boolean",
+                    "example": true
+                },
+                "delete": {
+                    "type": "boolean",
+                    "example": false
+                },
+                "entity": {
+                    "type": "string",
+                    "maxLength": 70,
+                    "example": "users"
+                },
+                "read": {
+                    "type": "boolean",
+                    "example": true
+                },
+                "update": {
+                    "type": "boolean",
+                    "example": false
+                }
+            }
+        },
+        "role.Role": {
+            "description": "Role object containing name and associated permissions",
+            "type": "object",
+            "properties": {
+                "createdAt": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string",
+                    "example": "admin"
+                },
+                "permissions": {
+                    "type": "array",
+                    "items": {
+                        "type": "object"
+                    }
+                },
+                "updatedAt": {
                     "type": "string"
                 }
             }

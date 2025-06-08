@@ -83,6 +83,61 @@ definitions:
       accessToken:
         type: string
     type: object
+  role.CreateRequest:
+    description: Request payload for creating a new role
+    properties:
+      name:
+        example: manager
+        maxLength: 70
+        type: string
+      permissions:
+        items:
+          $ref: '#/definitions/role.Permission'
+        minItems: 1
+        type: array
+    required:
+    - name
+    - permissions
+    type: object
+  role.Permission:
+    description: Permission object with CRUD operations for a specific entity
+    properties:
+      create:
+        example: true
+        type: boolean
+      delete:
+        example: false
+        type: boolean
+      entity:
+        example: users
+        maxLength: 70
+        type: string
+      read:
+        example: true
+        type: boolean
+      update:
+        example: false
+        type: boolean
+    required:
+    - entity
+    type: object
+  role.Role:
+    description: Role object containing name and associated permissions
+    properties:
+      createdAt:
+        type: string
+      id:
+        type: string
+      name:
+        example: admin
+        type: string
+      permissions:
+        items:
+          type: object
+        type: array
+      updatedAt:
+        type: string
+    type: object
   user.Account:
     properties:
       accessToken:
@@ -377,6 +432,121 @@ paths:
       summary: User registration
       tags:
       - Auth
+  /role:
+    get:
+      consumes:
+      - application/json
+      description: Returns a list of all users with pagination and sorting options
+      parameters:
+      - default: 10
+        description: Number of records per page
+        in: query
+        name: limit
+        type: integer
+      - default: 1
+        description: Page number
+        in: query
+        minimum: 1
+        name: page
+        type: integer
+      - default: updated_at
+        description: Field to order by
+        in: query
+        name: order_by
+        type: string
+      - default: false
+        description: Sort in descending order
+        in: query
+        name: desc
+        type: boolean
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successful response with list of roles and metadata
+          schema:
+            allOf:
+            - $ref: '#/definitions/api.ResponseData'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/role.Role'
+                  type: array
+                meta:
+                  $ref: '#/definitions/api.Meta'
+              type: object
+        "400":
+          description: Bad request error
+          schema:
+            allOf:
+            - $ref: '#/definitions/api.ResponseError'
+            - properties:
+                error:
+                  type: string
+              type: object
+      summary: Get all roles
+      tags:
+      - Role
+    post:
+      consumes:
+      - application/json
+      description: Creates a new user with provided data
+      parameters:
+      - description: Role data
+        in: body
+        name: role
+        required: true
+        schema:
+          $ref: '#/definitions/role.CreateRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Successfully created user
+          schema:
+            allOf:
+            - $ref: '#/definitions/api.ResponseData'
+            - properties:
+                data:
+                  $ref: '#/definitions/role.Role'
+              type: object
+        "400":
+          description: Bad request error
+          schema:
+            $ref: '#/definitions/api.ResponseError'
+      summary: Create new user
+      tags:
+      - Role
+  /role/{id}:
+    get:
+      consumes:
+      - application/json
+      description: Returns user data by ID
+      parameters:
+      - description: Role ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successful response with role data
+          schema:
+            allOf:
+            - $ref: '#/definitions/api.ResponseData'
+            - properties:
+                data:
+                  $ref: '#/definitions/role.Role'
+              type: object
+        "400":
+          description: Bad request error
+          schema:
+            $ref: '#/definitions/api.ResponseError'
+      summary: Get user by ID
+      tags:
+      - Role
   /user:
     get:
       consumes:
