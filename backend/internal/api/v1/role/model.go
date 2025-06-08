@@ -54,5 +54,5 @@ func (p *PermissionsList) Scan(value interface{}) error {
 type Role struct {
 	db.Model
 	Name        string          `json:"name" gorm:"uniqueIndex" example:"admin"`
-	Permissions PermissionsList `json:"permissions" gorm:"type:jsonb" swaggertype:"array,object"`
+	Permissions PermissionsList `json:"permissions" gorm:"type:jsonb"`
 }

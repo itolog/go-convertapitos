@@ -18,3 +18,13 @@ type FindAllResponse struct {
 	Items []Role
 	Count *int64
 }
+
+type OptionsResponse struct {
+	Id   string `json:"id"`
+	Name string `json:"name"`
+}
+
+type FindAllOptionsResponse struct {
+	Items []OptionsResponse
+	Count *int64
+}

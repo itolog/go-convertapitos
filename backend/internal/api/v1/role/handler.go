@@ -30,6 +30,7 @@ func NewHandler(app fiber.Router, deps HandlerDeps) {
 	}
 
 	router.Get("/", handler.GetAllRoles)
+	router.Get("/options", handler.GetForOptions)
 	router.Get("/:id", handler.GetRoleById)
 	router.Post("/", handler.CreateRole)
 }
@@ -67,6 +68,53 @@ func (h *Handler) GetAllRoles(ctx *fiber.Ctx) error {
 	offset := (page - 1) * limit
 
 	roles, err := h.RoleServices.FindAll(limit, offset, orderBy, desc)
+	if err != nil {
+		return fiber.NewError(fiber.StatusBadRequest, err.Error())
+	}
+
+	return ctx.Status(fiber.StatusOK).JSON(api.Response{
+		Data: roles.Items,
+		Meta: &api.Meta{
+			Items: *roles.Count,
+			Pages: int(math.Ceil(float64(*roles.Count) / float64(limit))),
+		},
+		Status: api.StatusSuccess,
+	})
+}
+
+// GetForOptions godoc
+//
+//	@Summary		Get all roles
+//	@Description	Returns a list of all users with pagination and sorting options
+//	@Tags			Role
+//	@Accept			json
+//	@Produce		json
+//	@Param			limit		query		int											false	"Number of records per page"	default(10)
+//	@Param			page		query		int											false	"Page number"					default(1)	minimum(1)
+//	@Param			order_by	query		string										false	"Field to order by"				default(updated_at)
+//	@Param			desc		query		boolean										false	"Sort in descending order"		default(false)
+//	@Success		200			{object}	api.ResponseData{data=[]OptionsResponse,meta=api.Meta}	"Successful response with list of roles and metadata"
+//	@Failure		400			{object}	api.ResponseError{error=string}				"Bad request error"
+//	@Router			/role/options [get]
+func (h *Handler) GetForOptions(ctx *fiber.Ctx) error {
+	limit, err := strconv.Atoi(ctx.Query("limit", "10"))
+	if err != nil {
+		return fiber.NewError(fiber.StatusBadRequest, fmt.Sprintf("Invalid limit: %s", api.ErrMustBeANumber))
+	}
+	page, err := strconv.Atoi(ctx.Query("page", "1"))
+	if err != nil {
+		return fiber.NewError(fiber.StatusBadRequest, fmt.Sprintf("Invalid page: %s", api.ErrMustBeANumber))
+	}
+	if page < 1 {
+		return fiber.NewError(fiber.StatusBadRequest, "page must be greater than 0")
+	}
+
+	desc := ctx.QueryBool("desc", true)
+	orderBy := ctx.Query("order_by", "updated_at")
+
+	offset := (page - 1) * limit
+
+	roles, err := h.RoleServices.GetForOptions(limit, offset, orderBy, desc)
 	if err != nil {
 		return fiber.NewError(fiber.StatusBadRequest, err.Error())
 	}

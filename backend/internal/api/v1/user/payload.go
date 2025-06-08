@@ -6,6 +6,7 @@ type CreateRequest struct {
 	VerifiedEmail bool   `json:"verifiedEmail" validate:"boolean"`
 	Password      string `json:"password" validate:"required,min=6,max=128"`
 	Picture       string `json:"picture"`
+	RoleID        string `json:"roleId" validate:"required,min=1"`
 }
 
 type UpdateRequest struct {
@@ -14,7 +15,7 @@ type UpdateRequest struct {
 	VerifiedEmail bool       `json:"verifiedEmail" validate:"omitempty,boolean"`
 	Password      string     `json:"password" validate:"omitempty,min=6,max=128"`
 	Picture       string     `json:"picture"`
-	Role          RoleType   `json:"role" validate:"omitempty"`
+	RoleID        string     `json:"roleId" validate:"required,min=1"`
 	AuthMethod    AuthMethod `json:"authMethod"`
 }
 

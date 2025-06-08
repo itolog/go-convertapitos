@@ -62,7 +62,7 @@ func (repo *Repository) FindAll(limit int, offset int, orderBy string, order str
 
 func (repo *Repository) FindById(id string) (*User, error) {
 	user := new(User)
-	res := repo.Database.DB.First(user, "id = ?", id)
+	res := repo.Database.DB.Preload(clause.Associations).First(user, "id = ?", id)
 
 	if res.Error != nil {
 		return nil, res.Error
@@ -73,7 +73,7 @@ func (repo *Repository) FindById(id string) (*User, error) {
 
 func (repo *Repository) FindByEmail(email string) (*User, error) {
 	user := new(User)
-	res := repo.Database.DB.First(user, "email = ?", email)
+	res := repo.Database.DB.Preload(clause.Associations).First(user, "email = ?", email)
 
 	if res.Error != nil {
 		return nil, res.Error
@@ -96,6 +96,7 @@ func (repo *Repository) Update(user *User) (*User, error) {
 	selectFields := getSelectFields(user)
 
 	res := repo.Database.DB.Clauses(clause.Returning{}).
+		Preload(clause.Associations).
 		Select(selectFields).
 		Updates(user).Omit("password")
 

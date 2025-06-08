@@ -1,5 +1,7 @@
 <script setup lang="ts">
-import type { SelectOption } from "@/components/forms/EditUser/components/FormSelect/types.ts";
+import { watchEffect } from "vue";
+import { toast } from "vue-sonner";
+
 import {
   FormControl,
   FormField,
@@ -14,22 +16,31 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { useGetRolesOptions } from "@/services/api/roles/useGetRolesOptions.ts";
 
-const { label, name, options } = defineProps({
+const { label, name } = defineProps({
   label: String,
   name: {
     type: String,
     required: true,
   },
-  options: {
-    type: Array<SelectOption>,
-    required: true,
-  },
+});
+
+const { data: roleData, error: roleError } = useGetRolesOptions({
+  page: 1,
+  itemsPerPage: 25,
+});
+
+watchEffect(() => {
+  if (roleError.value?.message) {
+    toast.error(roleError.value.message);
+  }
 });
 </script>
 
 <template>
   <FormField v-slot="{ componentField }" :name="name">
+    {{ roleData?.data?.data }}
     <FormItem>
       <FormLabel v-if="label">{{ label }}</FormLabel>
       <Select v-bind="componentField">
@@ -41,11 +52,11 @@ const { label, name, options } = defineProps({
         <SelectContent>
           <SelectGroup>
             <SelectItem
-              v-for="option of options"
-              :key="option.value"
-              :value="option.value"
+              v-for="option of roleData?.data"
+              :key="option.id"
+              :value="option.id"
             >
-              {{ option.label }}
+              {{ option.name }}
             </SelectItem>
           </SelectGroup>
         </SelectContent>

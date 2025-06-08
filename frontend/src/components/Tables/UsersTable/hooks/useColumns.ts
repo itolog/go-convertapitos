@@ -153,6 +153,20 @@ export const useColumns = () => {
     }),
     columnHelper.accessor("role", {
       header: ({ column }) => headerColumn(column, "Role"),
+      cell: ({ getValue, column }) => {
+        const value = getValue();
+
+        return h(
+          "div",
+          {
+            class: `text-left break-all whitespace-normal line-clamp-2`,
+            style: {
+              width: `${column.getSize()}px`,
+            },
+          },
+          value?.name,
+        );
+      },
     }),
     columnHelper.display({
       id: "actions",

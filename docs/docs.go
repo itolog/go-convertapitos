@@ -421,6 +421,96 @@ const docTemplate = `{
                 }
             }
         },
+        "/role/options": {
+            "get": {
+                "description": "Returns a list of all users with pagination and sorting options",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Role"
+                ],
+                "summary": "Get all roles",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "default": 10,
+                        "description": "Number of records per page",
+                        "name": "limit",
+                        "in": "query"
+                    },
+                    {
+                        "minimum": 1,
+                        "type": "integer",
+                        "default": 1,
+                        "description": "Page number",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "default": "updated_at",
+                        "description": "Field to order by",
+                        "name": "order_by",
+                        "in": "query"
+                    },
+                    {
+                        "type": "boolean",
+                        "default": false,
+                        "description": "Sort in descending order",
+                        "name": "desc",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful response with list of roles and metadata",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/api.ResponseData"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/definitions/role.OptionsResponse"
+                                            }
+                                        },
+                                        "meta": {
+                                            "$ref": "#/definitions/api.Meta"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request error",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/api.ResponseError"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
         "/role/{id}": {
             "get": {
                 "description": "Returns user data by ID",
@@ -1015,6 +1105,17 @@ const docTemplate = `{
                 }
             }
         },
+        "role.OptionsResponse": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                }
+            }
+        },
         "role.Permission": {
             "description": "Permission object with CRUD operations for a specific entity",
             "type": "object",
@@ -1062,7 +1163,7 @@ const docTemplate = `{
                 "permissions": {
                     "type": "array",
                     "items": {
-                        "type": "object"
+                        "$ref": "#/definitions/role.Permission"
                     }
                 },
                 "updatedAt": {
@@ -1135,7 +1236,8 @@ const docTemplate = `{
             "required": [
                 "email",
                 "name",
-                "password"
+                "password",
+                "roleId"
             ],
             "properties": {
                 "email": {
@@ -1153,26 +1255,20 @@ const docTemplate = `{
                 "picture": {
                     "type": "string"
                 },
+                "roleId": {
+                    "type": "string",
+                    "minLength": 1
+                },
                 "verifiedEmail": {
                     "type": "boolean"
                 }
             }
         },
-        "user.RoleType": {
-            "type": "string",
-            "enum": [
-                "regular",
-                "admin",
-                "superUser"
-            ],
-            "x-enum-varnames": [
-                "Regular",
-                "Admin",
-                "SuperUser"
-            ]
-        },
         "user.UpdateRequest": {
             "type": "object",
+            "required": [
+                "roleId"
+            ],
             "properties": {
                 "authMethod": {
                     "$ref": "#/definitions/user.AuthMethod"
@@ -1192,8 +1288,9 @@ const docTemplate = `{
                 "picture": {
                     "type": "string"
                 },
-                "role": {
-                    "$ref": "#/definitions/user.RoleType"
+                "roleId": {
+                    "type": "string",
+                    "minLength": 1
                 },
                 "verifiedEmail": {
                     "type": "boolean"
@@ -1231,7 +1328,10 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "role": {
-                    "$ref": "#/definitions/user.RoleType"
+                    "$ref": "#/definitions/role.Role"
+                },
+                "roleId": {
+                    "type": "string"
                 },
                 "updatedAt": {
                     "type": "string"

@@ -88,7 +88,7 @@ func (service *Service) Update(id string, payload *UpdateRequest) (*User, error)
 		VerifiedEmail: payload.VerifiedEmail,
 		Picture:       payload.Picture,
 		Password:      payload.Password,
-		Role:          payload.Role,
+		RoleID:        payload.RoleID,
 		AuthMethod:    payload.AuthMethod,
 	})
 

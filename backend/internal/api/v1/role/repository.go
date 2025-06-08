@@ -9,7 +9,10 @@ import (
 
 const tableName = "roles"
 
-type IRepository = database.ICrud[Role]
+type IRepository interface {
+	database.ICrud[Role]
+	GetForOptions(limit int, offset int, orderBy string, order string) ([]OptionsResponse, error)
+}
 
 type Repository struct {
 	Database *db.Db
@@ -34,7 +37,24 @@ func (repo *Repository) FindAll(limit int, offset int, orderBy string, order str
 
 	res := repo.Database.DB.
 		Table(tableName).
-		Preload(clause.Associations).
+		Order(fmt.Sprintf("%s %s", orderBy, order)).
+		Limit(limit).
+		Offset(offset).
+		Find(&roles)
+
+	if res.Error != nil {
+		return nil, res.Error
+	}
+
+	return roles, nil
+}
+
+func (repo *Repository) GetForOptions(limit int, offset int, orderBy string, order string) ([]OptionsResponse, error) {
+	var roles []OptionsResponse
+
+	res := repo.Database.DB.
+		Table(tableName).
+		Omit("Permissions").
 		Order(fmt.Sprintf("%s %s", orderBy, order)).
 		Limit(limit).
 		Offset(offset).

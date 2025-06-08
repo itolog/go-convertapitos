@@ -53,7 +53,11 @@ func New(app fiber.Router, deps Deps) {
 		UserService:  userService,
 		CustomLogger: deps.CustomLogger,
 	})
-	user.NewHandler(apiV1, user.HandlerDeps{Config: deps.Config, UserServices: userService})
+	user.NewHandler(apiV1, user.HandlerDeps{
+		Config:       deps.Config,
+		UserServices: userService,
+		RoleService:  roleService,
+	})
 
 	role.NewHandler(apiV1, role.HandlerDeps{Config: deps.Config, RoleServices: roleService})
 }

@@ -99,6 +99,13 @@ definitions:
     - name
     - permissions
     type: object
+  role.OptionsResponse:
+    properties:
+      id:
+        type: string
+      name:
+        type: string
+    type: object
   role.Permission:
     description: Permission object with CRUD operations for a specific entity
     properties:
@@ -133,7 +140,7 @@ definitions:
         type: string
       permissions:
         items:
-          type: object
+          $ref: '#/definitions/role.Permission'
         type: array
       updatedAt:
         type: string
@@ -192,23 +199,17 @@ definitions:
         type: string
       picture:
         type: string
+      roleId:
+        minLength: 1
+        type: string
       verifiedEmail:
         type: boolean
     required:
     - email
     - name
     - password
+    - roleId
     type: object
-  user.RoleType:
-    enum:
-    - regular
-    - admin
-    - superUser
-    type: string
-    x-enum-varnames:
-    - Regular
-    - Admin
-    - SuperUser
   user.UpdateRequest:
     properties:
       authMethod:
@@ -224,10 +225,13 @@ definitions:
         type: string
       picture:
         type: string
-      role:
-        $ref: '#/definitions/user.RoleType'
+      roleId:
+        minLength: 1
+        type: string
       verifiedEmail:
         type: boolean
+    required:
+    - roleId
     type: object
   user.User:
     properties:
@@ -250,7 +254,9 @@ definitions:
       picture:
         type: string
       role:
-        $ref: '#/definitions/user.RoleType'
+        $ref: '#/definitions/role.Role'
+      roleId:
+        type: string
       updatedAt:
         type: string
       verifiedEmail:
@@ -545,6 +551,61 @@ paths:
           schema:
             $ref: '#/definitions/api.ResponseError'
       summary: Get user by ID
+      tags:
+      - Role
+  /role/options:
+    get:
+      consumes:
+      - application/json
+      description: Returns a list of all users with pagination and sorting options
+      parameters:
+      - default: 10
+        description: Number of records per page
+        in: query
+        name: limit
+        type: integer
+      - default: 1
+        description: Page number
+        in: query
+        minimum: 1
+        name: page
+        type: integer
+      - default: updated_at
+        description: Field to order by
+        in: query
+        name: order_by
+        type: string
+      - default: false
+        description: Sort in descending order
+        in: query
+        name: desc
+        type: boolean
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successful response with list of roles and metadata
+          schema:
+            allOf:
+            - $ref: '#/definitions/api.ResponseData'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/role.OptionsResponse'
+                  type: array
+                meta:
+                  $ref: '#/definitions/api.Meta'
+              type: object
+        "400":
+          description: Bad request error
+          schema:
+            allOf:
+            - $ref: '#/definitions/api.ResponseError'
+            - properties:
+                error:
+                  type: string
+              type: object
+      summary: Get all roles
       tags:
       - Role
   /user:

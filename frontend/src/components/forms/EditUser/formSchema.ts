@@ -6,6 +6,6 @@ export const formSchema = toTypedSchema(
     email: z.string().email().min(1),
     name: z.string().min(1).max(70),
     verifiedEmail: z.boolean(),
-    role: z.string().min(1),
+    roleId: z.string().min(1),
   }),
 );

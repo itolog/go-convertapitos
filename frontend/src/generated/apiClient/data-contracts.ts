@@ -96,7 +96,15 @@ export interface UserUpdateRequest {
   password?: string;
   picture?: string;
   verifiedEmail?: boolean;
-  role?: string;
+  roleId?: string;
+}
+
+export interface Permissions {
+  create: boolean;
+  delete: boolean;
+  entity: string;
+  read: boolean;
+  update: boolean;
 }
 
 export interface UserUser {
@@ -108,7 +116,14 @@ export interface UserUser {
   picture?: string;
   updatedAt?: string;
   verifiedEmail?: boolean;
-  role?: string;
+  role: {
+    createdAt: string;
+    id: string;
+    name: string;
+    permissions: Permissions[];
+    updatedAt: string;
+  };
+  roleId: "string";
 }
 
 export interface ValidationErrorFields {

@@ -6,11 +6,9 @@ import { useRouter } from "vue-router";
 import { toast } from "vue-sonner";
 
 import FormInput from "@/components/Inputs/FormInput/FormInput.vue";
-import FormSelect from "@/components/forms/EditUser/components/FormSelect/FormSelect.vue";
-import {
-  rolesOptions,
-  selectOptions,
-} from "@/components/forms/EditUser/data.ts";
+import FormRoleSelect from "@/components/Inputs/FormRoleSelect/FormRoleSelect.vue";
+import FormSelect from "@/components/Inputs/FormSelect/FormSelect.vue";
+import { selectOptions } from "@/components/forms/EditUser/data";
 import { formSchema } from "@/components/forms/EditUser/formSchema";
 import { Button } from "@/components/ui/button";
 import { editUser } from "@/services/api/users/editUser.ts";
@@ -35,7 +33,7 @@ const { isFieldDirty, handleSubmit, isSubmitting, setValues } = useForm({
     name: "",
     email: "",
     verifiedEmail: false,
-    role: "regular",
+    roleId: "",
   },
 });
 
@@ -49,7 +47,7 @@ watchEffect(() => {
       name: data.value.name,
       email: data.value.email,
       verifiedEmail: data.value.verifiedEmail,
-      role: data.value.role,
+      roleId: data.value.role.id,
     });
   }
 });
@@ -87,7 +85,7 @@ const onSubmit = handleSubmit(async (values) => {
             name="verifiedEmail"
           />
 
-          <FormSelect label="Role" :options="rolesOptions" name="role" />
+          <FormRoleSelect label="Role" name="roleId" />
         </div>
       </div>
 

@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/gofiber/fiber/v2"
 	"github.com/itolog/go-convertapitos/backend/configs"
+	"github.com/itolog/go-convertapitos/backend/internal/api/v1/role"
 	"github.com/itolog/go-convertapitos/backend/middleware"
 	"github.com/itolog/go-convertapitos/backend/pkg/api"
 	"github.com/itolog/go-convertapitos/backend/pkg/req"
@@ -15,12 +16,14 @@ import (
 type HandlerDeps struct {
 	*configs.Config
 	UserServices IUserService
+	RoleService  role.IRoleService
 }
 
 // Handler for user requests
 type Handler struct {
 	*configs.Config
 	UserServices IUserService
+	RoleServices role.IRoleService
 }
 
 func NewHandler(app fiber.Router, deps HandlerDeps) {
@@ -29,6 +32,7 @@ func NewHandler(app fiber.Router, deps HandlerDeps) {
 	handler := Handler{
 		Config:       deps.Config,
 		UserServices: deps.UserServices,
+		RoleServices: deps.RoleService,
 	}
 
 	router.Get("/", handler.GetAllUsers)
@@ -160,12 +164,29 @@ func (h *Handler) CreateUser(ctx *fiber.Ctx) error {
 		})
 	}
 
+	if payload.RoleID != "" {
+		roleExists, err := h.RoleServices.FindById(payload.RoleID)
+		if err != nil {
+			return fiber.NewError(fiber.StatusInternalServerError, "Failed to check role existence")
+		}
+		if roleExists == nil {
+			return ctx.Status(fiber.StatusBadRequest).JSON(api.Response{
+				Error: &api.ErrorResponse{
+					Message: "Role not found",
+					Code:    fiber.StatusBadRequest,
+				},
+				Status: api.StatusError,
+			})
+		}
+	}
+
 	user := User{
 		Name:          payload.Name,
 		Email:         payload.Email,
 		VerifiedEmail: payload.VerifiedEmail,
 		Picture:       payload.Picture,
 		Password:      payload.Password,
+		RoleID:        payload.RoleID,
 	}
 
 	created, err := h.UserServices.Create(user)
