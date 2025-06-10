@@ -2,24 +2,6 @@
 
 A web application for converting API specifications with a Vue.js frontend and Go backend.
 
-## Tech Stack
-
-### Backend
-- **Go 1.24.3** - main programming language
-- **PostgreSQL** - database
-- **Air** - hot reload for development
-- **Swagger** - API documentation
-
-### Frontend
-- **Vue.js 3.5.16** - main framework
-- **TypeScript 5.8.3** - type safety
-- **Vite 6.3.5** - build tool
-- **TailwindCSS 4.1.8** - styling
-- **Pinia 3.0.3** - state management
-- **Vue Router 4.5.1** - routing
-- **TanStack Query** - data fetching
-- **Vee-Validate + Zod** - form validation
-
 ## Requirements
 
 - **Go** 1.24+ 
@@ -44,14 +26,17 @@ cp .env.example .env
 ### Option 1: With Docker (recommended)
 
 # Start development environment with hot reload
+```bash
 make docker-up-dev
-
+```
 # Stop containers
+```bash
 make docker-stop-dev
-
+```
 # Remove containers completely
+```bash
 make docker-down-dev
-
+```
 After startup:
 - **API**: [http://localhost:3000](http://localhost:3000)
 - **Frontend**: [http://localhost:5173](http://localhost:5173)
@@ -60,16 +45,19 @@ After startup:
 ### Option 2: Local setup
 
 # Install dependencies
+```bash
 go mod download
-
+```
 # Run migrations (requires PostgreSQL)
+```bash
 make migrations-auto
-
+```
 # Start with hot reload
+```bash
 make watch
-
+```
 # Or regular start
-make run
+make
 
 #### Frontend
 cd frontend
@@ -77,47 +65,63 @@ rm -rf node_modules package-lock.json
 npm install
 
 # Start dev server
+```bash
 npm run dev
-
+```
 ## Production Mode
 ### Docker (recommended)
 
 # Build frontend and start production containers
+```bash
 make docker-up-with-frontend
-
+```
 # Or start without rebuilding frontend
+```bash
 make docker-up
-
+```
 # Apply migrations in production
+```bash
 make docker-migrations-prod
-
+```
 # Stop
+```bash
 make docker-stop
-
+```
 # Complete cleanup
+```bash
 make docker-down
-
+```
 ### Manual build
 
 # Build frontend
+```bash
 make frontend-build
-
+```
 # Build backend
+```bash
 make build
-
+```
 # Apply migrations
+```bash
 make migrations-auto-prod
-
+```
 # Start production server
+```bash
 make run-prod
-
+```
 ## Useful Commands
 # Hot reload with air
+```bash
 make watch
-
+```
+or
+```bash
+make
+```
 # Run with garbage collector flags
+```bash
 make run-gcf
-
+```
 # Frontend linting
 cd frontend && npm run lint
 
@@ -126,11 +130,13 @@ cd frontend && npm run format
 
 ### Development
 # Hot reload with air
+```bash
 make watch
-
+```
 # Run with garbage collector flags
+```bash
 make run-gcf
-
+```
 # Frontend linting
 cd frontend && npm run lint
 
@@ -139,62 +145,55 @@ cd frontend && npm run format
 
 ### Database
 # Migrations for development
+```bash
 make migrations-auto
-
+```
 # Migrations for production
+```bash
 make migrations-auto-prod
-
+```
 # Migrations in Docker dev
+```bash
 make docker-migrations-dev
-
+```
 # Migrations in Docker prod
+```bash
 make docker-migrations-prod
-
+```
 ### Swagger documentation
 # Initialize Swagger
+```bash
 make swagger-init
-
+```
 # Format Swagger
+```bash
 make swagger-fmt
-
+```
 ### Frontend
 cd frontend
 rm -rf node_modules package-lock.json
 npm install
 
 # Generate API types from Swagger
+```bash
 npm run gen-api-types
-
+```
 # Check dependency updates
+```bash
 npm run check-deps
-
+```
 # Update dependencies
+```bash
 npm run up-deps
-
+```
 # Build for production
+```bash
 npm run build
-
+```
 # Preview build
+```bash
 npm run preview
-
-## Project Structure
-
-go-convertapitos/
-├── backend/           # Go backend application
-│   ├── cmd/          # Application entry point
-│   ├── internal/     # Internal logic
-│   └── migrations/   # Database migrations
-├── frontend/         # Vue.js frontend
-│   ├── src/         # Source code
-│   ├── public/      # Static files
-│   └── dist/        # Build output (generated)
-├── docs/            # Documentation
-├── public/          # Shared static files
-├── postgres-data/   # PostgreSQL data (Docker)
-├── Dockerfile       # Production image
-├── compose.yaml     # Production Docker Compose
-├── compose.dev.yaml # Development Docker Compose
-└── Makefile        # Automation commands
+```
 
 ## API Documentation
 After starting the application, Swagger documentation is available at:
@@ -203,14 +202,6 @@ After starting the application, Swagger documentation is available at:
 
 ## Environment Variables
 Main environment variables (see ): `.env.example`
-
-APP_ENV=development          # development/production
-PORT=3000                   # API server port
-DB_HOST=localhost           # Database host
-DB_PORT=5432               # Database port
-DB_NAME=convertapitos      # Database name
-DB_USER=postgres           # Database user
-DB_PASSWORD=password       # Database password
 
 ## Troubleshooting
 ### Database issues
@@ -227,19 +218,3 @@ npm install
 ### Go modules issues
 go clean -modcache
 go mod download
-
-## License
-[Specify project license]
-## Contact
-[Specify contact information]
-The documentation is now in English and includes:
-
-1. **Complete tech stack description** based on package.json and go.mod analysis
-2. **Detailed development instructions** using Docker and without it
-3. **Production deployment** with Docker
-4. **All Makefile commands** with explanations
-5. **Project structure**
-6. **Troubleshooting section** for common issues
-7. **Environment variables setup**
-
-The documentation is ready to use and can be supplemented with license and contact information as needed.
