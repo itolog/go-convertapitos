@@ -8,15 +8,16 @@ services:
       dockerfile: Dockerfile
     environment:
       APP_ENV: production
-    ports:
-      - "${PORT}:${PORT}"
     env_file:
       - .env
+    expose:
+      - "${PORT}"
     depends_on:
       postgres:
         condition: service_healthy
     networks:
       - app-network
+      - web
     command: ["/app/server"]
 
   postgres:
@@ -47,3 +48,5 @@ volumes:
 
 networks:
   app-network:
+  web:
+    external: true
