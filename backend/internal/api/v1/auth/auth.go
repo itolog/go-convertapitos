@@ -1,7 +1,6 @@
 package auth
 
 import (
-	"fmt"
 	"github.com/gofiber/fiber/v2"
 	"github.com/itolog/go-convertapitos/backend/configs"
 	"github.com/itolog/go-convertapitos/backend/internal/api/v1/user"
@@ -19,7 +18,8 @@ func NewAuthHandler(app fiber.Router, deps Deps) {
 	router := app.Group("/auth")
 	authorizationService, err := authorization.NewAuthorization()
 	if err != nil {
-		deps.CustomLogger.Error().Msg(fmt.Sprintf("Authorization Service %v", err.Error()))
+		deps.CustomLogger.Fatal().Err(err).Msg("Failed to initialize authorization service")
+		return
 	}
 
 	authService := NewService(ServiceDeps{
