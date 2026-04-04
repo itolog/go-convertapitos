@@ -18,7 +18,7 @@ services:
       - app-network
 
   postgres:
-    image: postgres:latest
+    image: postgres:17
     container_name: postgres_dev
     environment:
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
